@@ -20,7 +20,7 @@
     }
   };
 
-  Scene_Map.prototype.showDirectionPanel = function() {
+  Scene_Map.prototype.showDirectionPanel = function(picture) {
     if (this._directionPanelWindow) return;
     $gamePlayer._directionPanelActive = true;
 
@@ -34,7 +34,7 @@
     panelWindow.contentsOpacity = 255;
     panelWindow.setBackgroundType(2);
 
-    const sprite = new Sprite(ImageManager.loadPicture('PanneauIleBaleine'));
+    const sprite = new Sprite(ImageManager.loadPicture(picture));
     sprite.anchor.x = 0.5;
     sprite.anchor.y = 0.5;
 
@@ -74,5 +74,12 @@
   Game_Player.prototype.canMove = function() {
     if (this._directionPanelActive) return false;
     return alias_canMove.call(this);
+  };
+
+  
+  const alias_isMenuEnabled = Scene_Map.prototype.isMenuEnabled;
+  Scene_Map.prototype.isMenuEnabled = function() {
+    if ($gamePlayer._directionPanelActive) return false;
+    return alias_isMenuEnabled.call(this);
   };
 })();
