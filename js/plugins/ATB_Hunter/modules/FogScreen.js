@@ -6,6 +6,7 @@ const fogConfigs = {
   19: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 300, restrictedVision: true, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false },
   24: { name: "Fog1", speedX: 1.2, speedY: -0.8, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: true },
   33: { name: null, speedX: 1.2, speedY: -0.8, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  34: { name: null, speedX: 1.2, speedY: -0.8, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 170 },
   36: { name: "Fog1", speedX: 1.2, speedY: -0.8, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
   37: { name: "Fog1", speedX: 1.2, speedY: -0.8, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
   38: { name: "Fog1", speedX: 1.2, speedY: -0.8, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
