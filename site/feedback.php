@@ -49,39 +49,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8">
   <title>Feedback sur le jeu</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 40px; }
-    form { background: white; padding: 20px; border-radius: 8px; max-width: 600px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
-    button { padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    button:hover { background: #218838; }
-    .msg { text-align: center; margin-bottom: 20px; }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <?php if (!empty($success)): ?>
-  <div class="msg" style="color: green;">✅ Feedback enregistré avec succès !</div>
+  <div class="msg success">✅ Feedback enregistré avec succès !</div>
 <?php elseif (!empty($error)): ?>
-  <div class="msg" style="color: red;">❌ <?= htmlspecialchars($error) ?></div>
+  <div class="msg error">❌ <?= htmlspecialchars($error) ?></div>
 <?php endif; ?>
-
-<form method="post" enctype="multipart/form-data">
+<div class="container">
   <h2>Envoyer un feedback sur le jeu</h2>
-  <label>Contact :</label>
-  <input type="text" name="contact" required>
+  <form method="post" enctype="multipart/form-data">
+    <label>Contact :</label>
+    <input type="text" name="contact" required>
 
-  <label>Titre :</label>
-  <input type="text" name="title" required>
+    <label>Titre :</label>
+    <input type="text" name="title" required>
 
-  <label>Message :</label>
-  <textarea name="description" rows="6" required></textarea>
+    <label>Message :</label>
+    <textarea name="description" rows="6" required></textarea>
 
-  <label>Pièces jointes (PNG ou JPEG) :</label>
-  <input type="file" name="attachments[]" accept="image/png,image/jpeg" multiple>
+    <label>Pièces jointes (PNG ou JPEG) :</label>
+    <input type="file" name="attachments[]" accept="image/png,image/jpeg" multiple>
 
-  <button type="submit">Envoyer le feedback</button>
-</form>
-
+    <button type="submit" class="btn btn-green">Envoyer le feedback</button>
+  </form>
+</div>
 </body>
 </html>
