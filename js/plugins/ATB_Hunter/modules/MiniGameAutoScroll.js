@@ -260,6 +260,7 @@ let messagesConfig = {
   }
 }
 const MESSAGE_HEIGHT = 168;
+
 function Sprite_CustomMessage() {
   Sprite.call(this);
   this._duration = 0;
@@ -371,7 +372,7 @@ function checkMessagesToShow(playerY) {
   }
 }
 
-function isControlDisabled() {
+function isMiniGameAutoScrollActive() {
   if(!$gameMap){
     return false;
   }
@@ -381,13 +382,13 @@ function isControlDisabled() {
 // === Désactivation des contrôles ===
 const _Game_Player_canMove = Game_Player.prototype.canMove;
 Game_Player.prototype.canMove = function () {
-  if (isControlDisabled()) return false;
+  if (isMiniGameAutoScrollActive()) return false;
   return _Game_Player_canMove.call(this);
 };
 
 const _Game_Temp_setDestination = Game_Temp.prototype.setDestination;
 Game_Temp.prototype.setDestination = function(x, y) {
-  if (isControlDisabled()) return;
+  if (isMiniGameAutoScrollActive()) return;
   _Game_Temp_setDestination.call(this, x, y);
 };
 
@@ -442,7 +443,7 @@ Game_Player.prototype.updateDirectionBar = function() {
 const _Game_CharacterBase_screenX = Game_CharacterBase.prototype.screenX;
 Game_CharacterBase.prototype.screenX = function() {
   const base = _Game_CharacterBase_screenX.call(this);
-  if (this === $gamePlayer && isControlDisabled()) {
+  if (this === $gamePlayer && isMiniGameAutoScrollActive()) {
     return base + $gamePlayer._directionOffsetX;
   }
   return base;
@@ -457,7 +458,7 @@ let miniGameHitCooldown = 0;
 const _Scene_Map_createAllWindows = Scene_Map.prototype.createAllWindows;
 Scene_Map.prototype.createAllWindows = function() {
   _Scene_Map_createAllWindows.call(this);
-  if (isControlDisabled()) {
+  if (isMiniGameAutoScrollActive()) {
     this.createMiniGameHUD();
   }
 
@@ -511,7 +512,7 @@ const _Game_Player_update_MiniGame = Game_Player.prototype.update;
 Game_Player.prototype.update = function(sceneActive) {
   _Game_Player_update_MiniGame.call(this, sceneActive);
 
-  if (isControlDisabled()) {
+  if (isMiniGameAutoScrollActive()) {
     this.updateDirectionBar();
 
     activeWaves = activeWaves.filter(event => {

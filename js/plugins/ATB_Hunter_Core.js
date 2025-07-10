@@ -17,6 +17,7 @@
       'ATB_EnemyBars.js',
       'LangText.js',
       'MiniGameAutoScroll.js',
+      'MiniGameAutoScrollPursuit.js',
       'FogScreen.js'
     ];
   

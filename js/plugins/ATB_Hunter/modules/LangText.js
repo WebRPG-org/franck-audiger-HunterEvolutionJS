@@ -211,6 +211,7 @@ Object.defineProperties(TextManager, {
     preemptive      : TextManager.getter('message', 'preemptive'),
     surprise        : TextManager.getter('message', 'surprise'),
     escapeStart     : TextManager.getter('message', 'escapeStart'),
+    escapeSuccess   : TextManager.getter('message', 'escapeSuccess'),
     escapeFailure   : TextManager.getter('message', 'escapeFailure'),
     victory         : TextManager.getter('message', 'victory'),
     defeat          : TextManager.getter('message', 'defeat'),

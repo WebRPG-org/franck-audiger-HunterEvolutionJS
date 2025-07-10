@@ -82,7 +82,6 @@ Window_BattleStatus.prototype.drawAtbGauge = function(actor, x, y, width) {
 };
 
 
-
 var _BL_initialize = Window_BattleLog.prototype.initialize;
 Window_BattleLog.prototype.initialize = function() {
     _BL_initialize.call(this);
@@ -158,4 +157,16 @@ Window_BattleLog.prototype.displayGuardRemain = function(subject) {
 
 Window_BattleLog.prototype.lineDisplayDuration = function() {
     return 360;
+};
+
+Window_ActorCommand.prototype.makeCommandList = function() {
+    if (this._actor) {
+        this.addAttackCommand();
+        this.addSkillCommands();
+        this.addGuardCommand();
+        this.addItemCommand();
+        if(!BattleManager.noEscapeTroop().includes($gameTroop.troop().id)){
+            this.addCommand(TextManager.escape, 'escape', BattleManager.canEscape());
+        }
+    }
 };

@@ -1,0 +1,29 @@
+# === RPG Maker MV PROJECT ===
+# Ignorer les fichiers de cache et de configuration inutiles
+.DS_Store
+Thumbs.db
+*.bak
+*.log
+
+# Ignorer les fichiers temporaires générés par l'éditeur
+Save/
+backup/
+old/
+temp/
+img/pictures/Temp/
+
+
+# === NODE / GITHUB STANDARDS ===
+node_modules/
+.env
+*.env.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.idea/
+.vscode/
+dist/
+build/
+
+site/game/*
+site/desktop/*.7z

@@ -8,11 +8,18 @@ function BattleManager() {
     throw new Error('This is a static class');
 }
 
+
+BattleManager.noEscapeTroop = function(){
+    return [1,8];
+};
+
 BattleManager.setup = function(troopId, canEscape, canLose) {
     this.initMembers();
     this._canEscape = canEscape;
     this._canLose = canLose;
     $gameTroop.setup(troopId);
+    $gameParty.members().forEach(actor => actor.resetAtb());
+    $gameTroop.members().forEach(troop => troop.resetAtb());
     $gameScreen.onBattleStart();
     this.makeEscapeRatio();
 };
@@ -175,11 +182,56 @@ BattleManager.replayBgmAndBgs = function() {
 };
 
 BattleManager.makeEscapeRatio = function() {
-    this._escapeRatio = 0.5 * $gameParty.agility() / $gameTroop.agility();
+
+  const partyMembers = $gameParty.members();
+  const troopMembers = $gameTroop.members();
+
+  const partyAgi = partyMembers.reduce((sum, actor) => sum + actor.agi, 0) / (partyMembers.length || 1);
+  const troopAgi = troopMembers.reduce((sum, enemy) => sum + enemy.agi, 0) / (troopMembers.length || 1);
+
+  const avgPartyAtk = partyMembers.reduce((sum, actor) => sum + actor.atk, 0) / (partyMembers.length || 1);
+  const avgTroopAtk = troopMembers.reduce((sum, enemy) => sum + enemy.atk, 0) / (troopMembers.length || 1);
+  const forceRatio = avgPartyAtk / (avgTroopAtk || 1); // éviter division par 0
+
+  let escapeRatio = (forceRatio/2) * partyAgi / (troopAgi || 1);
+  // Limites
+  escapeRatio = Math.max(0.5, Math.min(0.9, escapeRatio));
+
+  this._escapeRatio = escapeRatio;
 };
 
 BattleManager.isInputting = function() {
     return false;
+};
+
+BattleManager.processEscape = function() {
+    $gameParty.performEscape();
+    console.log("escapeRatio : " + this._escapeRatio);
+    var success = this._preemptive ? true : (Math.random() < this._escapeRatio);
+    this.displayEscapeTrialMessage();
+    if (success) {
+        this.displayEscapeSuccessMessage();
+        this._escaped = true;
+        SoundManager.playEscape();
+        this.processAbort();
+    } else {
+        this.displayEscapeFailureMessage();
+        SoundManager.playMiss();
+        this._escapeRatio += 0.1;
+        var subject = this.getReadyActorsToInput()[this._inputActorsIndex]
+        subject.resetAtb();
+        this._inputActorsIndex++;
+        this._step = "init";
+    }
+    return success;
+};
+
+
+BattleManager.processAbort = function() {
+    this._step = "toClosed";
+    $gameParty.removeBattleStates();
+    this.replayBgmAndBgs();
+    this.endBattle(1);
 };
 
 
@@ -363,6 +415,7 @@ BattleManager.checkAbort = function() {
         SoundManager.playEscape();
         this._escaped = true;
         this.processAbort();
+        return true;
     }
     return false;
 };
@@ -490,12 +543,16 @@ BattleManager.displayDefeatMessage = function() {
     $gameMessage.add(TextManager.defeat.format($gameParty.name()));
 };
 
-BattleManager.displayEscapeSuccessMessage = function() {
+
+BattleManager.displayEscapeTrialMessage = function() {
     $gameMessage.add(TextManager.escapeStart.format($gameParty.name()));
 };
 
+BattleManager.displayEscapeSuccessMessage = function() {
+    $gameMessage.add('\\.' + TextManager.escapeSuccess);
+};
+
 BattleManager.displayEscapeFailureMessage = function() {
-    $gameMessage.add(TextManager.escapeStart.format($gameParty.name()));
     $gameMessage.add('\\.' + TextManager.escapeFailure);
 };
 

@@ -176,6 +176,10 @@ Scene_Battle.prototype.createActorCommandWindow = function() {
     this._actorCommandWindow.setHandler('skill',  this.commandSkill.bind(this));
     this._actorCommandWindow.setHandler('guard',  this.commandGuard.bind(this));
     this._actorCommandWindow.setHandler('item',   this.commandItem.bind(this));
+    console.log("$gameTroop.troop().id; : " + $gameTroop.troop().id);
+    if(!BattleManager.noEscapeTroop().includes($gameTroop.troop().id)){
+        this._actorCommandWindow.setHandler('escape', this.commandEscape.bind(this));
+    }
     this.addWindow(this._actorCommandWindow);
 };
 
@@ -242,7 +246,6 @@ Scene_Battle.prototype.commandFight = function() {
 
 Scene_Battle.prototype.commandEscape = function() {
     BattleManager.processEscape();
-    this.endCommandSelection();
 };
 
 Scene_Battle.prototype.startActorCommandSelection = function() {
