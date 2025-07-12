@@ -27,3 +27,4 @@ build/
 
 site/game/*
 site/desktop/*.7z
+site/android/*.apk
