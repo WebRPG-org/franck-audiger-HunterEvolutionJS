@@ -1,213 +1,186 @@
 /*:
- * @plugindesc QTE Plugin - Reflex sequence with anticipation delay, configurable input phase - v1.8
- *
+ * @plugindesc QTE Plugin with Revised Timing Logic - Waiting/Inputting Cycle - v3.0
  * @author RPG Maker AI
  *
  * @param Success Switch ID
  * @type switch
  * @desc Switch to activate on QTE success
  * @default 10
- *
- * @param QTE Window X
- * @type number
- * @desc X position of the QTE window
- * @default 200
- *
- * @param QTE Window Y
- * @type number
- * @desc Y position of the QTE window
- * @default 200
- *
- * @param Prep Phase Duration
- * @type number
- * @desc Number of frames for preparation phase
- * @default 180
- *
- * @param Input Duration
- * @type number
- * @desc Number of frames for input phase duration
- * @default 30
- *
- * @param Delta between wrong input
- * @type number
- * @desc Number of frames between two input to be considered as an error
- * @default 150
  */
 
 (function() {
   const parameters = PluginManager.parameters("QTE_LakeMaster");
+  const successSwitch = Number(parameters['Success Switch ID'] || 10);
 
-  const prepDuration  = Number(parameters['Prep Phase Duration'] || 180);
-  const inputDuration = Number(parameters['Input Duration']    || 30);
-  const successSwitch = Number(parameters['Success Switch ID']  || 10);
-  const qteWindowX    = Number(parameters['QTE Window X']       || 200);
-  const qteWindowY    = Number(parameters['QTE Window Y']       || 200);
-  const deltaToFail   = Number(parameters['Delta between wrong input'] || 150);
+  const Y_MIN = 25;
+  const Y_MAX = 350;
+  const X_MIN = 400;
+  const X_MAX = 750;
 
-  // --- Window QTE ---
+  function Sprite_QTEButton(letter) {
+    this.initialize(letter);
+  }
+
+  Sprite_QTEButton.prototype = Object.create(Sprite.prototype);
+  Sprite_QTEButton.prototype.constructor = Sprite_QTEButton;
+
+  Sprite_QTEButton.prototype.initialize = function(letter) {
+    Sprite.prototype.initialize.call(this);
+    this._letter = letter;
+    this.bitmap = ImageManager.loadSystem("Button");
+    this._textSprite = new Sprite(new Bitmap(96, 96));
+    this._textSprite.bitmap.fontSize = 36;
+    this._textSprite.bitmap.textColor = "#ffffff";
+    this._textSprite.bitmap.drawText(this._letter.toUpperCase(), 0, 0, 96, 96, 'center');
+    this._textSprite.anchor.x = 0.5;
+    this._textSprite.anchor.y = 0.5;
+    this._textSprite.x = (this._letter === '↑' || this._letter === '↓') ? 5 : 0;
+    this._textSprite.y = 0;
+    this.addChild(this._textSprite);
+    this.anchor.x = 0.5;
+    this.anchor.y = 0.5;
+    this.opacity = 0;
+    this.x = X_MIN + Math.random() * (X_MAX - X_MIN);
+    this.y = Y_MIN + Math.random() * (Y_MAX - Y_MIN);
+    this._life = 0;
+  };
+
+  Sprite_QTEButton.prototype.update = function() {
+    Sprite.prototype.update.call(this);
+    if (this._life < 500) {
+      this.opacity = Math.min(255, this._life * (255 / 500));
+    } else if (this._life >= 500 && this._life <= 600) {
+      this.opacity = 255;
+    } else if (this._life > 600) {
+      this.opacity = Math.max(0, 255 - ((this._life - 600) * (255 / 250)));
+    }
+    this._life++;
+  };
+
+  Sprite_QTEButton.prototype.isFinished = function() {
+    return this._life > 800;
+  }
+
   class QTE_Window extends Window_Base {
     initialize() {
-      super.initialize(qteWindowX, qteWindowY, 340, 180);
+      super.initialize(280, 405, 340, 80);
       this.resetState();
       this.deactivate();
       this.openness = 0;
-      this._cooldownTimer    = deltaToFail;
     }
 
     resetState() {
-      this._sequence         = [];
-      this._pointer          = 0;
-      this._successes        = this._successes || 0;
-      this._failures         = this._failures || 0;
-      this._active           = false;
-      this._phase            = 'idle';
-      this._currentLetter    = '...';
-      this._barMax           = 1;
-      this._barValue         = 0;
-      this._barColor         = 'rgba(0,255,136,0.5)';
-      this._barAlpha         = 0.5;
+      this._successes = this._successes || 0;
+      this._failures = this._failures || 0;
+      this._active = true;
+      this._phase = 'waiting';
+      this._timer = this._nextWait();
+      this._spriteQTE = null;
+      this._currentLetter = '...';
     }
 
-    start() {
-      const prevSuc = this._successes;
-      const prevFail= this._failures;
-      this.resetState();
-      this._successes = prevSuc;
-      this._failures  = prevFail;
-
-      this._sequence = this._generateSequence();
-      this._pointer  = 0;
-      this._active   = true;
-      this._phase    = 'prep';
-      this._barMax   = prepDuration;
-      this._barValue = 0;
-      this._barColor = 'rgba(0,255,136,0.5)';
-      this._barAlpha = 0.5;
-      this._letterRevealTime = Math.floor(prepDuration * (0.4 + Math.random() * 0.4));
-      this._letterRevealed   = false;
-
-      this.refresh();
-      this.activate();
-      this.open();
-    }
-
-    _generateSequence() {
-      const used = ['x','z','c','v','b','q','w','a','s','d','enter','escape','arrowup','arrowdown','arrowleft','arrowright'];
-      const all  = 'abcdefghijklmnopqrstuvwxyz'.split('');
-      const ok   = all.filter(k => !used.includes(k));
-      return Array.from({length:5}, () => ok[Math.floor(Math.random()*ok.length)]);
+    _nextWait() {
+      return 200 + Math.floor(Math.random() * 100);
     }
 
     update() {
       super.update();
       if (!this._active) return;
-      this._cooldownTimer++;
 
-      switch (this._phase) {
-        case 'prep':
-          this._barValue = Math.min(this._barValue + 1, this._barMax);
-          if (!this._letterRevealed && this._barValue >= this._barMax - (this._barMax - this._letterRevealTime)) {
-            this._prepareForLetter();
-            this._letterRevealed = true;
+      if (this._phase === 'waiting') {
+        this._timer--;
+        if (this._timer <= 0) this._startInput();
+      } else if (this._phase === 'inputting') {
+        if (this._spriteQTE) {
+          if(Input._dir8 === this._translateKey(this._spriteQTE._letter)){
+            this._handleSuccess();
+          } else if(Input._dir8 != 0){
+            this._handleFail();
+          } else {
+            this._spriteQTE.update();
+            if (this._spriteQTE.isFinished()) this._handleFail();
           }
-          if (this._barValue >= this._barMax) {
-            this._startInputPhase();
-          }
-          break;
-        case 'input':
-          this._barValue = Math.max(this._barValue - 1, 0);
-          if (this._barValue <= 0) {
-            this._failInput();
-          }
-          break;
+        }
       }
 
       this.refresh();
-    }
-
-    _prepareForLetter() {
-      AudioManager.playSe({name:'Bell3', pan:0, pitch:80, volume:90});
-      this._currentLetter = this._sequence[this._pointer];
-      this.refresh();
-    }
-
-    _startInputPhase() {
-      this._phase    = 'input';
-      this._barMax   = inputDuration;
-      this._barValue = inputDuration;
-      this._barColor = '#009933';
-      this._barAlpha = 1.0;
-      this.refresh();
-    }
-
-    _failInput() {
-      this._cooldownTimer = 0;
-      this._failures++;
-      this._phase         = 'idle';
-      this._currentLetter = '...';
-      AudioManager.playSe({name:'water-splash-Fail', pan:0, pitch:100, volume:90});
-      this.refresh();
-      this._fail();
-    }
-
-    _fail() {
-      this._pointer   = Math.max(0, this._pointer - 1);
-      this._successes = 0;
-      if (this._failures >= 3) {
-        this._active = false;
-        this.close();
-        $gameMessage.add("Échec !");
-        setTimeout(() => SceneManager.goto(Scene_Gameover), 1000);
-      } else {
-        setTimeout(() => this.start(), 300);
-      }
     }
 
     onInput(letter) {
-	  console.log("     : " + this._cooldownTimer + " : " + deltaToFail)
-      if (!this._active || !this._letterRevealed) return;
-      if (letter === this._sequence[this._pointer]) {
-        this._pointer++;
-        this._successes++;
-        if (this._successes >= 5) {
-          this._success();
-        } else {
-          this.start();
-        }
-      } else if (this._cooldownTimer >= deltaToFail) {
-        this._failInput();
+      if (this._phase !== 'inputting') return;
+      if (letter === this._currentLetter) {
+        
+      } else {
       }
     }
 
-    _success() {
-      this._active = false;
-      $gameSwitches.setValue(successSwitch, true);
-      this.close();
+    _translateKey(key) {
+      switch(key){
+        case '↑' : return 8;
+        case '→' : return 6;
+        case '←' : return 4;
+        case '↓' : return 2;
+      }
+    }
+
+    _startInput() {
+      this._phase = 'inputting';
+      const all = '↑↓→←'.split('');
+      const letter = all[Math.floor(Math.random() * all.length)];
+      this._currentLetter = letter;
+      this._timer = 200 + Math.floor(Math.random() * 100);
+      const scene = SceneManager._scene;
+      this._spriteQTE = new Sprite_QTEButton(letter);
+      scene.addChild(this._spriteQTE);
+    }
+
+    _handleSuccess() {
+      this._successes++;
+      AudioManager.playSe({ name: 'Up1', pan: 0, pitch: 100, volume: 90 });
+      this._removeSprite();
+      this._phase = 'waiting';
+      this._timer = this._nextWait();
+      if (this._successes >= 5) {
+        $gameSwitches.setValue(successSwitch, true);
+        this._active = false;
+        this.close();
+      }
+    }
+
+    _handleFail() {
+      this._removeSprite();
+      this._failures++;
+      AudioManager.playSe({name:'water-splash-Fail', pan:0, pitch:100, volume:90});
+      this._successes = 0;
+      if (this._failures >= 3) {
+        this._active = false;
+        //$gameMessage.add("Échec !");
+        setTimeout(() => SceneManager.goto(Scene_Gameover), 1000);
+      } else {
+        this._phase = 'waiting';
+        this._timer = this._nextWait();
+      }
+    }
+
+    _removeSprite() {
+      if (this._spriteQTE && this._spriteQTE.parent) this._spriteQTE.parent.removeChild(this._spriteQTE);
+      this._spriteQTE = null;
+      this._currentLetter = '...';
     }
 
     refresh() {
       this.contents.clear();
-      this.drawText('Appuie sur: ' + this._currentLetter.toUpperCase(), 0, 0, 300, 'center');
       this._drawProgressBoxes();
-      if (this._phase === 'prep') {
-        this.drawText('Prépare-toi !', 0, 70, 300, 'center');
-      }
-      if (this._phase !== 'idle') {
-        const w = (this._barValue / this._barMax) * 300;
-        this.contents.paintOpacity = this._barAlpha * 255;
-        this.contents.fillRect(10, 100, Math.max(0, Math.min(w, 300)), 10, this._barColor);
-        this.contents.paintOpacity = 255;
-      }
     }
 
     _drawProgressBoxes() {
       const total = 8, boxW = 30, sp = 5, xo = 10;
       for (let i = 0; i < total; i++) {
         const x = xo + i * (boxW + sp);
-        let  col = '#444444';
+        let col = '#444444';
         if (i < 3 && this._failures > (2 - i)) col = '#ff0000';
         if (i >= 3 && (i - 3) < this._successes) col = '#00ff00';
-        this.contents.fillRect(x, 40, boxW, 10, col);
+        this.contents.fillRect(x, 30, boxW, 10, col);
       }
     }
   }
@@ -217,24 +190,25 @@
     _Scene_Map_createAllWindows.call(this);
     this._qteWindow = new QTE_Window();
     this.addWindow(this._qteWindow);
+    this._qteWindow._active = false;
+    this._qteWindow.close();
   };
 
   const _Scene_Map_update = Scene_Map.prototype.update;
   Scene_Map.prototype.update = function() {
-    if (this._qteWindow && this._qteWindow._active) Input.clear();
     _Scene_Map_update.call(this);
   };
 
   Scene_Map.prototype.startQTE = function() {
-    this._qteWindow.start();
+    this._qteWindow.resetState();
+    this._qteWindow.open();
+    this._qteWindow.activate();
   };
 
-  document.addEventListener("keydown", event => {
-    const scene = SceneManager._scene;
-    if (!scene || !scene._qteWindow || !scene._qteWindow._active || !scene._qteWindow._letterRevealed) return;
-    const key = event.key.toLowerCase();
-    event.preventDefault();
-    scene._qteWindow.onInput(key);
-  });
+  window.startQTE = function() {
+    if (SceneManager._scene instanceof Scene_Map && SceneManager._scene._qteWindow) {
+      SceneManager._scene.startQTE();
+    }
+  };
 
 })();
