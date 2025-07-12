@@ -17,14 +17,15 @@
   const X_MIN = 400;
   const X_MAX = 750;
 
-  function Sprite_QTEButton(letter) {
+  function Sprite_QTEButton(letter, useTouch) {
+    this._useTouch = useTouch;
     this.initialize(letter);
   }
 
   Sprite_QTEButton.prototype = Object.create(Sprite.prototype);
   Sprite_QTEButton.prototype.constructor = Sprite_QTEButton;
 
-  Sprite_QTEButton.prototype.initialize = function(letter) {
+  Sprite_QTEButton.prototype.initialize = function(letter, useTouch) {
     Sprite.prototype.initialize.call(this);
     this._letter = letter;
     this.bitmap = ImageManager.loadSystem("Button");
@@ -36,7 +37,7 @@
     this._textSprite.anchor.y = 0.5;
     this._textSprite.x = (this._letter === '↑' || this._letter === '↓') ? 5 : 0;
     this._textSprite.y = 0;
-    this.addChild(this._textSprite);
+    if (!useTouch) this.addChild(this._textSprite);
     this.anchor.x = 0.5;
     this.anchor.y = 0.5;
     this.opacity = 0;
@@ -46,6 +47,20 @@
   };
 
   Sprite_QTEButton.prototype.update = function() {
+    if (this._useTouch && TouchInput.isTriggered()) {
+      const tx = TouchInput.x;
+      const ty = TouchInput.y;
+      if (tx >= this.x - this.width / 2 && tx <= this.x + this.width / 2 &&
+          ty >= this.y - this.height / 2 && ty <= this.y + this.height / 2) {
+        if (SceneManager._scene && SceneManager._scene._qteWindow) {
+          SceneManager._scene._qteWindow._handleSuccess();
+        }
+      } else {
+        if (SceneManager._scene && SceneManager._scene._qteWindow) {
+          SceneManager._scene._qteWindow._handleFail();
+        }
+      }
+    }
     Sprite.prototype.update.call(this);
     if (this._life < 500) {
       this.opacity = Math.min(255, this._life * (255 / 500));
@@ -92,14 +107,32 @@
         if (this._timer <= 0) this._startInput();
       } else if (this._phase === 'inputting') {
         if (this._spriteQTE) {
-          if(Input._dir8 === this._translateKey(this._spriteQTE._letter)){
-            this._handleSuccess();
-          } else if(Input._dir8 != 0){
-            this._handleFail();
-          } else {
-            this._spriteQTE.update();
-            if (this._spriteQTE.isFinished()) this._handleFail();
+          if (TouchInput.isTriggered()){
+            this._useTouchMode = true;
+          } else if (Input.isTriggered('up') || Input.isTriggered('down') ||
+                     Input.isTriggered('left') || Input.isTriggered('right')) {
+            this._useTouchMode = false;
           }
+          if (!this._useTouchMode) {
+            if(Input._dir8 === this._translateKey(this._spriteQTE._letter)){
+              this._handleSuccess();
+            } else if(Input._dir8 != 0){
+              this._handleFail();
+            } else {
+              this._spriteQTE.update();
+              if (this._spriteQTE.isFinished()) this._handleFail();
+            }
+          } else if (TouchInput.isTriggered()) {
+            const tx = TouchInput.x;
+            const ty = TouchInput.y;
+            const sprite = this._spriteQTE;
+            if (sprite && tx >= sprite.x - sprite.width / 2 && tx <= sprite.x + sprite.width / 2 &&
+                ty >= sprite.y - sprite.height / 2 && ty <= sprite.y + sprite.height / 2) {
+              this._handleSuccess();
+            } else {
+              this._handleFail();
+            }
+          } 
         }
       }
 
@@ -130,7 +163,8 @@
       this._currentLetter = letter;
       this._timer = 200 + Math.floor(Math.random() * 100);
       const scene = SceneManager._scene;
-      this._spriteQTE = new Sprite_QTEButton(letter);
+      this._useTouchMode = false;
+      this._spriteQTE = new Sprite_QTEButton(letter, this._useTouchMode);
       scene.addChild(this._spriteQTE);
     }
 
