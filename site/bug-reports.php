@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="UTF-8">
   <title>Rapport de bug</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="icon.png" type="image/png">
 </head>
 <body>
 <?php if (!empty($success)): ?>

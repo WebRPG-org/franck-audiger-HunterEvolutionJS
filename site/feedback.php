@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="UTF-8">
   <title>Feedback sur le jeu</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="icon.png" type="image/png">
 </head>
 <body>
 <?php if (!empty($success)): ?>
