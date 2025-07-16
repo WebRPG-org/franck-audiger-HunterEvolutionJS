@@ -40,13 +40,14 @@
     }
   }
 
+  let useTouchMode = false;
+
 
   const parameters = PluginManager.parameters("QTE_LakeMaster");
   const successSwitch = Number(parameters['Success Switch ID'] || 10);
 
 
-  function Sprite_QTEButton(letter, difficulty, useTouch, yMin, yMax, xMin, xMax) {
-    this._useTouch = useTouch;
+  function Sprite_QTEButton(letter, difficulty, yMin, yMax, xMin, xMax) {
     this._yMin = yMin || 25;
     this._yMax = yMax || 350;
     this._xMin = xMin || 400;
@@ -70,7 +71,7 @@
     this._textSprite.anchor.y = 0.5;
     this._textSprite.x = (this._letter === '↑' || this._letter === '↓') ? 5 : 0;
     this._textSprite.y = 0;
-    if (!this._useTouch) this.addChild(this._textSprite);
+    if (!useTouchMode) this.addChild(this._textSprite);
     this.anchor.x = 0.5;
     this.anchor.y = 0.5;
     this.opacity = 0;
@@ -80,12 +81,12 @@
   };
 
   Sprite_QTEButton.prototype.update = function() {
-    if (!this._useTouch) {
-      this.addChild(this._textSprite);
-    } else {
+    if (useTouchMode) {
       this.removeChild(this._textSprite);
+    } else {
+      this.addChild(this._textSprite);
     }
-    if (this._useTouch && TouchInput.isTriggered()) {
+    if (useTouchMode && TouchInput.isTriggered()) {
       const tx = TouchInput.x;
       const ty = TouchInput.y;
       if (tx >= this.x - this.width / 2 && tx <= this.x + this.width / 2 &&
@@ -153,19 +154,12 @@
         if (this._timer <= 0) this._startInput();
       } else if (this._phase === 'inputting') {
         if (this._spriteQTE) {
-          if (TouchInput.isTriggered()){
-            this._useTouchMode = true;
-          } else if (Input.isTriggered('up') || Input.isTriggered('down') ||
-                     Input.isTriggered('left') || Input.isTriggered('right')) {
-            this._useTouchMode = false;
-          }
-          if (!this._useTouchMode) {
+          if (!useTouchMode) {
             if(Input._dir8 === this._translateKey(this._spriteQTE._letter)){
               this._handleSuccess();
             } else if(Input._dir8 != 0){
               this._handleFail();
             } else {
-              this._spriteQTE._useTouch = this._useTouchMode
               this._spriteQTE.update();
               if (this._spriteQTE.isFinished()) this._handleFail();
             }
@@ -210,7 +204,7 @@
       this._currentLetter = letter;
       this._timer = 200 + Math.floor(Math.random() * 100);
       const scene = SceneManager._scene;
-      this._spriteQTE = new Sprite_QTEButton(letter, this._difficulty, this._useTouchMode, this._yMin, this._yMax, this._xMin, this._xMax);
+      this._spriteQTE = new Sprite_QTEButton(letter, this._difficulty, this._yMin, this._yMax, this._xMin, this._xMax);
       scene.addChild(this._spriteQTE);
     }
 
@@ -271,6 +265,7 @@
   const _Scene_Map_createAllWindows = Scene_Map.prototype.createAllWindows;
   Scene_Map.prototype.createAllWindows = function() {
     _Scene_Map_createAllWindows.call(this);
+    console.log("created QTE window");
     this._qteWindow = new QTE_Window();
     this.addWindow(this._qteWindow);
     this._qteWindow._active = false;
@@ -291,39 +286,39 @@
   const _TouchInput_onTouchEnd = TouchInput._onTouchEnd;
   TouchInput._onTouchEnd = function(event) {
     _TouchInput_onTouchEnd.call(this, event);
-    if(SceneManager._scene._qteWindow){
-      SceneManager._scene._qteWindow._useTouchMode = true;
-    }
+    useTouchMode = true;
+    console.log("useTouchMode true : " + useTouchMode);
   };
 
   const _TouchInput_onLeftButtonDown = TouchInput._onLeftButtonDown;
   TouchInput._onLeftButtonDown = function(event) {
     _TouchInput_onLeftButtonDown.call(this, event);
-    if(SceneManager._scene && SceneManager._scene._qteWindow){
-      SceneManager._scene._qteWindow._useTouchMode = true;
-    }
+    console.log("useTouchMode true : " + useTouchMode);
+    useTouchMode = true;
   };
 
   const _Input_onKeyDown = Input._onKeyDown;
   Input._onKeyDown = function(event) {
     _Input_onKeyDown.call(this, event);
-    if(SceneManager._scene._qteWindow){
-      SceneManager._scene._qteWindow._useTouchMode = false;
-    }
+    useTouchMode = false;
   };
   
   const _Graphics_onKeyDown = Graphics._onKeyDown;
   Graphics._onKeyDown = function(event) {
     _Graphics_onKeyDown.call(this, event);
-    if(SceneManager._scene._qteWindow){
-      SceneManager._scene._qteWindow._useTouchMode = false;
-    }
+    useTouchMode = false;
   };
 
   window.startQTE = function(difficulty) {
     if (SceneManager._scene instanceof Scene_Map && SceneManager._scene._qteWindow) {
       SceneManager._scene.startQTE(difficulty, yMin, yMax, xMin, xMax);
     }
+  };
+  
+  const alias_canMove2 = Game_Player.prototype.canMove;
+  Game_Player.prototype.canMove = function() {
+    if (SceneManager._scene && SceneManager._scene._qteWindow && SceneManager._scene._qteWindow._active) return false;
+    return alias_canMove2.call(this);
   };
 
 })();
