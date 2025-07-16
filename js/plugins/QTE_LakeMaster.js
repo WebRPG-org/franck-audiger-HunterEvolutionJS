@@ -100,8 +100,6 @@
         }
       }
     }
-    
-    console.log("difficulty : " + this._difficulty);
     if (this._life < difficulties[this._difficulty].fullOpacity) {
       this.opacity = Math.min(255, this._life * (255 / difficulties[this._difficulty].fullOpacity));
     } else if (this._life >= difficulties[this._difficulty].fullOpacity && this._life <= difficulties[this._difficulty].fadeOutStart) {
@@ -265,7 +263,6 @@
   const _Scene_Map_createAllWindows = Scene_Map.prototype.createAllWindows;
   Scene_Map.prototype.createAllWindows = function() {
     _Scene_Map_createAllWindows.call(this);
-    console.log("created QTE window");
     this._qteWindow = new QTE_Window();
     this.addWindow(this._qteWindow);
     this._qteWindow._active = false;
@@ -287,13 +284,11 @@
   TouchInput._onTouchEnd = function(event) {
     _TouchInput_onTouchEnd.call(this, event);
     useTouchMode = true;
-    console.log("useTouchMode true : " + useTouchMode);
   };
 
   const _TouchInput_onLeftButtonDown = TouchInput._onLeftButtonDown;
   TouchInput._onLeftButtonDown = function(event) {
     _TouchInput_onLeftButtonDown.call(this, event);
-    console.log("useTouchMode true : " + useTouchMode);
     useTouchMode = true;
   };
 
