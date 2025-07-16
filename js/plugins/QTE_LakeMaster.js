@@ -9,25 +9,58 @@
  */
 
 (function() {
+  const difficulties = {
+    0 : {
+      fullOpacity : 50,
+      fadeOutStart : 150,
+      fadeOutDuration : 100,
+      minimumWaitInterval : 100,
+      randomWaitInterval : 50,
+    },
+    1 : {
+      fullOpacity : 50,
+      fadeOutStart : 100,
+      fadeOutDuration : 75,
+      minimumWaitInterval : 50,
+      randomWaitInterval : 100,
+    },
+    2 : {
+      fullOpacity : 50,
+      fadeOutStart : 75,
+      fadeOutDuration : 50,
+      minimumWaitInterval : 50,
+      randomWaitInterval : 100,
+    },
+    3 : {
+      fullOpacity : 50,
+      fadeOutStart : 50,
+      fadeOutDuration : 50,
+      minimumWaitInterval : 20,
+      randomWaitInterval : 50,
+    }
+  }
+
+
   const parameters = PluginManager.parameters("QTE_LakeMaster");
   const successSwitch = Number(parameters['Success Switch ID'] || 10);
 
-  const Y_MIN = 25;
-  const Y_MAX = 350;
-  const X_MIN = 400;
-  const X_MAX = 750;
 
-  function Sprite_QTEButton(letter, useTouch) {
+  function Sprite_QTEButton(letter, difficulty, useTouch, yMin, yMax, xMin, xMax) {
     this._useTouch = useTouch;
-    this.initialize(letter);
+    this._yMin = yMin || 25;
+    this._yMax = yMax || 350;
+    this._xMin = xMin || 400;
+    this._xMax = xMax || 750;
+    this.initialize(letter, difficulty);
   }
 
   Sprite_QTEButton.prototype = Object.create(Sprite.prototype);
   Sprite_QTEButton.prototype.constructor = Sprite_QTEButton;
 
-  Sprite_QTEButton.prototype.initialize = function(letter) {
+  Sprite_QTEButton.prototype.initialize = function(letter, difficulty) {
     Sprite.prototype.initialize.call(this);
     this._letter = letter;
+    this._difficulty = difficulty || 0;
     this.bitmap = ImageManager.loadSystem("Button");
     this._textSprite = new Sprite(new Bitmap(96, 96));
     this._textSprite.bitmap.fontSize = 36;
@@ -41,8 +74,8 @@
     this.anchor.x = 0.5;
     this.anchor.y = 0.5;
     this.opacity = 0;
-    this.x = X_MIN + Math.random() * (X_MAX - X_MIN);
-    this.y = Y_MIN + Math.random() * (Y_MAX - Y_MIN);
+    this.x = this._xMin + Math.random() * (this._xMax - this._xMin);
+    this.y = this._yMin + Math.random() * (this._yMax - this._yMin);
     this._life = 0;
   };
 
@@ -66,41 +99,49 @@
         }
       }
     }
-    Sprite.prototype.update.call(this);
-    if (this._life < 500) {
-      this.opacity = Math.min(255, this._life * (255 / 500));
-    } else if (this._life >= 500 && this._life <= 600) {
+    
+    console.log("difficulty : " + this._difficulty);
+    if (this._life < difficulties[this._difficulty].fullOpacity) {
+      this.opacity = Math.min(255, this._life * (255 / difficulties[this._difficulty].fullOpacity));
+    } else if (this._life >= difficulties[this._difficulty].fullOpacity && this._life <= difficulties[this._difficulty].fadeOutStart) {
       this.opacity = 255;
-    } else if (this._life > 600) {
-      this.opacity = Math.max(0, 255 - ((this._life - 600) * (255 / 250)));
+    } else if (this._life > difficulties[this._difficulty].fadeOutStart) {
+      this.opacity = Math.max(0, 255 - ((this._life - difficulties[this._difficulty].fadeOutStart) * (255 / difficulties[this._difficulty].fadeOutDuration)));
     }
     this._life++;
+    Sprite.prototype.update.call(this);
   };
 
   Sprite_QTEButton.prototype.isFinished = function() {
-    return this._life > 600 && this.opacity <= 0;
+    return this._life > difficulties[this._difficulty].fadeOutStart && this.opacity <= 0;
   }
 
   class QTE_Window extends Window_Base {
     initialize() {
+      this._difficulty = 0;
       super.initialize(280, 405, 340, 80);
       this.resetState();
       this.deactivate();
       this.openness = 0;
     }
 
-    resetState() {
+    resetState(difficulty, yMin, yMax, xMin, xMax) {
       this._successes = this._successes || 0;
       this._failures = this._failures || 0;
       this._active = true;
       this._phase = 'waiting';
+      this._difficulty = difficulty || 0;
       this._timer = this._nextWait();
       this._spriteQTE = null;
       this._currentLetter = '...';
+      this._yMin = yMin || 25;
+      this._yMax = yMax || 350;
+      this._xMin = xMin || 400;
+      this._xMax = xMax || 750;
     }
 
     _nextWait() {
-      return 100 + Math.floor(Math.random() * 50);
+      return difficulties[this._difficulty].minimumWaitInterval + Math.floor(Math.random() * difficulties[this._difficulty].randomWaitInterval);
     }
 
     update() {
@@ -169,7 +210,7 @@
       this._currentLetter = letter;
       this._timer = 200 + Math.floor(Math.random() * 100);
       const scene = SceneManager._scene;
-      this._spriteQTE = new Sprite_QTEButton(letter, this._useTouchMode);
+      this._spriteQTE = new Sprite_QTEButton(letter, this._difficulty, this._useTouchMode, this._yMin, this._yMax, this._xMin, this._xMax);
       scene.addChild(this._spriteQTE);
     }
 
@@ -182,6 +223,8 @@
       if (this._successes >= 5) {
         $gameSwitches.setValue(successSwitch, true);
         this._active = false;
+        this._successes = 0;
+        this._failures = 0;
         this.close();
       }
     }
@@ -193,6 +236,8 @@
       this._successes = 0;
       if (this._failures >= 3) {
         this._active = false;
+        this._successes = 0;
+        this._failures = 0;
         setTimeout(() => SceneManager.goto(Scene_Gameover), 1000);
       } else {
         this._phase = 'waiting';
@@ -237,8 +282,8 @@
     _Scene_Map_update.call(this);
   };
 
-  Scene_Map.prototype.startQTE = function() {
-    this._qteWindow.resetState();
+  Scene_Map.prototype.startQTE = function(difficulty, yMin, yMax, xMin, xMax) {
+    this._qteWindow.resetState(difficulty, yMin, yMax, xMin, xMax);
     this._qteWindow.open();
     this._qteWindow.activate();
   };
@@ -275,9 +320,9 @@
     }
   };
 
-  window.startQTE = function() {
+  window.startQTE = function(difficulty) {
     if (SceneManager._scene instanceof Scene_Map && SceneManager._scene._qteWindow) {
-      SceneManager._scene.startQTE();
+      SceneManager._scene.startQTE(difficulty, yMin, yMax, xMin, xMax);
     }
   };
 
