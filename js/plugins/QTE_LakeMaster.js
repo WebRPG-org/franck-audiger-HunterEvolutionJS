@@ -25,7 +25,7 @@
   Sprite_QTEButton.prototype = Object.create(Sprite.prototype);
   Sprite_QTEButton.prototype.constructor = Sprite_QTEButton;
 
-  Sprite_QTEButton.prototype.initialize = function(letter, useTouch) {
+  Sprite_QTEButton.prototype.initialize = function(letter) {
     Sprite.prototype.initialize.call(this);
     this._letter = letter;
     this.bitmap = ImageManager.loadSystem("Button");
@@ -37,7 +37,7 @@
     this._textSprite.anchor.y = 0.5;
     this._textSprite.x = (this._letter === '↑' || this._letter === '↓') ? 5 : 0;
     this._textSprite.y = 0;
-    if (!useTouch) this.addChild(this._textSprite);
+    if (!this._useTouch) this.addChild(this._textSprite);
     this.anchor.x = 0.5;
     this.anchor.y = 0.5;
     this.opacity = 0;
@@ -47,6 +47,11 @@
   };
 
   Sprite_QTEButton.prototype.update = function() {
+    if (!this._useTouch) {
+      this.addChild(this._textSprite);
+    } else {
+      this.removeChild(this._textSprite);
+    }
     if (this._useTouch && TouchInput.isTriggered()) {
       const tx = TouchInput.x;
       const ty = TouchInput.y;
@@ -73,7 +78,7 @@
   };
 
   Sprite_QTEButton.prototype.isFinished = function() {
-    return this._life > 800;
+    return this._life > 600 && this.opacity <= 0;
   }
 
   class QTE_Window extends Window_Base {
@@ -95,7 +100,7 @@
     }
 
     _nextWait() {
-      return 200 + Math.floor(Math.random() * 100);
+      return 100 + Math.floor(Math.random() * 50);
     }
 
     update() {
@@ -119,6 +124,7 @@
             } else if(Input._dir8 != 0){
               this._handleFail();
             } else {
+              this._spriteQTE._useTouch = this._useTouchMode
               this._spriteQTE.update();
               if (this._spriteQTE.isFinished()) this._handleFail();
             }
@@ -163,7 +169,6 @@
       this._currentLetter = letter;
       this._timer = 200 + Math.floor(Math.random() * 100);
       const scene = SceneManager._scene;
-      this._useTouchMode = false;
       this._spriteQTE = new Sprite_QTEButton(letter, this._useTouchMode);
       scene.addChild(this._spriteQTE);
     }
@@ -188,7 +193,6 @@
       this._successes = 0;
       if (this._failures >= 3) {
         this._active = false;
-        //$gameMessage.add("Échec !");
         setTimeout(() => SceneManager.goto(Scene_Gameover), 1000);
       } else {
         this._phase = 'waiting';
@@ -237,6 +241,38 @@
     this._qteWindow.resetState();
     this._qteWindow.open();
     this._qteWindow.activate();
+  };
+
+  const _TouchInput_onTouchEnd = TouchInput._onTouchEnd;
+  TouchInput._onTouchEnd = function(event) {
+    _TouchInput_onTouchEnd.call(this, event);
+    if(SceneManager._scene._qteWindow){
+      SceneManager._scene._qteWindow._useTouchMode = true;
+    }
+  };
+
+  const _TouchInput_onLeftButtonDown = TouchInput._onLeftButtonDown;
+  TouchInput._onLeftButtonDown = function(event) {
+    _TouchInput_onLeftButtonDown.call(this, event);
+    if(SceneManager._scene && SceneManager._scene._qteWindow){
+      SceneManager._scene._qteWindow._useTouchMode = true;
+    }
+  };
+
+  const _Input_onKeyDown = Input._onKeyDown;
+  Input._onKeyDown = function(event) {
+    _Input_onKeyDown.call(this, event);
+    if(SceneManager._scene._qteWindow){
+      SceneManager._scene._qteWindow._useTouchMode = false;
+    }
+  };
+  
+  const _Graphics_onKeyDown = Graphics._onKeyDown;
+  Graphics._onKeyDown = function(event) {
+    _Graphics_onKeyDown.call(this, event);
+    if(SceneManager._scene._qteWindow){
+      SceneManager._scene._qteWindow._useTouchMode = false;
+    }
   };
 
   window.startQTE = function() {

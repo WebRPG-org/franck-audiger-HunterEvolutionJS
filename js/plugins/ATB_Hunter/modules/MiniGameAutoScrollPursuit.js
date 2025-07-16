@@ -123,16 +123,24 @@ Game_Player.prototype.update = function(sceneActive) {
         jumping = miniGameAutoScrollPursuitConfigs[$gameMap.mapId()].jump
         canJump = miniGameAutoScrollPursuitConfigs[$gameMap.mapId()].canJump;
       }
+      // === Détection écran tactile ===
+      let touchRight = false;
+      let touchLeft = false;
+      if (TouchInput.isPressed()) {
+        const x = TouchInput.x;
+        const screenMid = Graphics.width / 2;
+        if (x > screenMid) touchRight = true;
+        else touchLeft = true;
+      }
 
-
-      if (Input.isPressed(Input.keyMapper[81])) { // Touche Q
+      if (Input.isPressed(Input.keyMapper[81]) || touchLeft) { // Touche Q
         if (jumping && canJump) {
           this.jump(-2, -2);
           miniGameAutoScrollPursuitConfigs[$gameMap.mapId()].canJump= false; // Désactive le saut après utilisation
         } else if (!jumping) {
           this.moveDiagonally(4, 8);
         }
-      } else if (Input.isPressed(Input.keyMapper[68])) { // Touche D
+      } else if (Input.isPressed(Input.keyMapper[68]) || touchRight) { // Touche D
         if (jumping && canJump) {
           this.jump(2, -2);
           miniGameAutoScrollPursuitConfigs[$gameMap.mapId()].canJump= false; // Désactive le saut après utilisation

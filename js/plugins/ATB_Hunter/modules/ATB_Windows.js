@@ -170,3 +170,131 @@ Window_ActorCommand.prototype.makeCommandList = function() {
         }
     }
 };
+
+
+Window_Gold.prototype.refresh = function() {
+    const x = this.textPadding();
+    const width = this.contents.width - this.textPadding() * 2;
+    this.contents.clear();
+
+    const loyalty = $gameVariables.value(8); 
+    const loyaltyMax = $gameVariables.value(36); 
+    this.drawText(TextManagerEx.t('system.fidelityLabel') + loyalty + "/" + loyaltyMax, x, 0, width, 'left');
+
+    this.drawCurrencyValue(this.value(), this.currencyUnit(), x, this.lineHeight(), width);
+};
+
+Window_Gold.prototype.windowHeight = function() {
+    return this.fittingHeight(2);
+};
+
+
+
+const _Window_Base_drawActorMp = Window_Base.prototype.drawActorMp;
+Window_Base.prototype.drawActorMp = function(actor, x, y, width) {
+    if ($gameVariables.value(37) === 1) {
+        _Window_Base_drawActorMp.call(this, actor, x, y, width);
+    }
+};
+
+
+const _Window_Base_drawActorClass= Window_Base.prototype.drawActorClass;
+Window_Base.prototype.drawActorClass = function(actor, x, y, width) {
+    if ($gameVariables.value(37) === 1) {
+        _Window_Base_drawActorClass.call(this, actor, x, y, width);
+    }
+};
+
+
+Window_Base.prototype.drawActorSimpleStatus = function(actor, x, y, width) {
+    var lineHeight = this.lineHeight();
+    var x2 = x + 180;
+    var width2 = Math.min(200, width - 180 - this.textPadding());
+    this.drawActorName(actor, x, y);
+    this.drawActorLevel(actor, x, y + lineHeight * 1);
+    this.drawActorIcons(actor, x, y + lineHeight * 2);
+    this.drawActorClass(actor, x2, y);
+    this.drawActorHp(actor, x2, y + lineHeight * 1, width2);
+    if ($gameVariables.value(37) === 1) {
+        this.drawActorMp(actor, x2, y + lineHeight * 2, width2);
+    }
+};
+
+
+Window_ActorCommand.prototype.addSkillCommands = function() {
+    var skillTypes = this._actor.addedSkillTypes();
+    skillTypes.sort(function(a, b) {
+        return a - b;
+    });
+    skillTypes.forEach(function(stypeId) {
+        var name = $dataSystem.skillTypes[stypeId];
+        if(name === "Nen"){
+            if ($gameVariables.value(37) === 1) {
+                this.addCommand(name, 'skill', true, stypeId);
+            }
+        } else {
+            this.addCommand(name, 'skill', true, stypeId);
+        }
+    }, this);
+};
+
+
+
+Window_SkillType.prototype.makeCommandList = function() {
+    if (this._actor) {
+        var skillTypes = this._actor.addedSkillTypes();
+        skillTypes.sort(function(a, b) {
+            return a - b;
+        });
+        skillTypes.forEach(function(stypeId) {
+            var name = $dataSystem.skillTypes[stypeId];
+            if(name === "Nen"){
+                if ($gameVariables.value(37) === 1) {
+                    this.addCommand(name, 'skill', true, stypeId);
+                }
+            } else {
+            this.addCommand(name, 'skill', true, stypeId);
+            }
+        }, this);
+    }
+};
+
+
+Window_Status.prototype.drawParameters = function(x, y) {
+    var lineHeight = this.lineHeight();
+    for (var i = 0; i < ($gameVariables.value(37) === 1?6:4); i++) {
+        var paramId = i + 2 + (($gameVariables.value(37) === 0 && i>=2)?2:0);
+        var text = TextManager.param(paramId);
+        var y2 = y + lineHeight * i;
+        this.changeTextColor(this.systemColor());
+        this.drawText(text, x, y2, 160);
+        this.resetTextColor();
+        this.drawText(this._actor.param(paramId), x + 160, y2, 60, 'right');
+    }
+};
+
+
+Window_EquipStatus.prototype.refresh = function() {
+    this.contents.clear();
+    if (this._actor) {
+        this.drawActorName(this._actor, this.textPadding(), 0);
+        for (var i = 0; i < ($gameVariables.value(37) === 1?6:4); i++) {
+            this.drawItem(0, this.lineHeight() * (1 + i), 2 + i + (($gameVariables.value(37) === 0 && i>=2)?2:0));
+        }
+    }
+};
+
+/*
+Window_EquipStatus.prototype.drawParamName = function(x, y, paramId) {
+    this.changeTextColor(this.systemColor());
+    this.drawText(this.convertEscapeCharacters(TextManager.param(paramId)), x, y, 120);
+};
+*/
+
+Window_Base.prototype.drawText = function(text, x, y, maxWidth, align) {
+    if (text && String(text).startsWith('langText')) {
+        text = this.convertEscapeCharacters(text);
+    }
+    this.contents.drawText(text, x, y, maxWidth, this.lineHeight(), align);
+};
+

@@ -409,12 +409,26 @@ Game_Player.prototype.updateDirectionBar = function() {
   if (this._defaultX === 0) this._defaultX = this._x;
   if (this._lastOffsetTileX === undefined) this._lastOffsetTileX = this._x;
 
+  // === Détection clavier ===
   const rightHeld = Input.isPressed('right');
   const leftHeld = Input.isPressed('left');
 
-  if (rightHeld && !leftHeld) {
+  // === Détection écran tactile ===
+  let touchRight = false;
+  let touchLeft = false;
+  if (TouchInput.isPressed()) {
+    const x = TouchInput.x;
+    const screenMid = Graphics.width / 2;
+    if (x > screenMid) touchRight = true;
+    else touchLeft = true;
+  }
+
+  const moveRight = (rightHeld || touchRight);
+  const moveLeft = (leftHeld || touchLeft);
+
+  if (moveRight && !moveLeft) {
     this._directionBar = Math.min(this._directionBar + 2, 150);
-  } else if (leftHeld && !rightHeld) {
+  } else if (moveLeft && !moveRight) {
     this._directionBar = Math.max(this._directionBar - 2, -150);
   } else {
     if (this._directionBar > 0) this._directionBar -= 1;
@@ -595,6 +609,8 @@ Game_Player.prototype.update = function(sceneActive) {
       DataManager.setupNewGame();
       miniGameLives = 3;
       miniGameHitCooldown = 0;
+      messagesShown = {};
+      activeWaves = [];         
       SceneManager.goto(Scene_Gameover);
       
     } else if(timerGameOver > 0){

@@ -85,6 +85,8 @@ Window_Options.prototype.changeValue = function(symbol, value) {
   _Window_Options_changeValue.call(this, symbol, value);
 };
 
+
+
 const _ConfigManager_makeData = ConfigManager.makeData;
 ConfigManager.makeData = function() {
   const config = _ConfigManager_makeData.call(this);
