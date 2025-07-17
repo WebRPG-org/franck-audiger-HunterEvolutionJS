@@ -395,3 +395,25 @@ Scene_Battle.prototype.endCommandSelection = function() {
     this._statusWindow.deselect();
 };
 
+Scene_Title.prototype.createBackground = function() {
+    this._backSprite1 = new Sprite(ImageManager.loadTitle1($dataSystem.title1Name));
+    this._backSprite2 = new Sprite(ImageManager.loadTitle2($dataSystem.title2Name));
+
+    const scaleToFit = sprite => {
+        sprite.bitmap.addLoadListener(() => {
+            const scale = Math.max(
+                Graphics.boxWidth / sprite.bitmap.width,
+                Graphics.boxHeight / sprite.bitmap.height
+            );
+            sprite.scale.x = sprite.scale.y = scale;
+            this.centerSprite(sprite);
+        });
+    };
+
+    scaleToFit(this._backSprite1);
+    scaleToFit(this._backSprite2);
+
+    this.addChild(this._backSprite1);
+    this.addChild(this._backSprite2);
+};
+

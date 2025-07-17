@@ -9,39 +9,8 @@
         <link rel="apple-touch-icon" href="icon/icon.png">
         <link rel="stylesheet" type="text/css" href="fonts/gamefont.css">
         <link rel="stylesheet" href="../style.css">
-        
-        <style>
-            #ui-bar {
-                position: fixed;
-                top: 10px;
-                left: 10px;
-                z-index: 9999;
-                background: rgba(0, 0, 0, 0.6);
-                padding: 5px 10px;
-                border-radius: 6px;
-                font-family: sans-serif;
-            }
-
-            #ui-bar button {
-                color: white;
-                background: #222;
-                border: 1px solid #555;
-                padding: 5px 10px;
-                margin-right: 5px;
-                cursor: pointer;
-                border-radius: 4px;
-            }
-
-            #ui-bar button:hover {
-                background: #444;
-            }
-            
-        </style>
         <title>Hunter x Hunter Evolution</title>
     </head>
-	<div id="ui-bar">
-		<button id="btn-fullscreen">🖵 Plein écran</button>
-	</div>
     <body style="background-color: black">
         <script type="text/javascript" src="js/libs/pixi.js"></script>
         <script type="text/javascript" src="js/libs/pixi-tilemap.js"></script>
@@ -58,23 +27,4 @@
         <script type="text/javascript" src="js/plugins.js"></script>
         <script type="text/javascript" src="js/main.js"></script>
     </body>
- 
-    <script>
-        let stateFullscreen = false;
-
-        document.getElementById("btn-fullscreen").addEventListener("click", () => {
-            window.stateFullscreen = !window.stateFullscreen;
-
-            if (window.stateFullscreen) {
-                const w = window.innerWidth;
-                const h = window.innerHeight;
-                SceneManager.resizeScreen(w, h);
-                document.getElementById("btn-fullscreen").innerText = "🗗 Réduire";
-            } else {
-                SceneManager.resizeScreen(816, 624); // taille initiale par défaut
-                document.getElementById("btn-fullscreen").innerText = "🖵 Plein écran";
-            }
-        });
-        
-    </script>
 </html>
