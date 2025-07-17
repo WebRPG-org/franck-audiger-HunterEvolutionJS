@@ -394,3 +394,4 @@ Scene_Battle.prototype.endCommandSelection = function() {
     this._actorCommandWindow.close();
     this._statusWindow.deselect();
 };
+

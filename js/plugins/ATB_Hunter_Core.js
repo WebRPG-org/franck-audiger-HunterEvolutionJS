@@ -11,6 +11,7 @@
     const files = [
       'ATB_GameBattler.js',
       'ATB_BattleManager.js',
+      'ATB_DataManager.js',
       'ATB_Windows.js',
       'ATB_Object.js',
       'ATB_Scene.js',

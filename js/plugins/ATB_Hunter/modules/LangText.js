@@ -196,6 +196,7 @@ Object.defineProperties(TextManager, {
     cancel          : TextManager.getter('command', 22),
     buy             : TextManager.getter('command', 24),
     sell            : TextManager.getter('command', 25),
+    inputsList      : TextManager.getter('command', 26),
     alwaysDash      : TextManager.getter('message', 'alwaysDash'),
     commandRemember : TextManager.getter('message', 'commandRemember'),
     bgmVolume       : TextManager.getter('message', 'bgmVolume'),

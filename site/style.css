@@ -93,3 +93,20 @@ li {
 .container li a:hover {
   text-decoration: underline;
 }
+
+
+/* Release notes sections */
+.release {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.release h2 {
+  margin-bottom: 5px;
+}
+
+.release ul {
+  list-style: disc;
+  margin-left: 20px;
+  padding-left: 0;
+}

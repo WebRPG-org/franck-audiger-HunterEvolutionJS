@@ -298,3 +298,141 @@ Window_Base.prototype.drawText = function(text, x, y, maxWidth, align) {
     this.contents.drawText(text, x, y, maxWidth, this.lineHeight(), align);
 };
 
+
+
+// === MENU PRINCIPAL ===
+Window_MenuCommand.prototype.makeCommandList = function() {
+    this.addMainCommands();
+    this.addOriginalCommands();
+    this.addOptionsCommand();
+    this.addSaveCommand();
+    this.addGameEndCommand();
+};
+
+Window_MenuCommand.prototype.addOriginalCommands = function() {
+    this.addCommand(TextManager.inputsList, "inputsList", true);
+};
+
+// === SCENE INPUT CONFIG ===
+function Scene_InputConfig() {
+    this.initialize.apply(this, arguments);
+}
+
+Scene_InputConfig.prototype = Object.create(Scene_MenuBase.prototype);
+Scene_InputConfig.prototype.constructor = Scene_InputConfig;
+
+Scene_InputConfig.prototype.initialize = function() {
+    Scene_MenuBase.prototype.initialize.call(this);
+};
+
+Scene_InputConfig.prototype.create = function() {
+    Scene_MenuBase.prototype.create.call(this);
+    this._inputWindow = new Window_InputList(0, 0);
+    this._inputWindow.setHandler('cancel', this.popScene.bind(this));
+    this._inputWindow.x = (Graphics.boxWidth - this._inputWindow.width) / 2;
+    this._inputWindow.y = (Graphics.boxHeight - this._inputWindow.height) / 2;
+    this.addWindow(this._inputWindow);
+};
+
+Scene_InputConfig.prototype.update = function() {
+    Scene_MenuBase.prototype.update.call(this);
+
+    if (Input.isTriggered('cancel') || TouchInput.isCancelled()) {
+        SoundManager.playCancel();
+        this.popScene();
+    }
+};
+
+// === APPEL VIA MENU ===
+const _Scene_Menu_createCommandWindow = Scene_Menu.prototype.createCommandWindow;
+Scene_Menu.prototype.createCommandWindow = function() {
+    _Scene_Menu_createCommandWindow.call(this);
+    this._commandWindow.setHandler('inputsList', this.commandInputConfig.bind(this));
+};
+
+Scene_Menu.prototype.commandInputConfig = function() {
+    SceneManager.push(Scene_InputConfig);
+};
+
+// === WINDOW DE LISTE DES TOUCHES ===
+function Window_InputList() {
+    this.initialize.apply(this, arguments);
+}
+
+const InputLists = {
+    "ok" : {
+        label : 'langText[commandList.ok.key]',
+        value : 'langText[commandList.ok.value]'
+    },
+    "cancel" : {
+        label : 'langText[commandList.cancel.key]',
+        value : 'langText[commandList.cancel.value]'
+    },
+    "run" : { 
+        label : 'langText[commandList.run.key]',
+        value : 'langText[commandList.run.value]'
+    },
+    "left" : {
+        label : 'langText[commandList.left.key]',
+        value : 'langText[commandList.left.value]'
+    },
+    "up" : {   
+        label : 'langText[commandList.up.key]',
+        value : 'langText[commandList.up.value]'
+    },
+    "right" : {
+        label : 'langText[commandList.right.key]',
+        value : 'langText[commandList.right.value]'
+    },
+    "down" : {
+        label : 'langText[commandList.down.key]',
+        value : 'langText[commandList.down.value]'
+    }
+};
+
+Window_InputList.prototype = Object.create(Window_Command.prototype);
+Window_InputList.prototype.constructor = Window_InputList;
+
+Window_InputList.prototype.initialize = function(x, y) {
+    this._inputList = this.buildInputList();
+    Window_Command.prototype.initialize.call(this, x, y);
+    this.select(-1);         // ⛔ pas de sélection active
+    this.deactivate();       // ⛔ pas de contrôle clavier
+};
+
+Window_InputList.prototype.buildInputList = function() {
+    const list = [];
+    const map = InputLists;
+    for (const key in InputLists) {
+        const action = map[key].key;
+        list.push({ name: action, key });
+    }
+    return list;
+};
+
+Window_InputList.prototype.makeCommandList = function() {
+    Object.keys(InputLists).forEach(key => {
+        this.addCommand(InputLists[key].label, null, false, InputLists[key].value); // pas de handler
+    });
+};
+
+Window_InputList.prototype.drawItem = function(index) {
+    const rect = this.itemRect(index);
+    const name = this.commandName(index);
+   // const name = getBeautifyName(this.commandName(index));
+    const key = this._list[index].ext;
+    const half = rect.width / 2;
+
+    this.resetTextColor();
+    console.log("Drawing input: " + name + " with key: " + key);
+    this.drawText(name, rect.x + this.textPadding(), rect.y, half - this.textPadding(), 'left');
+    this.drawText(key, rect.x + half, rect.y, half - this.textPadding(), 'right');
+};
+
+Window_InputList.prototype.windowWidth = function() {
+    return 480;
+};
+
+Window_InputList.prototype.windowHeight = function() {
+    return this.fittingHeight(this._inputList.length);
+};
