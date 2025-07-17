@@ -76,8 +76,10 @@ button.btn {
 }
 
 ul {
-  list-style: none;
-  padding: 0;
+  list-style: disc;
+  padding-left: 20px;
+  margin-left: 0;
+  text-align: left;
 }
 
 li {

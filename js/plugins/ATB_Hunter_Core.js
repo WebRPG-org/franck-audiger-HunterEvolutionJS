@@ -29,5 +29,4 @@
       document.body.appendChild(script);
     });
 
-
-  })();
+})();
