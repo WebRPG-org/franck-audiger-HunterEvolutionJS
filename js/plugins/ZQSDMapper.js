@@ -31,18 +31,13 @@
 
   document.addEventListener('keyup', function(event) {
     if (event.keyCode === 16 && !capsLockActive) { // Shift relâché
-      $gamePlayer._dash = false;
+      $gamePlayer._dashing = false;
     }
   });
 
   const _Game_Player_isDashing = Game_Player.prototype.isDashing;
   Game_Player.prototype.isDashing = function() {
-    if ($gameMap.isDashDisabled()) return false;
-    if (this.canMove()) {
-      return Input.isPressed('shift') || capsLockActive;
-    } else {
-      return false;
-    }
+    return this._dashing || Input.isPressed('shift') || capsLockActive;
   };
 
   Input.update = function() {
