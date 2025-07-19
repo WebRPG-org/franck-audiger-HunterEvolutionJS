@@ -16,4 +16,4 @@ jobs:
     steps:
       - name: Appel du webhook de déploiement
         run: |
-          curl -X GET https://hunter-evolution-game/deploy-dev.php
+          curl -X GET https://hunter-evolution-game.com/deploy-dev.php
