@@ -3,6 +3,7 @@ const miniGameAutoScrollConfigs = {
 };
 
 let activeWaves = [];
+let inactiveWaves = [];
 
 const rockList = [
   // Y de 53 à 43 (tes originaux)
@@ -556,10 +557,20 @@ Game_Player.prototype.update = function(sceneActive) {
   if (isMiniGameAutoScrollActive()) {
     this.updateDirectionBar();
 
-    activeWaves = activeWaves.filter(event => {
+    const newActive = [];
+    activeWaves.forEach(event => {
       const eventY = event._y;
-      const isVisible = eventY <= $gamePlayer._y + 10;
 
+      if (eventY > $gamePlayer._y - 5) {
+        inactiveWaves.push(event);
+        return;
+      }
+      newActive.push(event);
+    });
+    activeWaves = newActive;
+
+    inactiveWaves = inactiveWaves.filter(event => {
+      const isVisible = event._y <= $gamePlayer._y + 30;
       if (!isVisible) {
         const sprite = SceneManager._scene._spriteset._characterSprites.find(s => s._character === event);
         if (sprite) {
@@ -568,7 +579,6 @@ Game_Player.prototype.update = function(sceneActive) {
         delete $gameMap._events[event._eventId];
         return false;
       }
-
       return true;
     });
 
@@ -603,7 +613,7 @@ Game_Player.prototype.update = function(sceneActive) {
     const hitboxHalfWidth = tileW * 0.4;
     const hitboxHalfHeight = tileH * 0.3;
 
-    const hittingWave = activeWaves.some(wave => {
+    const hittingWave = inactiveWaves.some(wave => {
       const wavePixelX = wave._x * tileW + tileW / 2;
       const wavePixelY = wave._realY * tileH + tileH / 2;
 
@@ -637,7 +647,8 @@ Game_Player.prototype.update = function(sceneActive) {
       miniGameLives = 3;
       miniGameHitCooldown = 0;
       messagesShown = {};
-      activeWaves = [];         
+      activeWaves = [];   
+      inactiveWaves = [];      
       SceneManager.goto(Scene_Gameover);
       
     } else if(timerGameOver > 0){
@@ -689,7 +700,7 @@ function spawnRandomWaveEvent(playerX, playerY) {
   if (possibleX.length === 0) return;
 
   const finalX = possibleX[Math.floor(Math.random() * possibleX.length)];
-  const finalY = playerY - 10;
+  const finalY = playerY - 20;
 
   const newEvent = JSON.parse(JSON.stringify(modelEvent));
   const newEventId = $dataMap.events.length;
