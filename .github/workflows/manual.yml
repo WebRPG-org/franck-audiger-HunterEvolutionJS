@@ -1,13 +1,9 @@
 name: Déploiement Dev
 
 on:
-  workflow_dispatch:
-    inputs:
-      triggeredBy:
-        description: 'Déclenché par'
-        required: false
-        default: 'Manuel'
-        type: string
+  push:
+    branches:
+      - main
 
 jobs:
   trigger-webhook:
