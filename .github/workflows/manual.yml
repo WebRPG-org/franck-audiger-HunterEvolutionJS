@@ -1,0 +1,19 @@
+name: Déploiement Dev
+
+on:
+  workflow_dispatch:
+    inputs:
+      triggeredBy:
+        description: 'Déclenché par'
+        required: false
+        default: 'Manuel'
+        type: string
+
+jobs:
+  trigger-webhook:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Appel du webhook de déploiement
+        run: |
+          curl -X GET https://hunter-evolution-game/deploy-dev.php
