@@ -16,28 +16,39 @@ jobs:
       - name: Installer lftp
         run: sudo apt-get update && sudo apt-get install -y lftp
 
-      - name: Déployer les fichiers
+      - name: Test de connexion FTP
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
           FTP_PASS: ${{ secrets.FTP_PASS }}
         run: |
-          lftp -e "
-            set ftp:list-options -a;
-            set ssl:verify-certificate no;
-
-            open -u $FTP_USER,$FTP_PASS $FTP_HOST;
-
-            put -O /domains/hunter-evolution-game.com/public_html/game-dev index.html;
-            put -O /domains/hunter-evolution-game.com/public_html/game-dev icon.png;
-            put -O /domains/hunter-evolution-game.com/public_html/game-dev package.json;
-
-            mirror -R data /domains/hunter-evolution-game.com/public_html/game-dev/data;
-            mirror -R fonts /domains/hunter-evolution-game.com/public_html/game-dev/fonts;
-            mirror -R icon /domains/hunter-evolution-game.com/public_html/game-dev/icon;
-            mirror -R img /domains/hunter-evolution-game.com/public_html/game-dev/img;
-            mirror -R json /domains/hunter-evolution-game.com/public_html/game-dev/json;
-            mirror -R movies /domains/hunter-evolution-game.com/public_html/game-dev/movies;
-
-            bye;
+          lftp -d -e "
+          open -u $FTP_USER,$FTP_PASS $FTP_HOST
+          ls
+          bye
           "
+#      - name: Déployer les fichiers
+#        env:
+#          FTP_HOST: ${{ secrets.FTP_HOST }}
+#          FTP_USER: ${{ secrets.FTP_USER }}
+#          FTP_PASS: ${{ secrets.FTP_PASS }}
+#        run: |
+#          lftp -d -e "
+#            set ftp:list-options -a;
+#            set ssl:verify-certificate no;
+#
+#            open -u $FTP_USER,$FTP_PASS $FTP_HOST;
+#
+#            put -O /domains/hunter-evolution-game.com/public_html/game-dev index.html;
+#            put -O /domains/hunter-evolution-game.com/public_html/game-dev icon.png;
+#            put -O /domains/hunter-evolution-game.com/public_html/game-dev package.json;
+#
+#            mirror -R data /domains/hunter-evolution-game.com/public_html/game-dev/data;
+#            mirror -R fonts /domains/hunter-evolution-game.com/public_html/game-dev/fonts;
+#            mirror -R icon /domains/hunter-evolution-game.com/public_html/game-dev/icon;
+#            mirror -R img /domains/hunter-evolution-game.com/public_html/game-dev/img;
+#            mirror -R json /domains/hunter-evolution-game.com/public_html/game-dev/json;
+#            mirror -R movies /domains/hunter-evolution-game.com/public_html/game-dev/movies;
+#
+#            bye;
+#          "
