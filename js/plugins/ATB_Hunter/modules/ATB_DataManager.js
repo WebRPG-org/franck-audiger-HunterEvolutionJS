@@ -119,3 +119,16 @@ Window_TitleCommand.prototype.makeCommandList = function() {
     }
     this.addCommand(TextManager.options,   'options');
 };
+
+
+// Open Save Screen
+Game_Interpreter.prototype.command352 = function() {
+    if (!$gameParty.inBattle()) {
+        if(StorageManager.isLocalMode()){
+            SceneManager.push(Scene_Save);
+        } else {
+            return DataManager.saveGameWeb();
+        }
+    }
+    return true;
+};

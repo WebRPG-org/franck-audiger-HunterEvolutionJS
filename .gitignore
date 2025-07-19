@@ -26,5 +26,6 @@ dist/
 build/
 
 site/game/*
+site/game-dev/*
 site/desktop/*.7z
 site/android/*.apk

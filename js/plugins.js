@@ -14,5 +14,5 @@ var $plugins =
 {"name":"FullScreenOverlay","status":true,"description":"Affiche une image en plein écran au-dessus de l'écran, en dessous des messages. Utilise showFullscreenOverlay('NomImage') / hideFullscreenOverlay().","parameters":{}},
 {"name":"ATB_Hunter_Core","status":true,"description":"[HUNTERxATB] Plugin central ATB en fichiers séparés - v1.0","parameters":{}},
 {"name":"ES_AdjustScreenSize_Demo","status":true,"description":"v1.0 Demo Adjust the width and height of the game screen and center the window on the screen.","parameters":{"Screen Width":"1632","Screen Height":"1248","Fullscreen":"true"}},
-{"name":"MadeWithMv","status":false,"description":"Show a Splash Screen \"Made with MV\" and/or a Custom Splash Screen before going to main screen.","parameters":{"Show Made With MV":"true","Made with MV Image":"MadeWithMv","Show Custom Splash":"false","Custom Image":"","Fade Out Time":"120","Fade In Time":"120","Wait Time":"160"}}
+{"name":"MadeWithMv","status":true,"description":"Show a Splash Screen \"Made with MV\" and/or a Custom Splash Screen before going to main screen.","parameters":{"Show Made With MV":"true","Made with MV Image":"MadeWithMv","Show Custom Splash":"false","Custom Image":"","Fade Out Time":"120","Fade In Time":"120","Wait Time":"160"}}
 ];
