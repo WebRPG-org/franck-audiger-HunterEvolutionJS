@@ -284,12 +284,6 @@ Window_EquipStatus.prototype.refresh = function() {
     }
 };
 
-/*
-Window_EquipStatus.prototype.drawParamName = function(x, y, paramId) {
-    this.changeTextColor(this.systemColor());
-    this.drawText(this.convertEscapeCharacters(TextManager.param(paramId)), x, y, 120);
-};
-*/
 
 Window_Base.prototype.drawText = function(text, x, y, maxWidth, align) {
     if (text && String(text).startsWith('langText')) {

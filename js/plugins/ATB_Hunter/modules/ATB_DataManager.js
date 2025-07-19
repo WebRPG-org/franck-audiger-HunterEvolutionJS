@@ -119,24 +119,3 @@ Window_TitleCommand.prototype.makeCommandList = function() {
     }
     this.addCommand(TextManager.options,   'options');
 };
-
-const _SceneManager_snapForBackground = SceneManager.snapForBackground;
-SceneManager.snapForBackground = function() {
-    // Supprime temporairement le scale CSS
-    const canvas = Graphics._canvas;
-    const prevTransform = canvas.style.transform;
-    const prevOrigin = canvas.style.transformOrigin;
-
-    canvas.style.transform = '';
-    canvas.style.transformOrigin = '';
-
-    try {
-        _SceneManager_snapForBackground.call(this);
-    } catch (e) {
-        
-    }
-
-    // Restaure l'affichage
-    canvas.style.transform = prevTransform;
-    canvas.style.transformOrigin = prevOrigin;
-};

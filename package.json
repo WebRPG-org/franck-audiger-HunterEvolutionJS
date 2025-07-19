@@ -7,6 +7,6 @@
         "toolbar": false,
         "width": 1632,
         "height": 1248,
-        "icon": "../icon.png"
+        "icon": "icon.png"
     }
 }

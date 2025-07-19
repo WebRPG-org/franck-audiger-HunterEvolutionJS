@@ -5,7 +5,11 @@
  * @param Success Switch ID
  * @type switch
  * @desc Switch to activate on QTE success
- * @default 10
+ * 
+ * @param Active Overlay
+ * @type boolean
+ * @desc Whether to show the overlay during QTE
+ * @default false
  */
 
 (function() {
@@ -40,18 +44,22 @@
     }
   }
 
+  const QTE_WINDOW_WIDTH = 340;
+  const QTE_WINDOW_HEIGHT = 80;
+
   let useTouchMode = false;
 
 
   const parameters = PluginManager.parameters("QTE_LakeMaster");
   const successSwitch = Number(parameters['Success Switch ID'] || 10);
 
+  const activeOverlay = parameters['Active Overlay']==='true' || false;
 
   function Sprite_QTEButton(letter, difficulty, yMin, yMax, xMin, xMax) {
-    this._yMin = yMin || 25;
-    this._yMax = yMax || 350;
-    this._xMin = xMin || 400;
-    this._xMax = xMax || 750;
+    this._yMin = yMin;
+    this._yMax = yMax;
+    this._xMin = xMin;
+    this._xMax = xMax;
     this.initialize(letter, difficulty);
   }
 
@@ -63,20 +71,38 @@
     this._letter = letter;
     this._difficulty = difficulty || 0;
     this.bitmap = ImageManager.loadSystem("Button");
-    this._textSprite = new Sprite(new Bitmap(96, 96));
+    this._textSprite = new Sprite(new Bitmap(50, 50));
     this._textSprite.bitmap.fontSize = 36;
     this._textSprite.bitmap.textColor = "#ffffff";
-    this._textSprite.bitmap.drawText(this._letter.toUpperCase(), 0, 0, 96, 96, 'center');
-    this._textSprite.anchor.x = 0.5;
-    this._textSprite.anchor.y = 0.5;
+    this._textSprite.bitmap.drawText(this._letter.toUpperCase(), 0, 0, 50, 50, 'center');
+    this._textSprite.anchor.x = 0.0;
+    this._textSprite.anchor.y = 0.0;
     this._textSprite.x = (this._letter === '↑' || this._letter === '↓') ? 5 : 0;
     this._textSprite.y = 0;
     if (!useTouchMode) this.addChild(this._textSprite);
-    this.anchor.x = 0.5;
-    this.anchor.y = 0.5;
+    this.anchor.x = 0.0;
+    this.anchor.y = 0.0;
     this.opacity = 0;
-    this.x = this._xMin + Math.random() * (this._xMax - this._xMin);
-    this.y = this._yMin + Math.random() * (this._yMax - this._yMin);
+    
+    const visibleW = $gameMap.tileWidth() * $gameMap.width();
+    const visibleH = $gameMap.tileHeight() * $gameMap.height();
+
+    const w = Math.min(Graphics.boxWidth, visibleW);
+    const h = Math.min(Graphics.boxHeight, visibleH);
+    let dw = Graphics.boxWidth - w;
+    let dh = Graphics.boxHeight - h;
+    if (dw < 0) dw = 0;
+    if (dh < 0) dh = 0;
+
+    const left = dw/2 + this._xMin * $gameMap.tileWidth();
+    const top = dh/2 + this._yMin * $gameMap.tileHeight();
+    const width = (this._xMax*$gameMap.tileWidth() - this._xMin*$gameMap.tileWidth());
+    const height = (this._yMax*$gameMap.tileHeight() - this._yMin*$gameMap.tileHeight());
+    const right = left + width;
+    const bottom = top + height;
+
+    this.x = left + Math.random() * (right - left)
+    this.y = top + Math.random() * (bottom - top)
     this._life = 0;
   };
 
@@ -85,20 +111,6 @@
       this.removeChild(this._textSprite);
     } else {
       this.addChild(this._textSprite);
-    }
-    if (useTouchMode && TouchInput.isTriggered()) {
-      const tx = TouchInput.x;
-      const ty = TouchInput.y;
-      if (tx >= this.x - this.width / 2 && tx <= this.x + this.width / 2 &&
-          ty >= this.y - this.height / 2 && ty <= this.y + this.height / 2) {
-        if (SceneManager._scene && SceneManager._scene._qteWindow) {
-          SceneManager._scene._qteWindow._handleSuccess();
-        }
-      } else {
-        if (SceneManager._scene && SceneManager._scene._qteWindow) {
-          SceneManager._scene._qteWindow._handleFail();
-        }
-      }
     }
     if (this._life < difficulties[this._difficulty].fullOpacity) {
       this.opacity = Math.min(255, this._life * (255 / difficulties[this._difficulty].fullOpacity));
@@ -116,27 +128,48 @@
   }
 
   class QTE_Window extends Window_Base {
-    initialize() {
-      this._difficulty = 0;
-      super.initialize(280, 405, 340, 80);
-      this.resetState();
+    
+    constructor(x, y, yMin, yMax, xMin, xMax, difficulty) {
+      console.log("setup QTE with yMin: " + yMin + ", yMax: " + yMax + ", xMin: " + xMin + ", xMax: " + xMax);
+
+      const visibleW = $gameMap.tileWidth() * $gameMap.width();
+      const visibleH = $gameMap.tileHeight() * $gameMap.height();
+
+      const w = Math.min(Graphics.boxWidth, visibleW);
+      const h = Math.min(Graphics.boxHeight, visibleH);
+      let dw = Graphics.boxWidth - w;
+      let dh = Graphics.boxHeight - h;
+      if (dw < 0) dw = 0;
+      if (dh < 0) dh = 0;
+console.log("x: " + x + ", y: " + y + ", dw: " + dw + ", dh: " + dh);
+      const left = dw/2 + x * $gameMap.tileWidth();
+      const top = dh/2 + y * $gameMap.tileHeight();
+      super();
+      super.initialize(left, top, QTE_WINDOW_WIDTH, QTE_WINDOW_HEIGHT);
       this.deactivate();
       this.openness = 0;
+      this._yMin = yMin;
+      this._yMax = yMax;
+      this._xMin = xMin;
+      this._xMax = xMax;
+      this._difficulty = difficulty || 0;
     }
 
-    resetState(difficulty, yMin, yMax, xMin, xMax) {
+    resetState() {
       this._successes = this._successes || 0;
       this._failures = this._failures || 0;
-      this._active = true;
       this._phase = 'waiting';
-      this._difficulty = difficulty || 0;
       this._timer = this._nextWait();
       this._spriteQTE = null;
       this._currentLetter = '...';
-      this._yMin = yMin || 25;
-      this._yMax = yMax || 350;
-      this._xMin = xMin || 400;
-      this._xMax = xMax || 750;
+      const scene = SceneManager._scene;
+      if (this._overlaySprite) {
+        scene.removeChild(this._overlaySprite);
+        this._overlaySprite = null;
+      }
+      this._overlaySprite = Sprite_QTEOverlay(this._xMin, this._xMax, this._yMin, this._yMax);
+      //if (scene) scene.addChild(this._overlaySprite);
+      if (scene && this._active && activeOverlay) scene.addChild(this._overlaySprite);
     }
 
     _nextWait() {
@@ -157,24 +190,27 @@
               this._handleSuccess();
             } else if(Input._dir8 != 0){
               this._handleFail();
-            } else {
-              this._spriteQTE.update();
-              if (this._spriteQTE.isFinished()) this._handleFail();
             }
           } else if (TouchInput.isTriggered()) {
             const tx = TouchInput.x;
             const ty = TouchInput.y;
-            const sprite = this._spriteQTE;
-            if (sprite && tx >= sprite.x - sprite.width / 2 && tx <= sprite.x + sprite.width / 2 &&
-                ty >= sprite.y - sprite.height / 2 && ty <= sprite.y + sprite.height / 2) {
-              this._handleSuccess();
+            if (tx >= this._spriteQTE.x && tx <= this._spriteQTE.x + this._spriteQTE.width &&
+                ty >= this._spriteQTE.y && ty <= this._spriteQTE.y + this._spriteQTE.height) {
+              if (SceneManager._scene && SceneManager._scene._qteWindow) {
+                SceneManager._scene._qteWindow._handleSuccess();
+              }
             } else {
-              this._handleFail();
+              if (SceneManager._scene && SceneManager._scene._qteWindow) {
+                SceneManager._scene._qteWindow._handleFail();
+              } 
             }
           } 
         }
       }
-
+      if(this._spriteQTE){
+        this._spriteQTE.update();
+        if (this._spriteQTE.isFinished()) this._handleFail();
+      }
       this.refresh();
     }
 
@@ -215,6 +251,12 @@
       if (this._successes >= 5) {
         $gameSwitches.setValue(successSwitch, true);
         this._active = false;
+        if (this._overlaySprite) {
+          const scene = SceneManager._scene;
+          scene.removeChild(this._overlaySprite);
+          scene.removeChild(this);
+          this._overlaySprite = null;
+        }
         this._successes = 0;
         this._failures = 0;
         this.close();
@@ -228,6 +270,12 @@
       this._successes = 0;
       if (this._failures >= 3) {
         this._active = false;
+        if (this._overlaySprite) {
+          const scene = SceneManager._scene;
+          scene.removeChild(this._overlaySprite);
+          scene.removeChild(this);
+          this._overlaySprite = null;
+        }
         this._successes = 0;
         this._failures = 0;
         setTimeout(() => SceneManager.goto(Scene_Gameover), 1000);
@@ -263,10 +311,6 @@
   const _Scene_Map_createAllWindows = Scene_Map.prototype.createAllWindows;
   Scene_Map.prototype.createAllWindows = function() {
     _Scene_Map_createAllWindows.call(this);
-    this._qteWindow = new QTE_Window();
-    this.addWindow(this._qteWindow);
-    this._qteWindow._active = false;
-    this._qteWindow.close();
   };
 
   const _Scene_Map_update = Scene_Map.prototype.update;
@@ -274,8 +318,14 @@
     _Scene_Map_update.call(this);
   };
 
-  Scene_Map.prototype.startQTE = function(difficulty, yMin, yMax, xMin, xMax) {
-    this._qteWindow.resetState(difficulty, yMin, yMax, xMin, xMax);
+  Scene_Map.prototype.startQTE = function(difficulty, yMin, yMax, xMin, xMax, x, y) { 
+    this._qteWindow = new QTE_Window(x, y, yMin, yMax, xMin, xMax, difficulty);
+    const scene = SceneManager._scene;
+    scene.addChild(this._qteWindow);
+    this._qteWindow._active = false;
+    this._qteWindow.close();
+    this._qteWindow._active = true;
+    this._qteWindow.resetState();
     this._qteWindow.open();
     this._qteWindow.activate();
   };
@@ -316,4 +366,34 @@
     return alias_canMove2.call(this);
   };
 
+  function Sprite_QTEOverlay(xMin, xMax, yMin, yMax) {
+    const visibleW = $gameMap.tileWidth() * $gameMap.width();
+    const visibleH = $gameMap.tileHeight() * $gameMap.height();
+
+    const w = Math.min(Graphics.boxWidth, visibleW);
+    const h = Math.min(Graphics.boxHeight, visibleH);
+    let dw = Graphics.boxWidth - w;
+    let dh = Graphics.boxHeight - h;
+    if (dw < 0) dw = 0;
+    if (dh < 0) dh = 0;
+
+    const left = dw/2 + xMin * $gameMap.tileWidth();
+    const top = dh/2 + yMin * $gameMap.tileHeight();
+    const width = (xMax*$gameMap.tileWidth() - xMin*$gameMap.tileWidth())+$gameMap.tileWidth();
+    const height = (yMax*$gameMap.tileHeight() - yMin*$gameMap.tileHeight())+$gameMap.tileWidth();
+    console.log("left: " + left + ", top: " + top + ", width: " + width + ", height: " + height);
+
+    const sprite = new Sprite(new Bitmap(Graphics.boxWidth, Graphics.boxHeight));
+    const bitmap = sprite.bitmap;
+
+    bitmap.fillRect(left, top, width, height, 'rgba(255, 0, 0, 0.3)');
+
+    sprite.anchor.x = 0;
+    sprite.anchor.y = 0;
+    sprite.x = 0;
+    sprite.y = 0;
+
+    return sprite;
+  }
+    
 })();
