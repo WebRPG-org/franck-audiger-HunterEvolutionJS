@@ -90,7 +90,7 @@ function createFogOverlay() {
 
   const bounds = getVisibleMapBounds();
 
-  // === Overlay nuit (noir semi-transparent)
+  // === Overlay nuit
   if (config.nightOverlay) {
     const bitmap = new Bitmap(bounds.width, bounds.height);
     bitmap.fillAll('black');
@@ -100,27 +100,27 @@ function createFogOverlay() {
     sprite.y = bounds.y;
     this._nightOverlay = sprite;
     this._spriteset.addChild(this._nightOverlay);
-  } else {
-    if(this._nightOverlay) {
-      this._spriteset.removeChild(this._nightOverlay);
-      this._nightOverlay = null;
-    }
+  } else if (this._nightOverlay) {
+    this._spriteset.removeChild(this._nightOverlay);
+    this._nightOverlay = null;
   }
 
   // === Fog animé
   if (config.name) {
     const bitmap = ImageManager.loadPicture(config.name);
     this._fogOverlay = new TilingSprite(bitmap);
-    this._fogOverlay.move(bounds.x, bounds.y, bounds.width, bounds.height);
+    const fogBounds = this instanceof Scene_Battle
+      ? { x: 0, y: 0, width: Graphics.boxWidth, height: Graphics.boxHeight }
+      : bounds;
+
+    this._fogOverlay.move(fogBounds.x, fogBounds.y, fogBounds.width, fogBounds.height);
     this._fogOverlay.opacity = config.opacity || 128;
     this._fogOverlay.fogSpeedX = config.speedX || 0;
     this._fogOverlay.fogSpeedY = config.speedY || 0;
     this._spriteset.addChild(this._fogOverlay);
-  } else {
-    if(this._fogOverlay) {
-      this._spriteset.removeChild(this._fogOverlay);
-      this._fogOverlay = null;
-    }
+  } else if (this._fogOverlay) {
+    this._spriteset.removeChild(this._fogOverlay);
+    this._fogOverlay = null;
   }
 }
 
@@ -140,15 +140,38 @@ function updateFogOverlay() {
   const config = fogConfigs[$gameMap.mapId()];
   if (!config) return;
 
-  if (this._nightOverlay) {
-    this._nightOverlay.visible = enable;
-  }
+  const isBattle = SceneManager._scene instanceof Scene_Battle;
+  const bounds = isBattle
+    ? { x: 0, y: 0, width: Graphics.boxWidth, height: Graphics.boxHeight }
+    : getVisibleMapBounds();
 
+  // === Fog
   if (this._fogOverlay) {
     this._fogOverlay.visible = enable;
+    this._fogOverlay.move(bounds.x, bounds.y, bounds.width, bounds.height);
+
     if (enable && config.name) {
       this._fogOverlay.origin.x += this._fogOverlay.fogSpeedX + (($gameMap._displayX - lastDisplayX) * 50);
       this._fogOverlay.origin.y += this._fogOverlay.fogSpeedY;
+    }
+  }
+
+  // === Overlay nuit
+  if (this._nightOverlay) {
+    this._nightOverlay.visible = enable;
+    this._nightOverlay.x = bounds.x;
+    this._nightOverlay.y = bounds.y;
+    if (this._nightOverlay.bitmap) {
+      this._nightOverlay.bitmap.resize(bounds.width, bounds.height);
+    }
+  }
+
+  // === Flash
+  if (this._lightningFlash) {
+    this._lightningFlash.x = bounds.x;
+    this._lightningFlash.y = bounds.y;
+    if (this._lightningFlash.bitmap) {
+      this._lightningFlash.bitmap.resize(bounds.width, bounds.height);
     }
   }
 
@@ -267,7 +290,6 @@ const _Scene_Battle_update = Scene_Battle.prototype.update;
 Scene_Battle.prototype.update = function() {
   _Scene_Battle_update.call(this);
   this.updateFogOverlay();
-  ///this.updateVisionOverlay();
 };
 
 Scene_Map.prototype.createFogOverlay = createFogOverlay;
@@ -296,3 +318,41 @@ function getVisibleMapBounds() {
   const top = dh / 2;
   return { x: left, y: top, width: w, height: h };
 }
+/*
+function resizeFogOverlays(scene) {
+  const bounds = getVisibleMapBounds();
+
+  if (scene._fogOverlay) {
+    z._fogOverlay.move(bounds.x, bounds.y, bounds.width, bounds.height);
+  }
+
+  if (scene._visionOverlay && scene._visionBitmap) {
+    scene._visionOverlay.x = bounds.x;
+    scene._visionOverlay.y = bounds.y;
+    scene._visionBitmap.resize(bounds.width, bounds.height);
+  }
+
+  if (scene._nightOverlay) {
+    scene._nightOverlay.x = bounds.x;
+    scene._nightOverlay.y = bounds.y;
+    scene._nightOverlay.bitmap.resize(bounds.width, bounds.height);
+  }
+
+  if (scene._lightningFlash) {
+    scene._lightningFlash.x = bounds.x;
+    scene._lightningFlash.y = bounds.y;
+    scene._lightningFlash.bitmap.resize(bounds.width, bounds.height);
+  }
+}
+
+const _Scene_Map_start = Scene_Map.prototype.start;
+Scene_Map.prototype.start = function() {
+  _Scene_Map_start.call(this);
+  resizeFogOverlays(this);
+};
+
+const _Scene_Battle_start = Scene_Battle.prototype.start;
+Scene_Battle.prototype.start = function() {
+  _Scene_Battle_start.call(this);
+  resizeFogOverlays(this);
+};*/

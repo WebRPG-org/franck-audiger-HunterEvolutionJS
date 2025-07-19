@@ -112,21 +112,21 @@
         this._battleField.addChild(this._back2Sprite);
     };
 
-Sprite_Actor.prototype.setActorHome = function(index) {
-    const scaleX = Graphics.boxWidth / 816;
-    const scaleY = Graphics.boxHeight / 624;
-    const baseX = (550*scaleX) + index * 32;
-    const baseY = (360*scaleY) + index * 48;
+    Sprite_Actor.prototype.setActorHome = function(index) {
+        const scaleX = Graphics.boxWidth / 816;
+        const scaleY = Graphics.boxHeight / 624;
+        const baseX = (550*scaleX) + index * 32;
+        const baseY = (360*scaleY) + index * 48;
 
 
-    const offsetX = (Graphics.boxWidth - 816) / 2;
+        const offsetX = (Graphics.boxWidth - 816) / 2;
 
-    const finalX = Math.round(baseX);
-    const finalY = Math.round(baseY);
+        const finalX = Math.round(baseX);
+        const finalY = Math.round(baseY);
 
-    this.setHome(finalX, finalY);
-};
-    
+        this.setHome(finalX, finalY);
+    };
+        
     Spriteset_Battle.prototype.createEnemies = function() {
         const scaleX = Graphics.boxWidth / 816;
         const scaleY = Graphics.boxHeight / 624;
@@ -182,194 +182,252 @@ Sprite_Actor.prototype.setActorHome = function(index) {
         return width;
     };
 
+    
+    
+    Scene_Title.prototype.createBackground = function() {
+        this._backSprite1 = new Sprite(ImageManager.loadTitle1($dataSystem.title1Name));
+        this._backSprite2 = new Sprite(ImageManager.loadTitle2($dataSystem.title2Name));
+        const scaleToFit = sprite => {
+            sprite.bitmap.addLoadListener(() => {
+                const scale = Math.max(
+                    Graphics.boxWidth / sprite.bitmap.width,
+                    Graphics.boxHeight / sprite.bitmap.height
+                );
+                sprite.scale.x = sprite.scale.y = scale;
+                this.centerSprite(sprite);
+            });
+        };
+        scaleToFit(this._backSprite1);
+        scaleToFit(this._backSprite2);
+
+        this.addChild(this._backSprite1);
+        this.addChild(this._backSprite2);
+    };
+
+
+    Scene_Gameover.prototype.centerSprite = function(sprite) {
+        sprite.x = (Graphics.boxWidth - sprite.width * sprite.scale.x) / 2;
+        sprite.y = (Graphics.boxHeight - sprite.height * sprite.scale.y) / 2;
+    };
+
+    Scene_Gameover.prototype.createBackground = function() {
+        this._backSprite = new Sprite();
+        this._backSprite.bitmap = ImageManager.loadSystem('GameOver');
+        const scaleToFit = sprite => {
+            sprite.bitmap.addLoadListener(() => {
+                const scale = Math.max(
+                    Graphics.boxWidth / sprite.bitmap.width,
+                    Graphics.boxHeight / sprite.bitmap.height
+                );
+                sprite.scale.x = sprite.scale.y = scale;
+                this.centerSprite(sprite);
+            });
+        };
+        scaleToFit(this._backSprite);
+        this.addChild(this._backSprite);
+    };
+
+    Scene_Title.prototype.createCommandWindow = function() {
+        this._commandWindow = new Window_TitleCommand();
+        this._commandWindow.setHandler('newGame',  this.commandNewGame.bind(this));
+        this._commandWindow.setHandler('continue', this.commandContinue.bind(this));
+        this._commandWindow.setHandler('options',  this.commandOptions.bind(this));
+        this._commandWindow.setHandler('gameEnd',  this.commandQuit.bind(this));
+        this.addWindow(this._commandWindow);
+    };
+
+
+
+    Scene_Title.prototype.commandQuit = function() {
+        if (Utils.isNwjs()) {
+            const nwWin = require('nw.gui').Window.get();
+            nwWin.close();
+        } else {
+            window.location.href = "https://hunter-evolution-game.com/"; 
+        }
+    };
+
     Window_Message.prototype.drawMessageFace = function() {
         const baseX = (Graphics.boxWidth - DEFAULT_WIDTH) / 2;
         this.drawFace($gameMessage.faceName(), $gameMessage.faceIndex(), baseX, 0);
         ImageManager.releaseReservation(this._imageReservationId);
     };
-    
+
     Window_Message.prototype.newLineX = function() {
         const baseX = (Graphics.boxWidth - DEFAULT_WIDTH) / 2;
         return $gameMessage.faceName() === '' ? baseX : baseX+168;
     };
 
-    
-Window_BattleStatus.prototype.drawItem = function(index) {
-    var actor = $gameParty.battleMembers()[index];
-    this.drawBasicArea(this.basicAreaRect(index), actor);
-    this.drawGaugeArea(this.gaugeAreaRect(index), actor);
-};
+        
+    Window_BattleStatus.prototype.drawItem = function(index) {
+        var actor = $gameParty.battleMembers()[index];
+        this.drawBasicArea(this.basicAreaRect(index), actor);
+        this.drawGaugeArea(this.gaugeAreaRect(index), actor);
+    };
 
-Window_BattleStatus.prototype.basicAreaRect = function(index) {
-    var rect = this.itemRectForText(index);
-    rect.width -= this.gaugeAreaWidth() + 15;
-    return rect;
-};
+    Window_BattleStatus.prototype.basicAreaRect = function(index) {
+        var rect = this.itemRectForText(index);
+        rect.width -= this.gaugeAreaWidth() + 15;
+        return rect;
+    };
 
-Window_BattleStatus.prototype.gaugeAreaRect = function(index) {
-    var rect = this.itemRectForText(index);
-    rect.x += rect.width - this.gaugeAreaWidth();
-    rect.width = this.gaugeAreaWidth();
-    return rect;
-};
+    Window_BattleStatus.prototype.gaugeAreaRect = function(index) {
+        var rect = this.itemRectForText(index);
+        rect.x += rect.width - this.gaugeAreaWidth();
+        rect.width = this.gaugeAreaWidth();
+        return rect;
+    };
 
-Window_BattleStatus.prototype.gaugeAreaWidth = function() {
-    return 330+(Graphics.boxWidth - DEFAULT_WIDTH);
-};
+    Window_BattleStatus.prototype.gaugeAreaWidth = function() {
+        return 330+(Graphics.boxWidth - DEFAULT_WIDTH);
+    };
 
-Window_BattleStatus.prototype.drawBasicArea = function(rect, actor) {
-    this.drawActorName(actor, rect.x + 0, rect.y, 150);
-    this.drawActorIcons(actor, rect.x + 156, rect.y, rect.width - 156);
-};
+    Window_BattleStatus.prototype.drawBasicArea = function(rect, actor) {
+        this.drawActorName(actor, rect.x + 0, rect.y, 150);
+        this.drawActorIcons(actor, rect.x + 156, rect.y, rect.width - 156);
+    };
 
-Window_BattleStatus.prototype.drawGaugeArea = function(rect, actor) {
-    if ($dataSystem.optDisplayTp) {
-        this.drawGaugeAreaWithTp(rect, actor);
-    } else {
-        this.drawGaugeAreaWithoutTp(rect, actor);
-    }
-};
+    Window_BattleStatus.prototype.drawGaugeArea = function(rect, actor) {
+        if ($dataSystem.optDisplayTp) {
+            this.drawGaugeAreaWithTp(rect, actor);
+        } else {
+            this.drawGaugeAreaWithoutTp(rect, actor);
+        }
+    };
 
-Window_BattleStatus.prototype.drawGaugeAreaWithTp = function(rect, actor) {
-    this.drawActorHp(actor, rect.x + 0, rect.y, 108);
-    this.drawActorMp(actor, rect.x + 123, rect.y, 96);
-    this.drawActorTp(actor, rect.x + 234, rect.y, 96);
-};
+    Window_BattleStatus.prototype.drawGaugeAreaWithTp = function(rect, actor) {
+        this.drawActorHp(actor, rect.x + 0, rect.y, 108);
+        this.drawActorMp(actor, rect.x + 123, rect.y, 96);
+        this.drawActorTp(actor, rect.x + 234, rect.y, 96);
+    };
 
-Window_BattleStatus.prototype.drawGaugeAreaWithoutTp = function(rect, actor) {
-    const third = (Graphics.boxWidth - DEFAULT_WIDTH)/3;
-    const hpWidth = 201+ ($gameVariables.value(37) === 1? 0 + 2*third : 129+ 3*third) ;
-    const mapWidth = 114 + third;
-    this.drawActorHp(actor, rect.x + 0, rect.y, hpWidth);
-    this.drawActorMp(actor, rect.x + hpWidth + 15, rect.y, mapWidth);
-};
-
-
-Window_ChoiceList.prototype.updatePlacement = function() {
-    var positionType = $gameMessage.choicePositionType();
-    var messageY = this._messageWindow.y;
-    this.width = this.windowWidth();
-    this.height = this.windowHeight();
+    Window_BattleStatus.prototype.drawGaugeAreaWithoutTp = function(rect, actor) {
+        const third = (Graphics.boxWidth - DEFAULT_WIDTH)/3;
+        const hpWidth = 201+ ($gameVariables.value(37) === 1? 0 + 2*third : 129+ 3*third) ;
+        const mapWidth = 114 + third;
+        this.drawActorHp(actor, rect.x + 0, rect.y, hpWidth);
+        this.drawActorMp(actor, rect.x + hpWidth + 15, rect.y, mapWidth);
+    };
 
 
-    const visibleW = $gameMap.tileWidth() * $gameMap.width();
-    const visibleH = $gameMap.tileHeight() * $gameMap.height();
+    Window_ChoiceList.prototype.updatePlacement = function() {
+        var positionType = $gameMessage.choicePositionType();
+        var messageY = this._messageWindow.y;
+        this.width = this.windowWidth();
+        this.height = this.windowHeight();
 
-    const w = Math.min(Graphics.boxWidth, visibleW);
-    const h = Math.min(Graphics.boxHeight, visibleH);
-    let dw = Graphics.boxWidth - w;
-    let dh = Graphics.boxHeight - h;
-    if (dw < 0) dw = 0;
-    if (dh < 0) dh = 0;
 
-    const left = dw/2;
-    const right = left + w;
+        const visibleW = $gameMap.tileWidth() * $gameMap.width();
+        const visibleH = $gameMap.tileHeight() * $gameMap.height();
 
-    switch (positionType) {
-    case 0:
-        this.x = left;
-        break;
-    case 1:
-        this.x = w / 2;
-        break;
-    case 2:
-        this.x = right - this.width;
-        break;
-    }
-    if (messageY >= Graphics.boxHeight / 2) {
-        this.y = messageY - this.height;
-    } else {
-        this.y = messageY + this._messageWindow.height;
-    }
-};
+        const w = Math.min(Graphics.boxWidth, visibleW);
+        const h = Math.min(Graphics.boxHeight, visibleH);
+        let dw = Graphics.boxWidth - w;
+        let dh = Graphics.boxHeight - h;
+        if (dw < 0) dw = 0;
+        if (dh < 0) dh = 0;
 
-Weather.prototype.initialize = function() {
-    PIXI.Container.call(this);
+        const left = dw/2;
+        const right = left + w;
 
-    const visibleW = $gameMap.tileWidth() * $gameMap.width();
-    const visibleH = $gameMap.tileHeight() * $gameMap.height();
+        switch (positionType) {
+        case 0:
+            this.x = left;
+            break;
+        case 1:
+            this.x = w / 2;
+            break;
+        case 2:
+            this.x = right - this.width;
+            break;
+        }
+        if (messageY >= Graphics.boxHeight / 2) {
+            this.y = messageY - this.height;
+        } else {
+            this.y = messageY + this._messageWindow.height;
+        }
+    };
 
-    const w = Math.min(Graphics.boxWidth, visibleW);
-    const h = Math.min(Graphics.boxHeight, visibleH);
+    Weather.prototype.initialize = function() {
+        PIXI.Container.call(this);
 
-    let dw = Graphics.boxWidth - w;
-    let dh = Graphics.boxHeight - h;
-    if (dw < 0) dw = 0;
-    if (dh < 0) dh = 0;
+        const visibleW = $gameMap.tileWidth() * $gameMap.width();
+        const visibleH = $gameMap.tileHeight() * $gameMap.height();
 
-    this._left = dw / 2;
-    this._top = dh / 2;
-    this._width = w;
-    this._height = h;
+        const w = Math.min(Graphics.boxWidth, visibleW);
+        const h = Math.min(Graphics.boxHeight, visibleH);
 
-    this._sprites = [];
-    this.origin = new Point();
-    this.type = 'none';
-    this.power = 0;
+        let dw = Graphics.boxWidth - w;
+        let dh = Graphics.boxHeight - h;
+        if (dw < 0) dw = 0;
+        if (dh < 0) dh = 0;
 
-    // Container interne qui contient les sprites météo
-    this._weatherLayer = new PIXI.Container();
-    this.addChild(this._weatherLayer);
+        this._left = dw / 2;
+        this._top = dh / 2;
+        this._width = w;
+        this._height = h;
 
-    this._createBitmaps();
-    this._createDimmer();
+        this._sprites = [];
+        this.origin = new Point();
+        this.type = 'none';
+        this.power = 0;
 
-    // Création du masque
-    const mask = new PIXI.Graphics();
-    mask.beginFill(0xffffff);
-    mask.drawRect(this._left, this._top, this._width, this._height);
-    mask.endFill();
-    mask.visible = false;
-    this._maskSprite = mask;
-    this.addChild(this._maskSprite);
+        // Container interne qui contient les sprites météo
+        this._weatherLayer = new PIXI.Container();
+        this.addChild(this._weatherLayer);
 
-    this._weatherLayer.mask = this._maskSprite;
-};
+        this._createBitmaps();
+        this._createDimmer();
 
-Weather.prototype._addSprite = function() {
-    var sprite = new Sprite();
-    sprite.opacity = 0;
-    this._sprites.push(sprite);
-    this._weatherLayer.addChild(sprite); // <- ici au lieu de `this.addChild(sprite)`
-};
+        // Création du masque
+        const mask = new PIXI.Graphics();
+        mask.beginFill(0xffffff);
+        mask.drawRect(this._left, this._top, this._width, this._height);
+        mask.endFill();
+        mask.visible = false;
+        this._maskSprite = mask;
+        this.addChild(this._maskSprite);
 
-Weather.prototype._createDimmer = function() {
-    const bitmap = new Bitmap(this._width, this._height);
-    bitmap.fillAll('black');
+        this._weatherLayer.mask = this._maskSprite;
+    };
 
-    this._dimmerSprite = new Sprite(bitmap);
-    this._dimmerSprite.x = this._left;
-    this._dimmerSprite.y = this._top;
-    this._dimmerSprite.opacity = Math.floor(this.power * 6); // init
-    this.addChild(this._dimmerSprite);
-};
+    Weather.prototype._addSprite = function() {
+        var sprite = new Sprite();
+        sprite.opacity = 0;
+        this._sprites.push(sprite);
+        this._weatherLayer.addChild(sprite); // <- ici au lieu de `this.addChild(sprite)`
+    };
 
-Weather.prototype._updateDimmer = function() {
-    if (this._dimmerSprite) {
-        this._dimmerSprite.opacity = Math.floor(this.power * 6);
-    }
-};
+    Weather.prototype._createDimmer = function() {
+        const bitmap = new Bitmap(this._width, this._height);
+        bitmap.fillAll('black');
 
-Weather.prototype._updateAllSprites = function() {
-    var maxSprites = Math.floor(this.power * 10);
-    while (this._sprites.length < maxSprites) {
-        this._addSprite();
-    }
-    while (this._sprites.length > maxSprites) {
-        this._removeSprite();
-    }
-    this._sprites.forEach(function(sprite) {
-        this._updateSprite(sprite);
-        sprite.x = sprite.ax - this.origin.x + this._left;
-        sprite.y = sprite.ay - this.origin.y + this._top;
-    }, this);
-};
-/*
-Weather.prototype._rebornSprite = function(sprite) {
-    sprite.ax = Math.randomInt(this._width + 100) - 100 + this.origin.x + this._left;
-    sprite.ay = Math.randomInt(this._height + 200) - 200 + this.origin.y + this._top;
-    sprite.ay = Math.randomInt(this._height + 200) - 400 + this.origin.y + this._top;
-    sprite.opacity = 160 + Math.randomInt(60);
-};*/
+        this._dimmerSprite = new Sprite(bitmap);
+        this._dimmerSprite.x = this._left;
+        this._dimmerSprite.y = this._top;
+        this._dimmerSprite.opacity = Math.floor(this.power * 6); // init
+        this.addChild(this._dimmerSprite);
+    };
+
+    Weather.prototype._updateDimmer = function() {
+        if (this._dimmerSprite) {
+            this._dimmerSprite.opacity = Math.floor(this.power * 6);
+        }
+    };
+
+    Weather.prototype._updateAllSprites = function() {
+        var maxSprites = Math.floor(this.power * 10);
+        while (this._sprites.length < maxSprites) {
+            this._addSprite();
+        }
+        while (this._sprites.length > maxSprites) {
+            this._removeSprite();
+        }
+        this._sprites.forEach(function(sprite) {
+            this._updateSprite(sprite);
+            sprite.x = sprite.ax - this.origin.x + this._left;
+            sprite.y = sprite.ay - this.origin.y + this._top;
+        }, this);
+    };
 
 })();

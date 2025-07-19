@@ -187,18 +187,31 @@ function checkMessagesToShow2(playerY) {
 const _Scene_Map_createAllWindows2 = Scene_Map.prototype.createAllWindows;
 Scene_Map.prototype.createAllWindows = function() {
   _Scene_Map_createAllWindows2.call(this);
-  if (isMiniGameAutoScrollPursuitActive() && miniGameAutoScrollPursuitEnable) {
+  if (isMiniGameAutoScrollPursuitActive()) {
     this.createMiniGameHUD2();
   }
 };
 
 
-
 Scene_Map.prototype.createMiniGameHUD2 = function() {
   this._miniGameHearts = new Sprite();
   this._miniGameHearts.bitmap = new Bitmap(150, 48);
-  this._miniGameHearts.x = 0;
-  this._miniGameHearts.y = 0;
+  
+  const visibleW = $gameMap.tileWidth() * $gameMap.width();
+  const visibleH = $gameMap.tileHeight() * $gameMap.height();
+
+  const w = Math.min(Graphics.boxWidth, visibleW);
+  const h = Math.min(Graphics.boxHeight, visibleH);
+
+  let dw = Graphics.boxWidth - w;
+  let dh = Graphics.boxHeight - h;
+  if (dw < 0) dw = 0;
+  if (dh < 0) dh = 0;
+
+  const left = dw / 2;
+  const top = dh / 2;
+  this._miniGameHearts.x = left+10;
+  this._miniGameHearts.y = top+10;
   this.addChild(this._miniGameHearts);
   this.refreshMiniGameHUD2();
 };
