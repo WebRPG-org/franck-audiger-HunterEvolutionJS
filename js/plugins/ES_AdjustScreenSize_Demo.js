@@ -245,4 +245,131 @@ Window_BattleStatus.prototype.drawGaugeAreaWithoutTp = function(rect, actor) {
 };
 
 
+Window_ChoiceList.prototype.updatePlacement = function() {
+    var positionType = $gameMessage.choicePositionType();
+    var messageY = this._messageWindow.y;
+    this.width = this.windowWidth();
+    this.height = this.windowHeight();
+
+
+    const visibleW = $gameMap.tileWidth() * $gameMap.width();
+    const visibleH = $gameMap.tileHeight() * $gameMap.height();
+
+    const w = Math.min(Graphics.boxWidth, visibleW);
+    const h = Math.min(Graphics.boxHeight, visibleH);
+    let dw = Graphics.boxWidth - w;
+    let dh = Graphics.boxHeight - h;
+    if (dw < 0) dw = 0;
+    if (dh < 0) dh = 0;
+
+    const left = dw/2;
+    const right = left + w;
+
+    switch (positionType) {
+    case 0:
+        this.x = left;
+        break;
+    case 1:
+        this.x = w / 2;
+        break;
+    case 2:
+        this.x = right - this.width;
+        break;
+    }
+    if (messageY >= Graphics.boxHeight / 2) {
+        this.y = messageY - this.height;
+    } else {
+        this.y = messageY + this._messageWindow.height;
+    }
+};
+
+Weather.prototype.initialize = function() {
+    PIXI.Container.call(this);
+
+    const visibleW = $gameMap.tileWidth() * $gameMap.width();
+    const visibleH = $gameMap.tileHeight() * $gameMap.height();
+
+    const w = Math.min(Graphics.boxWidth, visibleW);
+    const h = Math.min(Graphics.boxHeight, visibleH);
+
+    let dw = Graphics.boxWidth - w;
+    let dh = Graphics.boxHeight - h;
+    if (dw < 0) dw = 0;
+    if (dh < 0) dh = 0;
+
+    this._left = dw / 2;
+    this._top = dh / 2;
+    this._width = w;
+    this._height = h;
+
+    this._sprites = [];
+    this.origin = new Point();
+    this.type = 'none';
+    this.power = 0;
+
+    // Container interne qui contient les sprites météo
+    this._weatherLayer = new PIXI.Container();
+    this.addChild(this._weatherLayer);
+
+    this._createBitmaps();
+    this._createDimmer();
+
+    // Création du masque
+    const mask = new PIXI.Graphics();
+    mask.beginFill(0xffffff);
+    mask.drawRect(this._left, this._top, this._width, this._height);
+    mask.endFill();
+    mask.visible = false;
+    this._maskSprite = mask;
+    this.addChild(this._maskSprite);
+
+    this._weatherLayer.mask = this._maskSprite;
+};
+
+Weather.prototype._addSprite = function() {
+    var sprite = new Sprite();
+    sprite.opacity = 0;
+    this._sprites.push(sprite);
+    this._weatherLayer.addChild(sprite); // <- ici au lieu de `this.addChild(sprite)`
+};
+
+Weather.prototype._createDimmer = function() {
+    const bitmap = new Bitmap(this._width, this._height);
+    bitmap.fillAll('black');
+
+    this._dimmerSprite = new Sprite(bitmap);
+    this._dimmerSprite.x = this._left;
+    this._dimmerSprite.y = this._top;
+    this._dimmerSprite.opacity = Math.floor(this.power * 6); // init
+    this.addChild(this._dimmerSprite);
+};
+
+Weather.prototype._updateDimmer = function() {
+    if (this._dimmerSprite) {
+        this._dimmerSprite.opacity = Math.floor(this.power * 6);
+    }
+};
+
+Weather.prototype._updateAllSprites = function() {
+    var maxSprites = Math.floor(this.power * 10);
+    while (this._sprites.length < maxSprites) {
+        this._addSprite();
+    }
+    while (this._sprites.length > maxSprites) {
+        this._removeSprite();
+    }
+    this._sprites.forEach(function(sprite) {
+        this._updateSprite(sprite);
+        sprite.x = sprite.ax - this.origin.x + this._left;
+        sprite.y = sprite.ay - this.origin.y + this._top;
+    }, this);
+};
+/*
+Weather.prototype._rebornSprite = function(sprite) {
+    sprite.ax = Math.randomInt(this._width + 100) - 100 + this.origin.x + this._left;
+    sprite.ay = Math.randomInt(this._height + 200) - 200 + this.origin.y + this._top;
+    sprite.ay = Math.randomInt(this._height + 200) - 400 + this.origin.y + this._top;
+    sprite.opacity = 160 + Math.randomInt(60);
+};*/
+
 })();

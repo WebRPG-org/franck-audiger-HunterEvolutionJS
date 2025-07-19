@@ -60,6 +60,15 @@ Game_Action.prototype.applyGuard = function(damage, target) {
     return damage / (damage > 0 && target.isGuard() ? 2 * target.grd * target.guardRatio() : 1);
 };
 
+
+Game_Action.prototype.itemHit = function(target) {
+    if (this.isPhysical()) {
+        return this.item().successRate * 0.03 * this.subject().hit;
+    } else {
+        return this.item().successRate * 0.03;
+    }
+};
+
 Game_Actor.prototype.clearGuard = function() {
     this._guardCounter = 0;
 }

@@ -88,25 +88,39 @@ function createFogOverlay() {
   const config = fogConfigs[$gameMap.mapId()];
   if (!config) return;
 
+  const bounds = getVisibleMapBounds();
+
   // === Overlay nuit (noir semi-transparent)
   if (config.nightOverlay) {
-    const bitmap = new Bitmap(Graphics.width, Graphics.height);
+    const bitmap = new Bitmap(bounds.width, bounds.height);
     bitmap.fillAll('black');
     const sprite = new Sprite(bitmap);
     sprite.opacity = config.nightOpacity;
-    this._nightOverlay = sprite; // note : sprite séparé
+    sprite.x = bounds.x;
+    sprite.y = bounds.y;
+    this._nightOverlay = sprite;
     this._spriteset.addChild(this._nightOverlay);
+  } else {
+    if(this._nightOverlay) {
+      this._spriteset.removeChild(this._nightOverlay);
+      this._nightOverlay = null;
+    }
   }
 
-  // === Fog animé (image de type "Fog1", "Rain1", etc.)
+  // === Fog animé
   if (config.name) {
     const bitmap = ImageManager.loadPicture(config.name);
     this._fogOverlay = new TilingSprite(bitmap);
-    this._fogOverlay.move(0, 0, Graphics.width, Graphics.height);
+    this._fogOverlay.move(bounds.x, bounds.y, bounds.width, bounds.height);
     this._fogOverlay.opacity = config.opacity || 128;
     this._fogOverlay.fogSpeedX = config.speedX || 0;
     this._fogOverlay.fogSpeedY = config.speedY || 0;
     this._spriteset.addChild(this._fogOverlay);
+  } else {
+    if(this._fogOverlay) {
+      this._spriteset.removeChild(this._fogOverlay);
+      this._fogOverlay = null;
+    }
   }
 }
 
@@ -176,18 +190,24 @@ function updateVisionOverlay() {
 
 // === MAP SETUP ===
 const _Scene_Map_createDisplayObjects = Scene_Map.prototype.createDisplayObjects;
+
 Scene_Map.prototype.createDisplayObjects = function() {
   _Scene_Map_createDisplayObjects.call(this);
   
-  // --- FOG
   this.createFogOverlay();
   this.createVisionOverlay();
 
-  // --- FLASH ORAGE (sous la vision, au-dessus du fog)
-  this._lightningFlash = new Sprite(new Bitmap(Graphics.width, Graphics.height));
-  this._lightningFlash.bitmap.fillAll('white');
-  this._lightningFlash.opacity = 0;
-  this._spriteset.addChild(this._lightningFlash); // entre fog et vision
+  const bounds = getVisibleMapBounds();
+
+  // Flash d'orage
+  const flashBitmap = new Bitmap(bounds.width, bounds.height);
+  flashBitmap.fillAll('white');
+  const flashSprite = new Sprite(flashBitmap);
+  flashSprite.opacity = 0;
+  flashSprite.x = bounds.x;
+  flashSprite.y = bounds.y;
+  this._lightningFlash = flashSprite;
+  this._spriteset.addChild(this._lightningFlash);
 };
 
 Scene_Map.prototype.updateLightningFlash = function() {
@@ -260,3 +280,19 @@ Scene_Battle.prototype.createVisionOverlay = createVisionOverlay;
 Scene_Battle.prototype.updateFogOverlay = updateFogOverlay;
 Scene_Battle.prototype.updateVisionOverlay = updateVisionOverlay;
 
+function getVisibleMapBounds() {
+  const visibleW = $gameMap.tileWidth() * $gameMap.width();
+  const visibleH = $gameMap.tileHeight() * $gameMap.height();
+
+  const w = Math.min(Graphics.boxWidth, visibleW);
+  const h = Math.min(Graphics.boxHeight, visibleH);
+
+  let dw = Graphics.boxWidth - w;
+  let dh = Graphics.boxHeight - h;
+  if (dw < 0) dw = 0;
+  if (dh < 0) dh = 0;
+
+  const left = dw / 2;
+  const top = dh / 2;
+  return { x: left, y: top, width: w, height: h };
+}

@@ -159,6 +159,18 @@ Window_BattleLog.prototype.lineDisplayDuration = function() {
     return 360;
 };
 
+Window_BattleLog.prototype.displayActionResults = function(subject, target) {
+    if (target.result().used) {
+        this.displayCritical(target);
+        this.push('popupDamage', target);
+        this.push('popupDamage', subject);
+        this.displayDamage(target);
+        this.displayAffectedStatus(target);
+        this.displayFailure(target);
+    }
+};
+
+
 Window_ActorCommand.prototype.makeCommandList = function() {
     if (this._actor) {
         this.addAttackCommand();
@@ -307,6 +319,7 @@ Window_MenuCommand.prototype.addOriginalCommands = function() {
     this.addCommand(TextManager.inputsList, "inputsList", true);
 };
 
+
 // === SCENE INPUT CONFIG ===
 function Scene_InputConfig() {
     this.initialize.apply(this, arguments);
@@ -429,4 +442,14 @@ Window_InputList.prototype.windowWidth = function() {
 
 Window_InputList.prototype.windowHeight = function() {
     return this.fittingHeight(this._inputList.length);
+};
+
+
+Window_TitleCommand.prototype.makeCommandList = function() {
+    this.addCommand(TextManager.newGame,   'newGame');
+    this.addCommand(TextManager.continue_, 'continue', this.isContinueEnabled());
+    this.addCommand(TextManager.options,   'options');
+    this.addCommand(TextManager.gameEnd,   'gameEnd');
+
+    
 };

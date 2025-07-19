@@ -343,10 +343,8 @@ BattleManager.invokeAction = function() {
     } else {
         subject = $gameTroop.members().find(troop => troop.index() === subject.index());
     }
-    this._logWindow.push('pushBaseLine');
     this.invokeNormalAction();
     subject.setLastTarget(targets[targets.length - 1]);
-    this._logWindow.push('popBaseLine');
     subject.resetAtb()
     this.refreshStatus();
 };

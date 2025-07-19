@@ -296,10 +296,24 @@ Sprite_CustomMessage.prototype.refresh = function() {
   const faceHeight = 144;
   const height = bmp.height;
 
-  // Fond
-  bmp.fillRect(0, 0, Graphics.width, height, 'rgba(0, 0, 0, 180)');
+  // Calcul du décalage horizontal (centrage map)
+  const visibleW = $gameMap.tileWidth() * $gameMap.width();
+  const visibleH = $gameMap.tileHeight() * $gameMap.height();
 
-  // Dessin de la face
+  const w = Math.min(Graphics.boxWidth, visibleW);
+  const h = Math.min(Graphics.boxHeight, visibleH);
+
+  let dw = Graphics.boxWidth - w;
+  let dh = Graphics.boxHeight - h;
+  if (dw < 0) dw = 0;
+  if (dh < 0) dh = 0;
+
+  const left = dw / 2;
+
+  // === Fond (noir semi-transparent)
+  bmp.fillRect(left-1, 0, w+2, height, 'rgba(0, 0, 0, 180)');
+
+  // === Dessin du portrait (face)
   const faceBmp = ImageManager.loadFace(this._faceName);
   const pw = Window_Base._faceWidth;
   const ph = Window_Base._faceHeight;
@@ -308,17 +322,16 @@ Sprite_CustomMessage.prototype.refresh = function() {
   const faceY = (height - ph) / 2;
 
   faceBmp.addLoadListener(() => {
-    bmp.blt(faceBmp, sx, sy, pw, ph, padding, faceY);
+    bmp.blt(faceBmp, sx, sy, pw, ph, left + padding, faceY);
   });
 
-  // Texte multi-ligne
-  const textX = faceWidth + padding * 2;
-  const textWidth = Graphics.width - textX - padding;
+  // === Texte
+  const textX = left + faceWidth + padding * 2;
+  const textWidth = w - faceWidth - padding * 3;
   const lineHeight = 28;
   bmp.fontSize = 20;
   bmp.textColor = '#FFFFFF';
 
-  // Divise les lignes
   const lines = this._text.split(/\r?\n/);
   const totalHeight = lines.length * lineHeight;
   const startY = Math.max(padding, (height - totalHeight) / 2);
@@ -482,8 +495,22 @@ Scene_Map.prototype.createAllWindows = function() {
 Scene_Map.prototype.createMiniGameHUD = function() {
   this._miniGameHearts = new Sprite();
   this._miniGameHearts.bitmap = new Bitmap(150, 48);
-  this._miniGameHearts.x = 0;
-  this._miniGameHearts.y = 0;
+  
+  const visibleW = $gameMap.tileWidth() * $gameMap.width();
+  const visibleH = $gameMap.tileHeight() * $gameMap.height();
+
+  const w = Math.min(Graphics.boxWidth, visibleW);
+  const h = Math.min(Graphics.boxHeight, visibleH);
+
+  let dw = Graphics.boxWidth - w;
+  let dh = Graphics.boxHeight - h;
+  if (dw < 0) dw = 0;
+  if (dh < 0) dh = 0;
+
+  const left = dw / 2;
+  const top = dh / 2;
+  this._miniGameHearts.x = left+10;
+  this._miniGameHearts.y = top+10;
   this.addChild(this._miniGameHearts);
   this.refreshMiniGameHUD();
 };
@@ -622,25 +649,18 @@ Game_Player.prototype.update = function(sceneActive) {
       timerGameOver = 60;
     }
 
-    const tileWidth = $gameMap.tileWidth();
-    const screenWidthInTiles = Graphics.width / tileWidth;
-
-    const realPlayerX = this._x + (this._directionOffsetX / tileWidth);
-    const targetX = realPlayerX - screenWidthInTiles / 2;
-
-    const maxX = $gameMap.width() - screenWidthInTiles;
-    const clampedTargetX = Math.max(0, Math.min(targetX, maxX));
-
-    const cameraSpeed = 0.2;
-    lastDisplayX = $gameMap._displayX;
-    $gameMap._displayX += (clampedTargetX - $gameMap._displayX) * cameraSpeed;
-
     checkMessagesToShow(this._y);
   }
 
   Number.prototype.clamp = function(min, max) {
     return Math.min(Math.max(this, min), max);
   };
+};
+
+const _Scene_Map_updateCallMenu = Scene_Map.prototype.updateCallMenu;
+Scene_Map.prototype.updateCallMenu = function() {
+  if (isMiniGameAutoScrollActive()) return;
+  _Scene_Map_updateCallMenu.call(this);
 };
 
 

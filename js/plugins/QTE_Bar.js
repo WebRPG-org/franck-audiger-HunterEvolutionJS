@@ -114,9 +114,14 @@
     this._qteBar = null;
   };
 
-  window.startQTE = function(duration, minSuccess, maxSuccess, deadzoneStart, variableId, evtName) {
+  window.startQTEBar = function(duration, minSuccess, maxSuccess, deadzoneStart, variableId, evtName) {
     const scene = SceneManager._scene;
-    const evnt = $gameMap.events().find(ev => ev.event().name === evtName);
+    let evnt;
+    $gameMap.events().forEach(ev => {
+      if(ev.event().name === evtName){
+        evnt = ev;
+      }
+    });
     const x = evnt ? evnt.screenX() - 80 : 200;
     const y = evnt ? evnt.screenY() - 60 : 200;
     scene._qteBar = new Window_QTEBar(x, y, 160, 64);

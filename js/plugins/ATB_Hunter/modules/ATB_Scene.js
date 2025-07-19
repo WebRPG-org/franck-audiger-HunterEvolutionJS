@@ -417,3 +417,23 @@ Scene_Title.prototype.createBackground = function() {
     this.addChild(this._backSprite2);
 };
 
+
+Scene_Title.prototype.createCommandWindow = function() {
+    this._commandWindow = new Window_TitleCommand();
+    this._commandWindow.setHandler('newGame',  this.commandNewGame.bind(this));
+    this._commandWindow.setHandler('continue', this.commandContinue.bind(this));
+    this._commandWindow.setHandler('options',  this.commandOptions.bind(this));
+    this._commandWindow.setHandler('gameEnd',  this.commandQuit.bind(this));
+    this.addWindow(this._commandWindow);
+};
+
+
+
+Scene_Title.prototype.commandQuit = function() {
+    if (Utils.isNwjs()) {
+        const nwWin = require('nw.gui').Window.get();
+        nwWin.close();
+    } else {
+        window.location.href = "https://hunter-evolution-game.com/"; 
+    }
+};
