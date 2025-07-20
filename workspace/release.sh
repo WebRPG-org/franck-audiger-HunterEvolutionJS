@@ -76,8 +76,9 @@ cp -v  ./site/icon-36.png*              "$DEST_WEB/icon-36.png"
 cp -v  ./site/icon-48.png*              "$DEST_WEB/icon-48.png"
 cp -v  ./site/icon-72.png*              "$DEST_WEB/icon-72.png"
 cp -v  ./site/icon-96.png*              "$DEST_WEB/icon-96.png"
-cp -v  ./site/index.html                "$DEST_WEB/index.html"
-cp -v  ./site/release-note.html         "$DEST_WEB/release-note.html"
+cp -v  ./site/index.php                 "$DEST_WEB/index.php"
+cp -v  ./site/lang.php                  "$DEST_WEB/lang.php"
+cp -v  ./site/release-note.php          "$DEST_WEB/release-note.php"
 cp -v  ./site/style.css                 "$DEST_WEB/style.css"
 
 cd ..
