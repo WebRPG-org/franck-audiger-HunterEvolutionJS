@@ -163,6 +163,7 @@ function updateFogOverlay() {
     this._nightOverlay.y = bounds.y;
     if (this._nightOverlay.bitmap) {
       this._nightOverlay.bitmap.resize(bounds.width, bounds.height);
+      this._nightOverlay.bitmap.fillAll('black'); // ✅ ajoute ceci
     }
   }
 

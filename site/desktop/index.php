@@ -1,5 +1,10 @@
 <?php
 $files = array_merge(glob('*.7z'), glob('*.zip'));
+
+// Tri décroissant par date de modification
+usort($files, function($a, $b) {
+    return filemtime($b) - filemtime($a);
+});
 ?>
 <!DOCTYPE html>
 <html lang="fr">
