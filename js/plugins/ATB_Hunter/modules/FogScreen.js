@@ -92,6 +92,7 @@ function createFogOverlay() {
 
   // === Overlay nuit
   if (config.nightOverlay) {
+    console.log("Création de l'overlay nuit");
     const bitmap = new Bitmap(bounds.width, bounds.height);
     bitmap.fillAll('black');
     const sprite = new Sprite(bitmap);
@@ -101,6 +102,7 @@ function createFogOverlay() {
     this._nightOverlay = sprite;
     this._spriteset.addChild(this._nightOverlay);
   } else if (this._nightOverlay) {
+    console.log("Suppression de l'overlay nuit");
     this._spriteset.removeChild(this._nightOverlay);
     this._nightOverlay = null;
   }
@@ -159,21 +161,13 @@ function updateFogOverlay() {
   // === Overlay nuit
   if (this._nightOverlay) {
     this._nightOverlay.visible = enable;
-    this._nightOverlay.x = bounds.x;
-    this._nightOverlay.y = bounds.y;
-    if (this._nightOverlay.bitmap) {
-      this._nightOverlay.bitmap.resize(bounds.width, bounds.height);
-      this._nightOverlay.bitmap.fillAll('black'); // ✅ ajoute ceci
-    }
+    this._nightOverlay.move(bounds.x, bounds.y, bounds.width, bounds.height);
   }
 
   // === Flash
   if (this._lightningFlash) {
-    this._lightningFlash.x = bounds.x;
-    this._lightningFlash.y = bounds.y;
-    if (this._lightningFlash.bitmap) {
-      this._lightningFlash.bitmap.resize(bounds.width, bounds.height);
-    }
+    this._lightningFlash.visible = enable;
+    this._lightningFlash.move(bounds.x, bounds.y, bounds.width, bounds.height);
   }
 
   lastDisplayX = $gameMap._displayX;
