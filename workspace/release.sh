@@ -63,9 +63,9 @@ if [ ! -d "./workspace" ] || [ ! -d "./site/desktop" ]; then
   exit 1
 fi
 
-cp -vr ./workspace/*         "$DEST_WEB/workspace/"
-cp -vr ./site/desktop/*      "$DEST_WEB/desktop/"
-cp -v ./*                    "$DEST_WEB/"
+cp ./workspace/*         "$DEST_WEB/workspace/"
+cp ./site/desktop/index.php      "$DEST_WEB/desktop/index.php"
+cp ./site/*                    "$DEST_WEB/"
 
 cd ..
 
