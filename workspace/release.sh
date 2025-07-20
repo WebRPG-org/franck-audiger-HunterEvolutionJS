@@ -51,9 +51,9 @@ echo "📁 Copie des fichier du site et du workspace"
 
 
 cp -vr ./workspace/* "$DEST_WEB/workspace/"
-cp -vr ./bug-reports/* "$DEST_WEB/bug-reports/"
-cp -vr ./desktop/* "$DEST_WEB/desktop/"
-cp -vr ./feedback/* "$DEST_WEB/feedback/"
+cp -vr ./site/bug-reports/* "$DEST_WEB/bug-reports/"
+cp -vr ./site/desktop/* "$DEST_WEB/desktop/"
+cp -vr ./site/feedback/* "$DEST_WEB/feedback/"
 cp ./* "$DEST_WEB/"
 
 cd ..

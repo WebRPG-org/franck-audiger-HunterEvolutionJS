@@ -28,4 +28,4 @@ cd ..
 
 rm -rf ./tmp
 
-echo "✅ Déploiement du tag commit terminé avec succès."
+echo "✅ Déploiement du commit terminé avec succès."
