@@ -23,19 +23,20 @@ git clone --branch "$TAG_NAME" --depth 1 https://github.com/franck-audiger/Hunte
 
 echo "📁 Copie des fichiers vers le dossier game..."
 
-DEST_WEB=/home/u116286536/domains/hunter-evolution-game.com/public_html/game
+DEST_WEB=/home/u116286536/domains/hunter-evolution-game.com/public_html
+DEST_GAME="DEST_WEB/game"
 
-cp -vr ./data/* "$DEST_WEB/data/"
-cp -vr ./fonts/* "$DEST_WEB/fonts/"
-cp -vr ./icon/* "$DEST_WEB/icon/"
-cp -vr ./img/* "$DEST_WEB/img/"
-cp -vr ./audio/* "$DEST_WEB/audio/"
-cp -vr ./movies/* "$DEST_WEB/movies/"
-cp -vr ./js/* "$DEST_WEB/js/"
+cp -vr ./data/* "$DEST_GAME/data/"
+cp -vr ./fonts/* "$DEST_GAME/fonts/"
+cp -vr ./icon/* "$DEST_GAME/icon/"
+cp -vr ./img/* "$DEST_GAME/img/"
+cp -vr ./audio/* "$DEST_GAME/audio/"
+cp -vr ./movies/* "$DEST_GAME/movies/"
+cp -vr ./js/* "$DEST_GAME/js/"
 
+echo "📁 Copie des fichiers vers le dossier de build windows..."
 
-DEST_BASE=/home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/buildWeb/Hunter
-DEST="$DEST_BASE/www"
+DEST="/home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/buildWeb/Hunter/www"
 
 cp -vr ./data/* "$DEST/data/"
 cp -vr ./fonts/* "$DEST/fonts/"
@@ -45,11 +46,22 @@ cp -vr ./audio/* "$DEST/audio/"
 cp -vr ./movies/* "$DEST/movies/"
 cp -vr ./js/* "$DEST/js/"
 
+
+echo "📁 Copie des fichier du site et du workspace"
+
+
+cp -vr ./workspace/* "$DEST_WEB/workspace/"
+cp -vr ./bug-reports/* "$DEST_WEB/bug-reports/"
+cp -vr ./desktop/* "$DEST_WEB/desktop/"
+cp -vr ./feedback/* "$DEST_WEB/feedback/"
+cp ./* "$DEST_WEB/"
+
 cd ..
 
 rm -rf ./tmp
 
 echo "📦 Création de l'archive ZIP..."
+
 cd /home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/buildWeb
 zip -r "Hunter$TAG_NAME.zip" Hunter
 
