@@ -18,7 +18,7 @@ echo "📁 Copie des fichiers vers le dossier game-dev..."
 if [ ! -d "./data" ] || [ ! -d "./fonts" ] || [ ! -d "./js" ] || [ ! -d "./icon" ] || [ ! -d "./img" ] || [ ! -d "./audio" ] || [ ! -d "./movies" ]; then
   echo "❌ Dossiers sources manquants dans le dépôt cloné. Abandon."
   exit 1
-fi
+fi 
 
 DEST=/home/u116286536/domains/hunter-evolution-game.com/public_html/game-dev
 
