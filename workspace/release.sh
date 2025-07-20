@@ -24,7 +24,7 @@ git clone --branch "$TAG_NAME" --depth 1 https://github.com/franck-audiger/Hunte
 echo "📁 Copie des fichiers vers le dossier game..."
 
 DEST_WEB=/home/u116286536/domains/hunter-evolution-game.com/public_html
-DEST_GAME="DEST_WEB/game"
+DEST_GAME="$DEST_WEB/game"
 
 cp -vr ./data/* "$DEST_GAME/data/"
 cp -vr ./fonts/* "$DEST_GAME/fonts/"

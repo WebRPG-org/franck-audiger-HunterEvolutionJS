@@ -27,3 +27,5 @@ cp -vr ./js/* "$DEST/js/"
 cd ..
 
 rm -rf ./tmp
+
+echo "✅ Déploiement du tag commit terminé avec succès."
