@@ -129,12 +129,25 @@
     scene.addWindow(scene._qteBar);
     scene._qteBar.start(duration, minSuccess, maxSuccess, deadzoneStart, variableId, evtName);
   };
-
+  
   const _Scene_Map_update = Scene_Map.prototype.update;
-  Scene_Map.prototype.update = function() {
+  Scene_Map.prototype.update = function() { 
     _Scene_Map_update.call(this);
-    if (this._qteBar && this._qteBar._activeQTE && Input.isTriggered('ok')) {
+    if (this._qteBar && this._qteBar._activeQTE && (Input.isTriggered('cancel') || Input.isTriggered('ok') || TouchInput.isTriggered())) {
       this._qteBar.processSuccessAttempt();
-    }
+    } 
+    
   };
+
+  document.addEventListener('keydown', function(e) {
+    if ($gamePlayer && $gamePlayer._directionPanelActive && e.key === 'Escape') {
+      const scene = SceneManager._scene;
+      if (scene._directionPanelWindow) {
+        scene.removeChild(scene._directionPanelWindow);
+        scene._directionPanelWindow = null;
+        $gamePlayer._directionPanelActive = false;
+      }
+      e.preventDefault();
+    }
+  });
 })();
