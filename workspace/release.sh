@@ -23,6 +23,17 @@ git clone --branch "$TAG_NAME" --depth 1 https://github.com/franck-audiger/Hunte
 
 echo "📁 Copie des fichiers vers le dossier game..."
 
+DEST_WEB=/home/u116286536/domains/hunter-evolution-game.com/public_html/game
+
+cp -vr ./data/* "$DEST_WEB/data/"
+cp -vr ./fonts/* "$DEST_WEB/fonts/"
+cp -vr ./icon/* "$DEST_WEB/icon/"
+cp -vr ./img/* "$DEST_WEB/img/"
+cp -vr ./audio/* "$DEST_WEB/audio/"
+cp -vr ./movies/* "$DEST_WEB/movies/"
+cp -vr ./js/* "$DEST_WEB/js/"
+
+
 DEST_BASE=/home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/buildWeb/Hunter
 DEST="$DEST_BASE/www"
 
@@ -36,10 +47,12 @@ cp -vr ./js/* "$DEST/js/"
 
 cd ..
 
+rm -rf ./tmp
+
 echo "📦 Création de l'archive ZIP..."
 cd /home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/buildWeb
 zip -r "Hunter$TAG_NAME.zip" Hunter
 
-cp /home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/buildWeb/Hunter$TAG_NAME.zip /home/u116286536/domains/hunter-evolution-game.com/public_html/desktop/Hunter$TAG_NAME.zip
+mv /home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/buildWeb/Hunter$TAG_NAME.zip /home/u116286536/domains/hunter-evolution-game.com/public_html/desktop/Hunter$TAG_NAME.zip
 
 echo "✅ Déploiement et archivage du tag $TAG_NAME terminé avec succès."

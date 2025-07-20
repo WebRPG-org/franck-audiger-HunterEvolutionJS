@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Installer sshpass et nsis
-        run: sudo apt-get update && sudo apt-get install -y sshpass nsis
+      - name: Installer sshpass
+        run: sudo apt-get update && sudo apt-get install -y sshpass
 
       - name: Exécuter le script release.sh sur le serveur
         env:
