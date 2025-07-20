@@ -59,15 +59,13 @@ echo "📁 Copie des fichiers du site et du workspace..."
 
 
 # --- Vérification de l'existence des fichiers attendus ---
-if [ ! -d "./workspace" ] || [ ! -d "./site/bug-reports" ] || [ ! -d "./site/desktop" ] || [ ! -d "./site/feedback" ]; then
+if [ ! -d "./workspace" ] || [ ! -d "./site/desktop" ]; then
   echo "❌ Dossiers sources manquants dans le dépôt cloné. Abandon."
   exit 1
 fi
 
 cp -vr ./workspace/*         "$DEST_WEB/workspace/"
-cp -vr ./site/bug-reports/*  "$DEST_WEB/bug-reports/"
 cp -vr ./site/desktop/*      "$DEST_WEB/desktop/"
-cp -vr ./site/feedback/*     "$DEST_WEB/feedback/"
 cp -v ./*                    "$DEST_WEB/"
 
 cd ..
