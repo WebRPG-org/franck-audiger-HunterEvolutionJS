@@ -14,31 +14,32 @@
   <h1><?= t('Notes de version','Release notes') ?></h1>
   <div class="container">
     <section class="release">
-      <h2>Version 0.3.5 : Night Overlay fixes</h2>
+      <h2>Version 0.3.5 : <?= t("Overlay nuit & Traduction site & Tri fichiers","Night Overlay fixes & Site traduction & sorting") ?></h2>
       <ul>
         <li><?= t("Amélioration de l'overlay nuit et correctifs pour la version web","Improved night overlay and fixes for the web version") ?></li>
         <li><?= t('Tri des fichiers desktop par date de modification','Sort desktop files by modification date') ?></li>
+        <li><?= t('Traduction sur le site','Website traduction') ?></li>
       </ul>
     </section>
     <section class="release">
-      <h2>Version 0.3.4 : Fix resize view</h2>
+      <h2>Version 0.3.4 : <?= t("Mineur bugs fixe & pipelines deploiements","Minor bug fixes & deployment pipelines") ?></h2>
       <ul>
         <li><?= t('Release technique faite avec des pipelines','Technical release done with pipelines') ?></li>
         <li><?= t('Quelque bug fix mineur','Some minor bug fixes') ?></li>
       </ul>
     </section>
     <section class="release">
-      <h2>Version 0.3.3 : Fix resize view</h2>
+      <h2>Version 0.3.3 : <?= t("Ajustements d’écran & Système de sauvegarde & Autres fix de retours","Screen adjustments & Save system & other feedback fixes") ?></h2>
       <ul>
         <li><?= t("Ajustements d’écran pour l'adaptation à l'écran et divers fix graphique.","Screen adjustments for display adaptation and various graphic fixes.") ?></li>
         <li><?= t('Systeme de sauvegarde terminer.','Save system completed.') ?></li>
-        <li>Refactor QTE Lake</li>
+        <li><?= t('Refonte QTE Lac','Refactor Lake QTE') ?></li>
         <li><?= t("Masquage du Nen et de toute mention a celui-ci tant qu'il n'est pas debloquer","Hide Nen and any mention of it until it is unlocked") ?></li>
         <li><?= t('Refactor du niveau de difficulté du QTE du lac','Refactor the difficulty level of the lake QTE') ?></li>
       </ul>
     </section>
     <section class="release">
-      <h2>Version 0.3.2 : Fix des premier feedbacks</h2>
+      <h2>Version 0.3.2 : <?= t("Fix des premier feedbacks","Fix of the first feedbacks") ?></h2>
       <ul>
         <li><?= t("Ajout d'un system de sauvegarde avec fichier locaux au lieu du cache browser pour la version WEB (Attention ne marche pas encore avec les autosave)","Added a save system with local files instead of browser cache for the WEB version (Does not yet work with autosave)") ?></li>
         <li><?= t('Modification des tile dans la forêt côtiere pour trouver le chemin plus facilement','Changed tiles in the Coastal Forest to more easily find the path') ?></li>
@@ -48,9 +49,9 @@
       </ul>
     </section>
     <section class="release">
-      <h2>Version 0.3.1 : Working on Touch</h2>
+      <h2>Version 0.3.1 : <?= t("Travail sur control clic","Working on Touch control") ?></h2>
       <ul>
-        <li><?= t("Début de l'implémentation Touch (Andoid)","Beginning of Touch implementation (Android)") ?></li>
+        <li><?= t("Début de l'implémentation Touch (Andoid & souris)","Beginning of Touch implementation (Android & mouse)") ?></li>
       </ul>
     </section>
     <section class="release">
