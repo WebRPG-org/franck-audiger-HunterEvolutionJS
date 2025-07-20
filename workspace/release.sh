@@ -46,7 +46,6 @@ cp -vr ./js/*      "$DEST_GAME/js/"
 echo "📁 Copie des fichiers vers le dossier de build Windows..."
 DEST="$DEST_WEB/workspace/buildWeb/Hunter/www"
 
-
 cp -vr ./data/*    "$DEST/data/"
 cp -vr ./fonts/*   "$DEST/fonts/"
 cp -vr ./icon/*    "$DEST/icon/"
@@ -65,13 +64,11 @@ if [ ! -d "./workspace" ] || [ ! -d "./site/bug-reports" ] || [ ! -d "./site/des
   exit 1
 fi
 
-
 cp -vr ./workspace/*         "$DEST_WEB/workspace/"
 cp -vr ./site/bug-reports/*  "$DEST_WEB/bug-reports/"
 cp -vr ./site/desktop/*      "$DEST_WEB/desktop/"
 cp -vr ./site/feedback/*     "$DEST_WEB/feedback/"
 cp -v ./*                    "$DEST_WEB/"
-
 
 cd ..
 
