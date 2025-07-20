@@ -2,6 +2,15 @@
 
 set -e  # Stop on error
 
+TAG_NAME="$1"
+
+if [ -z "$TAG_NAME" ]; then
+  echo "❌ Aucun tag fourni. Abandon."
+  exit 1
+fi
+
+echo "🏷 Clonage du tag $TAG_NAME..."
+
 echo "🧹 Suppression de ./tmp..."
 rm -rf ./tmp
 
@@ -9,12 +18,12 @@ echo "📁 Création de ./tmp..."
 mkdir ./tmp
 cd ./tmp
 
-echo "📥 Clonage de la branche main du repo HunterEvolutionJS..."
-git clone --branch main https://github.com/franck-audiger/HunterEvolutionJS.git .
+echo "📥 Clonage du dépôt à partir du tag $TAG_NAME..."
+git clone --branch "$TAG_NAME" --depth 1 https://github.com/franck-audiger/HunterEvolutionJS.git .
 
 echo "📁 Copie des fichiers vers le dossier game..."
 
-DEST_BASE=/home/u116286536//domains/hunter-evolution-game.com/public_html/workspace/buildWeb/Hunter
+DEST_BASE=/home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/buildWeb/Hunter
 DEST="$DEST_BASE/www"
 
 cp -vr ./data/* "$DEST/data/"
@@ -26,5 +35,6 @@ cp -vr ./movies/* "$DEST/movies/"
 cp -vr ./js/* "$DEST/js/"
 
 cd ..
-
 rm -rf ./tmp
+
+echo "✅ Déploiement du tag $TAG_NAME terminé avec succès."
