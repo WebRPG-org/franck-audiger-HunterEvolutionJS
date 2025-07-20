@@ -14,6 +14,13 @@
   <h1><?= t('Notes de version','Release notes') ?></h1>
   <div class="container">
     <section class="release">
+      <h2>Version 0.3.5 : Night Overlay fixes</h2>
+      <ul>
+        <li><?= t("Amélioration de l'overlay nuit et correctifs pour la version web","Improved night overlay and fixes for the web version") ?></li>
+        <li><?= t('Tri des fichiers desktop par date de modification','Sort desktop files by modification date') ?></li>
+      </ul>
+    </section>
+    <section class="release">
       <h2>Version 0.3.4 : Fix resize view</h2>
       <ul>
         <li><?= t('Release technique faite avec des pipelines','Technical release done with pipelines') ?></li>
