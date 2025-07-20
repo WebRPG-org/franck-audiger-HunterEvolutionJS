@@ -11,12 +11,12 @@ fi
 
 echo "🏷 Clonage du tag $TAG_NAME..."
 
-echo "🧹 Suppression de ./tmp..."
-rm -rf ./tmp
+echo "🧹 Suppression de ./tmpRelease..."
+rm -rf ./tmpRelease
 
-echo "📁 Création de ./tmp..."
-mkdir ./tmp
-cd ./tmp
+echo "📁 Création de ./tmpRelease..."
+mkdir ./tmpRelease
+cd ./tmpRelease
 
 echo "📥 Clonage du dépôt à partir du tag $TAG_NAME..."
 git clone --branch "$TAG_NAME" --depth 1 https://github.com/franck-audiger/HunterEvolutionJS.git .
@@ -58,7 +58,7 @@ cp ./* "$DEST_WEB/"
 
 cd ..
 
-rm -rf ./tmp
+rm -rf ./tmpRelease
 
 echo "📦 Création de l'archive ZIP..."
 
