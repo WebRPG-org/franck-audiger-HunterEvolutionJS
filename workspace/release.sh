@@ -63,9 +63,22 @@ if [ ! -d "./workspace" ] || [ ! -d "./site/desktop" ]; then
   exit 1
 fi
 
-cp ./workspace/*         "$DEST_WEB/workspace/"
-cp ./site/desktop/index.php      "$DEST_WEB/desktop/index.php"
-cp ./site/*                    "$DEST_WEB/"
+
+cp -vr ./workspace/*                    "$DEST_WEB/workspace/"
+cp -vr ./site/desktop/index.php         "$DEST_WEB/desktop/index.php"
+cp -v  ./site/bug-reports.php           "$DEST_WEB/bug-reports.php "
+cp -v  ./site/favicon.ico               "$DEST_WEB/favicon.ico"
+cp -v  ./site/feedback.php              "$DEST_WEB/feedback.php"
+cp -v  ./site/icon.png*                 "$DEST_WEB/icon.png"
+cp -v  ./site/icon-144.png*             "$DEST_WEB/icon-144.png"
+cp -v  ./site/icon-192.png*             "$DEST_WEB/icon-192.png"
+cp -v  ./site/icon-36.png*              "$DEST_WEB/icon-36.png"
+cp -v  ./site/icon-48.png*              "$DEST_WEB/icon-48.png"
+cp -v  ./site/icon-72.png*              "$DEST_WEB/icon-72.png"
+cp -v  ./site/icon-96.png*              "$DEST_WEB/icon-96.png"
+cp -v  ./site/index.html                "$DEST_WEB/index.html"
+cp -v  ./site/release-notes.html        "$DEST_WEB/release-notes.html"
+cp -v  ./site/style.css                 "$DEST_WEB/style.css"
 
 cd ..
 
