@@ -1,4 +1,5 @@
 <?php
+include 'lang.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $contact = trim($_POST['contact'] ?? '');
     $title = trim($_POST['title'] ?? '');
@@ -39,41 +40,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $success = true;
     } else {
-        $error = "Tous les champs sont requis.";
+        $error = t('Tous les champs sont requis.', 'All fields are required.');
     }
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= $lang ?>">
 <head>
   <meta charset="UTF-8">
-  <title>Rapport de bug</title>
+  <title><?= t('Rapport de bug','Bug report') ?></title>
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="icon.png" type="image/png">
 </head>
 <body>
+  <div class="lang-switch">
+    <a href="?lang=fr">FR</a> | <a href="?lang=en">EN</a>
+  </div>
 <?php if (!empty($success)): ?>
-  <div class="msg success">✅ Rapport sauvegardé avec succès !</div>
+  <div class="msg success">✅ <?= t('Rapport sauvegardé avec succès !','Report saved successfully!') ?></div>
 <?php elseif (!empty($error)): ?>
   <div class="msg error">❌ <?= htmlspecialchars($error) ?></div>
 <?php endif; ?>
 <div class="container">
-  <h2>Soumettre un rapport de bug</h2>
+  <h2><?= t('Soumettre un rapport de bug','Submit a bug report') ?></h2>
   <form method="post" enctype="multipart/form-data">
-    <label>Contact :</label>
+    <label><?= t('Contact :','Contact:') ?></label>
     <input type="text" name="contact" required>
 
-    <label>Titre :</label>
+    <label><?= t('Titre :','Title:') ?></label>
     <input type="text" name="title" required>
 
-    <label>Description :</label>
+    <label><?= t('Description :','Description:') ?></label>
     <textarea name="description" rows="6" required></textarea>
 
-    <label>Pièces jointes (PNG ou JPEG) :</label>
+    <label><?= t('Pièces jointes (PNG ou JPEG) :','Attachments (PNG or JPEG):') ?></label>
     <input type="file" name="attachments[]" accept="image/png,image/jpeg" multiple>
 
-    <button type="submit" class="btn">Envoyer le rapport</button>
+    <button type="submit" class="btn"><?= t('Envoyer le rapport','Submit report') ?></button>
   </form>
 </div>
 </body>

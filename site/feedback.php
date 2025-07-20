@@ -1,4 +1,5 @@
 <?php
+include 'lang.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $contact = trim($_POST['contact'] ?? '');
     $title = trim($_POST['title'] ?? '');
@@ -39,41 +40,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $success = true;
     } else {
-        $error = "Tous les champs sont requis.";
+        $error = t('Tous les champs sont requis.', 'All fields are required.');
     }
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= $lang ?>">
 <head>
   <meta charset="UTF-8">
-  <title>Feedback sur le jeu</title>
+  <title><?= t('Feedback sur le jeu','Game feedback') ?></title>
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="icon.png" type="image/png">
 </head>
 <body>
+  <div class="lang-switch">
+    <a href="?lang=fr">FR</a> | <a href="?lang=en">EN</a>
+  </div>
 <?php if (!empty($success)): ?>
-  <div class="msg success">✅ Feedback enregistré avec succès !</div>
+  <div class="msg success">✅ <?= t('Feedback enregistré avec succès !','Feedback saved successfully!') ?></div>
 <?php elseif (!empty($error)): ?>
   <div class="msg error">❌ <?= htmlspecialchars($error) ?></div>
 <?php endif; ?>
 <div class="container">
-  <h2>Envoyer un feedback sur le jeu</h2>
+  <h2><?= t('Envoyer un feedback sur le jeu','Send feedback about the game') ?></h2>
   <form method="post" enctype="multipart/form-data">
-    <label>Contact :</label>
+    <label><?= t('Contact :','Contact:') ?></label>
     <input type="text" name="contact" required>
 
-    <label>Titre :</label>
+    <label><?= t('Titre :','Title:') ?></label>
     <input type="text" name="title" required>
 
-    <label>Message :</label>
+    <label><?= t('Message :','Message:') ?></label>
     <textarea name="description" rows="6" required></textarea>
 
-    <label>Pièces jointes (PNG ou JPEG) :</label>
+    <label><?= t('Pièces jointes (PNG ou JPEG) :','Attachments (PNG or JPEG):') ?></label>
     <input type="file" name="attachments[]" accept="image/png,image/jpeg" multiple>
 
-    <button type="submit" class="btn btn-green">Envoyer le feedback</button>
+    <button type="submit" class="btn btn-green"><?= t('Envoyer le feedback','Send feedback') ?></button>
   </form>
 </div>
 </body>
