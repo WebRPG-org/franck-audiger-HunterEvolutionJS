@@ -49,6 +49,7 @@ cp -vr ./js/* "$DEST/js/"
 
 echo "📁 Copie des fichier du site et du workspace"
 
+ls -al
 
 cp -vr ./workspace/* "$DEST_WEB/workspace/"
 cp -vr ./site/bug-reports/* "$DEST_WEB/bug-reports/"
