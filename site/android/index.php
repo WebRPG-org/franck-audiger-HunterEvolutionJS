@@ -12,7 +12,8 @@ $files = glob('*.apk');
 </head>
 <body>
   <div class="lang-switch">
-    <a href="?lang=fr">FR</a> | <a href="?lang=en">EN</a>
+    <a href="?lang=fr">🇫🇷</a>
+    <a href="?lang=en">🇬🇧</a>
   </div>
   <h1><?= t('Version Android','Android version') ?></h1>
   <div class="intro">

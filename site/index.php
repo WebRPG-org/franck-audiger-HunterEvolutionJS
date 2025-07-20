@@ -9,8 +9,8 @@
 </head>
 <body>
   <div class="lang-switch">
-    <a href="?lang=fr">FR</a> |
-    <a href="?lang=en">EN</a>
+    <a href="?lang=fr">🇫🇷</a>
+    <a href="?lang=en">🇬🇧</a>
   </div>
   <h1>Hunter x Hunter Evolution</h1>
   <p class="intro"><?= t("Hunter x Hunter Evolution est un projet de fan élaboré par un passionné du manga et de technique. L'objectif est de proposer une version du jeu qui retrace fidèlement l'histoire de l'anime de 2011.", "Hunter x Hunter Evolution is a fan project developed by a manga and technology enthusiast. The goal is to offer a version of the game that faithfully follows the story of the 2011 anime.") ?></p>
