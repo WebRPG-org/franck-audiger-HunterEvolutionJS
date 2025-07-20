@@ -9,16 +9,20 @@ if [ -z "$TAG_NAME" ]; then
   exit 1
 fi
 
-# --- Vérification de tmpRelease ---
-TMP_DIR="./tmpRelease"
-if [ ! -d "$TMP_DIR" ]; then
-  echo "❌ Dossier $TMP_DIR introuvable. Veuillez uploader les fichiers avant de lancer ce script."
-  exit 1
-fi
+echo "🏷 Clonage du tag $TAG_NAME..."
 
-echo "📁 Accès à $TMP_DIR"
-cd "$TMP_DIR"
+echo "🧹 Suppression de ./tmpRelease..."
+rm -rf ./tmpRelease
 
+echo "📁 Création de ./tmpRelease..."
+mkdir ./tmpRelease
+cd ./tmpRelease
+
+echo "📥 Clonage du dépôt à partir du tag $TAG_NAME..."
+git clone --branch "$TAG_NAME" --depth 1 https://github.com/franck-audiger/HunterEvolutionJS.git .
+
+
+echo "📁 Vérification des fichier..."
 # --- Vérification de l'existence des fichiers attendus ---
 if [ ! -d "./data" ] || [ ! -d "./fonts" ] || [ ! -d "./js" ] || [ ! -d "./icon" ] || [ ! -d "./img" ] || [ ! -d "./audio" ] || [ ! -d "./movies" ]; then
   echo "❌ Dossiers sources manquants dans le dépôt cloné. Abandon."
@@ -41,6 +45,7 @@ cp -vr ./js/*      "$DEST_GAME/js/"
 # --- Copie vers le dossier de build Windows ---
 echo "📁 Copie des fichiers vers le dossier de build Windows..."
 DEST="$DEST_WEB/workspace/buildWeb/Hunter/www"
+
 
 cp -vr ./data/*    "$DEST/data/"
 cp -vr ./fonts/*   "$DEST/fonts/"
@@ -67,18 +72,16 @@ cp -vr ./site/desktop/*      "$DEST_WEB/desktop/"
 cp -vr ./site/feedback/*     "$DEST_WEB/feedback/"
 cp -v ./*                    "$DEST_WEB/"
 
+
 cd ..
 
-echo "🧹 Suppression de $TMP_DIR..."
-rm -rf "$TMP_DIR"
+rm -rf ./tmpRelease
 
-# --- Création de l'archive ZIP ---
 echo "📦 Création de l'archive ZIP..."
-cd "$DEST_WEB/workspace/buildWeb"
-ZIP_NAME="Hunter$TAG_NAME.zip"
-zip -r "$ZIP_NAME" Hunter
 
-# --- Déplacement final ---
-mv "$ZIP_NAME" "$DEST_WEB/desktop/$ZIP_NAME"
+cd /home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/buildWeb
+zip -r "Hunter$TAG_NAME.zip" Hunter
+
+mv /home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/buildWeb/Hunter$TAG_NAME.zip /home/u116286536/domains/hunter-evolution-game.com/public_html/desktop/Hunter$TAG_NAME.zip
 
 echo "✅ Déploiement et archivage du tag $TAG_NAME terminé avec succès."

@@ -10,31 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout du dépôt (branche main)
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 0
+      - name: Installer sshpass
+        run: sudo apt-get update && sudo apt-get install -y sshpass
 
-      - name: Préparer le dossier
-        env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_PASSWORD: ${{ secrets.FTP_PASS }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
-        run: |
-          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST -p $SSH_PORT "rm -rf /home/$SSH_USER/domains/hunter-evolution-game.com/public_html/workspace/tmp && mkdir -p /home/$SSH_USER/domains/hunter-evolution-game.com/public_html/workspace/tmp"
-      
-      - name: Upload des fichiers locaux vers tmp/
-        env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_PASSWORD: ${{ secrets.FTP_PASS }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
-        run: |
-          sshpass -p "$SSH_PASSWORD" scp -P $SSH_PORT -r ./ $SSH_USER@$SSH_HOST:/home/$SSH_USER/domains/hunter-evolution-game.com/public_html/workspace/tmp/
-      
-      - name: Exécution du script distant
+      - name: Exécuter le script distant avec sshpass
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
