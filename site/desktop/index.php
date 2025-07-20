@@ -1,5 +1,5 @@
 <?php
-$files = glob('*.7z');
+$files = array_merge(glob('*.7z'), glob('*.zip'));
 ?>
 <!DOCTYPE html>
 <html lang="fr">
