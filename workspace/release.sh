@@ -57,7 +57,6 @@ cp -vr ./js/*      "$DEST/js/"
 # --- Copie des éléments du site ---
 echo "📁 Copie des fichiers du site et du workspace..."
 
-
 # --- Vérification de l'existence des fichiers attendus ---
 if [ ! -d "./workspace" ] || [ ! -d "./site/desktop" ]; then
   echo "❌ Dossiers sources manquants dans le dépôt cloné. Abandon."
