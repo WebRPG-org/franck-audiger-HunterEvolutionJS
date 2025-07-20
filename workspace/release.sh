@@ -86,6 +86,8 @@ rm -rf ./tmpRelease
 
 echo "📦 Création de l'archive ZIP..."
 
+cd buildWeb
+
 cd /home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/buildWeb
 zip -r "Hunter$TAG_NAME.zip" Hunter
 
