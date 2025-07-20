@@ -35,6 +35,11 @@ cp -vr ./movies/* "$DEST/movies/"
 cp -vr ./js/* "$DEST/js/"
 
 cd ..
-rm -rf ./tmp
 
-echo "✅ Déploiement du tag $TAG_NAME terminé avec succès."
+echo "📦 Création de l'archive ZIP..."
+cd /home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/buildWeb
+zip -r "Hunter$TAG_NAME.zip" Hunter
+
+cp /home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/buildWeb/Hunter$TAG_NAME.zip /home/u116286536/domains/hunter-evolution-game.com/public_html/desktop/Hunter$TAG_NAME.zip
+
+echo "✅ Déploiement et archivage du tag $TAG_NAME terminé avec succès."
