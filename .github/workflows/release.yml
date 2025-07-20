@@ -1,0 +1,61 @@
+name: Déploiement Release via SSH
+
+on:
+  push:
+    tags:
+      - '*' 
+
+jobs:
+  release:
+    if: github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Installer sshpass et nsis
+        run: sudo apt-get update && sudo apt-get install -y sshpass nsis
+
+      - name: Exécuter le script release.sh sur le serveur
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PASSWORD: ${{ secrets.FTP_PASS }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST -p $SSH_PORT "cd /home/$SSH_USER/domains/hunter-evolution-game.com/public_html/workspace && bash release.sh"
+
+      - name: Télécharger les fichiers build depuis le serveur
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PASSWORD: ${{ secrets.FTP_PASS }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          sshpass -p "$SSH_PASSWORD" scp -r -P $SSH_PORT $SSH_USER@$SSH_HOST:/home/$SSH_USER/domains/hunter-evolution-game.com/public_html/workspace/buildWeb/Hunter ./HunterBuild
+
+      - name: Générer l’installateur Windows
+        run: |
+          cat > installer.nsi <<EOF
+          !include "MUI2.nsh"
+          Name "Hunter Evolution"
+          OutFile "HunterEvolutionInstaller.exe"
+          InstallDir "\$PROGRAMFILES\\Games\\HunterEvolution"
+          RequestExecutionLevel admin
+          !define MUI_ICON "HunterBuild/www/icon/icon.png"
+          !define MUI_UNICON "HunterBuild/www/icon/icon.png"
+          !insertmacro MUI_PAGE_WELCOME
+          !insertmacro MUI_PAGE_DIRECTORY
+          !insertmacro MUI_PAGE_INSTFILES
+          !insertmacro MUI_PAGE_FINISH
+          Section
+            SetOutPath "\$INSTDIR"
+            File /r "HunterBuild/*"
+            CreateShortcut "\$DESKTOP\\Hunter Evolution.lnk" "\$INSTDIR\\Game.exe" "" "\$INSTDIR\\Game.exe"
+          SectionEnd
+          EOF
+              makensis installer.nsi
+
+      - name: Sauvegarder l’installeur
+        uses: actions/upload-artifact@v3
+        with:
+          name: hunter-evolution-installer
+          path: HunterEvolutionInstaller.exe
