@@ -17,7 +17,8 @@ usort($files, function($a, $b) {
 </head>
 <body>
   <div class="lang-switch">
-    <a href="?lang=fr">FR</a> | <a href="?lang=en">EN</a>
+    <a href="?lang=fr">🇫🇷</a>
+    <a href="?lang=en">🇬🇧</a>
   </div>
   <h1><?= t('Version Desktop','Desktop version') ?></h1>
   <div class="intro">

@@ -55,7 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
   <div class="lang-switch">
-    <a href="?lang=fr">FR</a> | <a href="?lang=en">EN</a>
+    <a href="?lang=fr">🇫🇷</a>
+    <a href="?lang=en">🇬🇧</a>
   </div>
 <?php if (!empty($success)): ?>
   <div class="msg success">✅ <?= t('Feedback enregistré avec succès !','Feedback saved successfully!') ?></div>
