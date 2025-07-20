@@ -15,6 +15,12 @@
   <h1><?= t('Notes de version','Release notes') ?></h1>
   <div class="container">
     <section class="release">
+      <h2>Version 0.4.0 : <?= t("Fin de Milestone 3","End of Milestone 3") ?></h2>
+      <ul>
+        <li><?= t("Finalisation de la première version des traductions anglais","Finalization of the first version of English translations") ?></li>
+      </ul>
+    </section>
+    <section class="release">
       <h2>Version 0.3.5 : <?= t("Overlay nuit & Traduction site & Tri fichiers","Night Overlay fixes & Site traduction & sorting") ?></h2>
       <ul>
         <li><?= t("Amélioration de l'overlay nuit et correctifs pour la version web","Improved night overlay and fixes for the web version") ?></li>
