@@ -55,7 +55,11 @@ jobs:
               makensis installer.nsi
 
       - name: Sauvegarder l’installeur
-        uses: actions/upload-artifact@v3
-        with:
-          name: hunter-evolution-installer
-          path: HunterEvolutionInstaller.exe
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PASSWORD: ${{ secrets.FTP_PASS }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          ls ./ 
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST -p $SSH_PORT "cd /home/$SSH_USER/domains/hunter-evolution-game.com/public_html/workspace && bash release.sh"
