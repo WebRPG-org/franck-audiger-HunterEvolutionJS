@@ -18,6 +18,10 @@ window.TextManagerEx = {
     });
   },
 
+  getLanguage() {
+    return this._language;
+  },
+
   loadTexts() {
     const path = `data/lang/texts_${this._language}.json`;
     return new Promise((resolve, reject) => {
