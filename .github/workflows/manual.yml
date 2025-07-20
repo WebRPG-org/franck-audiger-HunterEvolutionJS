@@ -10,12 +10,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Se connecter au serveur et exécuter le script
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          password: ${{ secrets.FTP_PASS }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            /bin/sh /home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/deploy-dev.sh
+      - name: Installer sshpass
+        run: sudo apt-get update && sudo apt-get install -y sshpass
+
+      - name: Exécuter le script distant avec sshpass
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PASSWORD: ${{ secrets.FTP_PASS }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST -p $SSH_PORT "cd /home/$SSH_USER/domains/hunter-evolution-game.com/public_html/workspace && bash deploy-dev.sh"
