@@ -24,8 +24,9 @@ cp -vr ./data/* "$DEST/data/"
 cp -vr ./fonts/* "$DEST/fonts/"
 cp -vr ./icon/* "$DEST/icon/"
 cp -vr ./img/* "$DEST/img/"
-cp -vr ./json/* "$DEST/json/"
+cp -vr ./audio/* "$DEST/audio/"
 cp -vr ./movies/* "$DEST/movies/"
+cp -vr ./js/* "$DEST/js/"
 
 cd ..
 
