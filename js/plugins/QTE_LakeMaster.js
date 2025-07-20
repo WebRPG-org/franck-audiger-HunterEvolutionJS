@@ -130,7 +130,6 @@
   class QTE_Window extends Window_Base {
     
     constructor(x, y, yMin, yMax, xMin, xMax, difficulty) {
-      console.log("setup QTE with yMin: " + yMin + ", yMax: " + yMax + ", xMin: " + xMin + ", xMax: " + xMax);
 
       const visibleW = $gameMap.tileWidth() * $gameMap.width();
       const visibleH = $gameMap.tileHeight() * $gameMap.height();
@@ -141,7 +140,6 @@
       let dh = Graphics.boxHeight - h;
       if (dw < 0) dw = 0;
       if (dh < 0) dh = 0;
-console.log("x: " + x + ", y: " + y + ", dw: " + dw + ", dh: " + dh);
       const left = dw/2 + x * $gameMap.tileWidth();
       const top = dh/2 + y * $gameMap.tileHeight();
       super();
@@ -381,7 +379,6 @@ console.log("x: " + x + ", y: " + y + ", dw: " + dw + ", dh: " + dh);
     const top = dh/2 + yMin * $gameMap.tileHeight();
     const width = (xMax*$gameMap.tileWidth() - xMin*$gameMap.tileWidth())+$gameMap.tileWidth();
     const height = (yMax*$gameMap.tileHeight() - yMin*$gameMap.tileHeight())+$gameMap.tileWidth();
-    console.log("left: " + left + ", top: " + top + ", width: " + width + ", height: " + height);
 
     const sprite = new Sprite(new Bitmap(Graphics.boxWidth, Graphics.boxHeight));
     const bitmap = sprite.bitmap;

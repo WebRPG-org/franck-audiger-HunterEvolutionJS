@@ -371,7 +371,6 @@ function showCustomAutoMessage(scene, faceName, faceIndex, text, durationFrames 
   text = text.replace(/langText\[(.+?)\]/gi, (_, key) => {
     return TextManagerEx.t(key);
   });
-  console.log(`📝 Sprite Msg : "${text}" avec ${faceName} (index ${faceIndex})`);
   spr.setMessage(faceName, faceIndex, text, durationFrames);
 }
 
@@ -379,7 +378,6 @@ function checkMessagesToShow(playerY) {
   if(messagesConfig[playerY] && !messagesShown[playerY]) {
     const config = messagesConfig[playerY];
     if (!messagesShown[playerY]) {
-      console.log(config.actorName);
       showCustomAutoMessage(SceneManager._scene, config.actorName, config.actorIndex, config.text, config.duration);
       messagesShown[playerY] = true;
     }
@@ -599,7 +597,6 @@ Game_Player.prototype.update = function(sceneActive) {
       SoundManager.playActorDamage();
       const scene = SceneManager._scene;
       if (scene.refreshMiniGameHUD) scene.refreshMiniGameHUD();
-      console.log("💥 Touché un rocher ! Vies restantes : " + miniGameLives);
     }
 
     const tileW = $gameMap.tileWidth();
@@ -628,7 +625,6 @@ Game_Player.prototype.update = function(sceneActive) {
       AudioManager.playSe({name:'water-splash-Fail', pan:0, pitch:100, volume:90});
       const scene = SceneManager._scene;
       if (scene.refreshMiniGameHUD) scene.refreshMiniGameHUD();
-      console.log("🌊 Touché par une vague ! Vies restantes : " + miniGameLives);
     }
 
     if(timerGameOver === 0){
@@ -652,7 +648,6 @@ Game_Player.prototype.update = function(sceneActive) {
       SceneManager.goto(Scene_Gameover);
       
     } else if(timerGameOver > 0){
-      console.log("timerGameOver decrease ");
       timerGameOver -= 1;
     }
 
@@ -722,6 +717,4 @@ function spawnRandomWaveEvent(playerX, playerY) {
     scene._spriteset._tilemap.addChild(sprite);
     scene._spriteset._characterSprites.push(sprite);
   }
-
-  console.log(`🌊 Vague générée : "${chosenName}" en (${finalX}, ${finalY})`);
 }

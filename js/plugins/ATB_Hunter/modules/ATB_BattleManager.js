@@ -206,7 +206,6 @@ BattleManager.isInputting = function() {
 
 BattleManager.processEscape = function() {
     $gameParty.performEscape();
-    console.log("escapeRatio : " + this._escapeRatio);
     var success = this._preemptive ? true : (Math.random() < this._escapeRatio);
     this.displayEscapeTrialMessage();
     if (success) {

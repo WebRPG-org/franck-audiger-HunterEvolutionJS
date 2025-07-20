@@ -4,11 +4,6 @@
 
     function switchBlockCamera() {
         _blockCamera = !_blockCamera;
-        if (_blockCamera) {
-            console.log("BlockCamera: Camera is now blocked.");
-        } else {
-            console.log("BlockCamera: Camera is now unblocked.");
-        }
     }
     
     // 👉 Rendre la fonction globale

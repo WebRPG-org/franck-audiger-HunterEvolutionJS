@@ -176,7 +176,6 @@ Scene_Battle.prototype.createActorCommandWindow = function() {
     this._actorCommandWindow.setHandler('skill',  this.commandSkill.bind(this));
     this._actorCommandWindow.setHandler('guard',  this.commandGuard.bind(this));
     this._actorCommandWindow.setHandler('item',   this.commandItem.bind(this));
-    console.log("$gameTroop.troop().id; : " + $gameTroop.troop().id);
     if(!BattleManager.noEscapeTroop().includes($gameTroop.troop().id)){
         this._actorCommandWindow.setHandler('escape', this.commandEscape.bind(this));
     }

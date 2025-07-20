@@ -135,7 +135,6 @@
     _Scene_Map_update.call(this);
     if (this._qteBar && this._qteBar._activeQTE && Input.isTriggered('ok')) {
       this._qteBar.processSuccessAttempt();
-      console.log("QTE Bar: Success attempt processed.");
     }
   };
 })();

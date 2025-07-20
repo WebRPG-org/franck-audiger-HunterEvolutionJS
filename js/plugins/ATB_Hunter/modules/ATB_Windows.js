@@ -431,7 +431,6 @@ Window_InputList.prototype.drawItem = function(index) {
     const half = rect.width / 2;
 
     this.resetTextColor();
-    console.log("Drawing input: " + name + " with key: " + key);
     this.drawText(name, rect.x + this.textPadding(), rect.y, half - this.textPadding(), 'left');
     this.drawText(key, rect.x + half, rect.y, half - this.textPadding(), 'right');
 };
