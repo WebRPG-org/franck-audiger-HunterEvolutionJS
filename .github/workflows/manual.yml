@@ -15,7 +15,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          password: ${{ secrets.FTP_PASS }}
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd ./domains/hunter-evolution-game.com/public_html
