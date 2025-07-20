@@ -18,4 +18,4 @@ jobs:
           password: ${{ secrets.FTP_PASS }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            sh /home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/deploy-dev.sh
+            /bin/sh /home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/deploy-dev.sh
