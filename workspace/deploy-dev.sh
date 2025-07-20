@@ -1,1 +1,3 @@
-echo deployed > toto.txt
+echo "📍 Emplacement : $(pwd)"
+echo "📂 Contenu :"
+ls -la
