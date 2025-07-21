@@ -117,3 +117,10 @@ li {
   top: 10px;
   left: 10px;
 }
+
+.disclaimer {
+  margin-top: 2em;
+  font-size: 0.9em;
+  color: #666;
+  max-width: 600px;
+}
