@@ -13,6 +13,133 @@
     const DEFAULT_WIDTH = 816;
     const DEFAULT_HEIGHT = 624;
 
+    let isFullScreen = true;
+    
+    let currentIndexResolution = 0;
+
+    Scene_Base.prototype.onResolutionChange = function() {
+        currentIndexResolution++;
+        const myIndex = currentIndexResolution;
+        const boxW = Graphics.boxWidth;
+        const boxH = Graphics.boxHeight;
+
+        if (boxW <= DEFAULT_WIDTH || boxH <= DEFAULT_HEIGHT) {
+            // 👇 Stratégie "petit écran" : mise à l’échelle globale
+            const scaleX = boxW / DEFAULT_WIDTH;
+            const scaleY = boxH / DEFAULT_HEIGHT;
+            const scale = Math.min(scaleX, scaleY);
+
+            this.scale.x = scale;
+            this.scale.y = scale;
+
+            // Centrage de la scène pour éviter décalages
+            this.x = (boxW - DEFAULT_WIDTH * scale) / 2;
+            this.y = (boxH - DEFAULT_HEIGHT * scale) / 2;
+        } else {
+            // 🧼 Reset échelle et position (en cas de retour à grand écran)
+            this.scale.x = 1;
+            this.scale.y = 1;
+            this.x = 0;
+            this.y = 0;
+
+
+            // ♻️ Recharge les composants de la scène sans changer de scène
+            if (typeof this.create === 'function') {
+                this._windowLayer && this.removeChild(this._windowLayer);
+                this._spriteset && this.removeChild(this._spriteset);
+                this._windowLayer = null;
+                this._spriteset = null;
+                this.create(false);
+            }
+        }
+    };
+
+    const PARAM_FULLSCREEN = "fullscreen";
+    
+const _Window_Options_addGeneralOptions2 = Window_Options.prototype.addGeneralOptions;
+Window_Options.prototype.addGeneralOptions = function() {
+  _Window_Options_addGeneralOptions2.call(this);
+  this.addCommand(TextManagerEx.t("command.screen"), PARAM_FULLSCREEN);
+};
+
+// Bascule entre les modes quand on appuie sur Entrée
+const _Window_Options_processOk2 = Window_Options.prototype.processOk;
+Window_Options.prototype.processOk = function() {
+    const symbol = this.commandSymbol(this.index());
+    if (symbol === PARAM_FULLSCREEN) {
+        isFullScreen = !isFullScreen;
+        this.changeValue(symbol, isFullScreen);
+        toggleFullScreen(isFullScreen);
+        return;
+    }
+    _Window_Options_processOk2.call(this);
+};
+
+// Fonction utilitaire pour basculer le mode plein écran
+function toggleFullScreen(toFullscreen) {
+    const isCurrentlyFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
+
+    if (toFullscreen) {
+        if (!isCurrentlyFullscreen) {
+            const canvas = document.getElementById('gameCanvas') || document.body;
+            if (canvas.requestFullscreen) {
+                canvas.requestFullscreen();
+            } else if (canvas.webkitRequestFullscreen) {
+                canvas.webkitRequestFullscreen();
+            } else if (canvas.mozRequestFullScreen) {
+                canvas.mozRequestFullScreen();
+            }
+        }
+    } else {
+        if (isCurrentlyFullscreen) {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            }
+        }
+    }
+}
+
+    // 🔁 Ajuste dynamiquement à chaque redimensionnement de la fenêtre
+    let _previousW = window.innerWidth;
+    let _previousH = window.innerHeight;
+
+    window.addEventListener("resize", function() {
+        
+        const scene = SceneManager._scene;
+        const isSystemScene = scene instanceof Scene_Boot ||
+                                scene instanceof Scene_Load ||
+                                scene instanceof Scene_Title ||
+                                scene instanceof Scene_Gameover ||
+                                scene instanceof Scene_GameEnd;
+        if(isSystemScene){
+            const newW = window.innerWidth;
+            const newH = window.innerHeight;
+
+            if (newW !== _previousW || newH !== _previousH) {
+                _previousW = newW;
+                _previousH = newH;
+                adjustScreenSize();
+                //applyCssScaleForSmallScreens();
+                requestResizeUpdate();
+            }
+        } else {
+            window.resizeTo(_previousW, _previousH);
+        }
+    });
+
+    function requestResizeUpdate() {
+        const scene = SceneManager._scene;
+        if (scene && typeof scene.onResolutionChange === 'function') {
+            if(scene instanceof Scene_Boot || scene instanceof Scene_Load || scene instanceof Scene_Title || scene instanceof Scene_Gameover || scene instanceof Scene_GameEnd) {
+                scene.onResolutionChange();
+            }
+        }
+    }
+    
     function adjustScreenSize() {
         const windowW = window.innerWidth;
         const windowH = window.innerHeight;
@@ -42,39 +169,12 @@
 
         Graphics._updateAllElements();
 
-        const offsetX = (windowW - newWidth) / 2;
+        /*const offsetX = (windowW - newWidth) / 2;
         const offsetY = (windowH - newHeight) / 2;
 
         window.moveBy(-offsetX, -offsetY);
-        window.resizeBy(newWidth - window.innerWidth, newHeight - window.innerHeight);
+        window.resizeBy(newWidth - window.innerWidth, newHeight - window.innerHeight);*/
     }
-/*
-    function adjustScreenSize() {
-        const scaleX = window.innerWidth / DEFAULT_WIDTH;
-        const scaleY = window.innerHeight / DEFAULT_HEIGHT;
-        const scale = Math.min(scaleX, scaleY);
-
-        const newWidth = Math.floor(DEFAULT_WIDTH * scale);
-        const newHeight = Math.floor(DEFAULT_HEIGHT * scale);
-
-        SceneManager._screenWidth = newWidth;
-        SceneManager._screenHeight = newHeight;
-        SceneManager._boxWidth = newWidth;
-        SceneManager._boxHeight = newHeight;
-
-        Graphics._width = newWidth;
-        Graphics._height = newHeight;
-        Graphics.boxWidth = newWidth;
-        Graphics.boxHeight = newHeight;
-
-        Graphics._updateAllElements();
-
-        const offsetX = (window.innerWidth - newWidth) / 2;
-        const offsetY = (window.innerHeight - newHeight) / 2;
-
-        window.moveBy(-offsetX, -offsetY);
-        window.resizeBy(newWidth - window.innerWidth, newHeight - window.innerHeight);
-    }*/
 
     // Override SceneManager.run to adjust screen size early
     const _SceneManager_run = SceneManager.run;

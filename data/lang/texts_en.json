@@ -605,6 +605,7 @@
   "command.mainTitle": "Title Screen",
   "command.cancel": "Cancel",
   "command.langue": "Language",
+  "command.screen" : "Full Screen",
   "command.inputsList": "Commands",
   "commandList.ok.key": "Confirm",
   "commandList.cancel.key": "Cancel",

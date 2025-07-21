@@ -9,11 +9,23 @@ window.TextManagerEx = {
     this._language = lang;
     ConfigManager.language = lang;
     ConfigManager.save();
+
+    const scene = SceneManager._scene;
+
     return this.loadTexts().then(() => {
-      if (SceneManager._scene && SceneManager._scene.refresh) {
-        SceneManager._scene.refresh();
+      // Si on est dans la scène Options et qu’elle a une sélection
+      if (scene instanceof Scene_Options && scene._optionsWindow) {
+        const selectedIndex = scene._optionsWindow.index();
+
+        // Forcer un refresh propre
+        const win = scene._optionsWindow;
+        win.refresh();
+        win.select(selectedIndex); // <- Réapplique la sélection
+
+      } else if (scene && scene.refresh) {
+        scene.refresh();
       } else {
-        SceneManager.goto(SceneManager._scene.constructor);
+        SceneManager.goto(scene.constructor);
       }
     });
   },

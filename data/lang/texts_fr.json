@@ -634,6 +634,7 @@
   "command.mainTitle" : "Écran titre",
   "command.cancel" : "Annuler",
   "command.langue" : "Langue",
+  "command.screen" : "Plein écran",
   "command.inputsList" : "Commandes",
   "commandList.ok.key" : "Valider",
   "commandList.cancel.key" : "Annuler",
