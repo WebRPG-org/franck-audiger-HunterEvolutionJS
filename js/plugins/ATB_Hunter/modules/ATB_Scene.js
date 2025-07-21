@@ -4,6 +4,56 @@
 //
 // The scene class of the battle screen.
 
+const NUMBER_ACTION_WITHOUT_HINT = 5;
+const NUMBER_ACTION_WITHOUT_HINT_SOFT = 2;
+
+const VAR_NUM_ACTIONS = 40;
+const VAR_HINT_HARD = 41;
+const VAR_HINT_DISABLE = 42;
+
+let stopInputNumberActionWithoutDef = false;
+
+function incrementNumberActionWithoutDef() {
+    if (stopInputNumberActionWithoutDef) return;
+
+    let count = $gameVariables.value(VAR_NUM_ACTIONS) || 0;
+    const hintHardEnabled = $gameVariables.value(VAR_HINT_HARD) === 1;
+    const hintDisabled = $gameVariables.value(VAR_HINT_DISABLE) === 1;
+
+    if (hintDisabled) return;
+
+    count += 1;
+    $gameVariables.setValue(VAR_NUM_ACTIONS, count);
+
+    stopInputNumberActionWithoutDef = true;
+
+    const threshold = hintHardEnabled ? NUMBER_ACTION_WITHOUT_HINT : NUMBER_ACTION_WITHOUT_HINT_SOFT;
+
+    if (count > threshold && !$gameMessage.isBusy()) {
+        $gameMessage.setFaceImage("Faces-Gon2", 6); 
+        $gameMessage.add(TextManagerEx.t("hint.doGuard"));
+
+        $gameVariables.setValue(VAR_NUM_ACTIONS, 0); // Reset
+    }
+}
+
+window.softHintForGuard = function() {
+    $gameVariables.setValue(VAR_HINT_HARD, 1);
+};
+
+window.disableHintForGuard = function() {
+    $gameVariables.setValue(VAR_HINT_DISABLE, 1);
+};
+
+function resetStopInputNumberActionWithoutDef() {
+    stopInputNumberActionWithoutDef = false;
+}
+
+function resetNumberActionWithoutDef() {
+    numberActionWithoutDef = 0;
+    resetStopInputNumberActionWithoutDef()
+}
+
 function Scene_Battle() {
     this.initialize.apply(this, arguments);
 }
@@ -266,6 +316,7 @@ Scene_Battle.prototype.commandSkill = function() {
 };
 
 Scene_Battle.prototype.commandGuard = function() {
+    //TODO : incrementNumberActionWithoutDef();
     BattleManager.getCurrentInputActor().inputtingAction().setGuard();
     if(BattleManager.getCurrentInputActor().isActor()){
         BattleManager.getCurrentInputActor().setGuard()
@@ -286,6 +337,7 @@ Scene_Battle.prototype.selectActorSelection = function() {
 };
 
 Scene_Battle.prototype.onActorOk = function() {
+    incrementNumberActionWithoutDef();
     var actor = BattleManager.getCurrentInputActor();
     var action = actor.inputtingAction();
     action.setTarget(this._actorWindow.index());
@@ -300,6 +352,7 @@ Scene_Battle.prototype.endCommand = function() {
     BattleManager.getReadyActorsToAction().push(BattleManager.getCurrentInputActor())
     BattleManager._inputActorsIndex++;
     this.endCommandSelection();
+    resetStopInputNumberActionWithoutDef();
 }
 
 Scene_Battle.prototype.onActorCancel = function() {
@@ -325,6 +378,7 @@ Scene_Battle.prototype.selectEnemySelection = function() {
 };
 
 Scene_Battle.prototype.onEnemyOk = function() {
+    incrementNumberActionWithoutDef();
     var action = BattleManager.getCurrentInputActor().inputtingAction();
     action.setTarget(this._enemyWindow.enemyIndex());
     this._enemyWindow.hide();
@@ -351,6 +405,7 @@ Scene_Battle.prototype.onEnemyCancel = function() {
 };
 
 Scene_Battle.prototype.onSkillOk = function() {
+    incrementNumberActionWithoutDef();
     var skill = this._skillWindow.item();
     var action = BattleManager.getCurrentInputActor().inputtingAction();
     action.setSkill(skill.id);
@@ -364,6 +419,7 @@ Scene_Battle.prototype.onSkillCancel = function() {
 };
 
 Scene_Battle.prototype.onItemOk = function() {
+    incrementNumberActionWithoutDef();
     var item = this._itemWindow.item();
     var action = BattleManager.getCurrentInputActor().inputtingAction();
     action.setItem(item.id);

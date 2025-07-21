@@ -694,5 +694,6 @@
   "messages.removeBuff": "%1’s %2 returned to normal!",
   "messages.failAction": "There was no effect on %1!",
   "system.fidelityLabel": "Loyalty :",
-  "system.title": "Hunter x Hunter\nEvolution"
+  "system.title": "Hunter x Hunter\nEvolution",
+  "hint.doGuard" : "I should probably defend myself or \nI will never succeed."
 }

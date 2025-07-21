@@ -1,3 +1,7 @@
+const NO_CRIT_TROOP_ID = 1;
+
+
+
 // ==== ATB EXTENSIONS POUR OBJECT ====
 
 Game_Battler.prototype.performActionStart = function(action) {};
@@ -55,6 +59,14 @@ Game_Battler.prototype.decreaseGuard = function() {
     }
 };
 
+const _Game_Action_itemCri = Game_Action.prototype.itemCri;
+Game_Action.prototype.itemCri = function(target) {
+    if ($gameTroop.troop().id === NO_CRIT_TROOP_ID) {
+        console.log("No crit for this troop");
+        return 0; 
+    }
+    return _Game_Action_itemCri.call(this, target);
+};
 
 Game_Action.prototype.applyGuard = function(damage, target) {
     return damage / (damage > 0 && target.isGuard() ? 2 * target.grd * target.guardRatio() : 1);

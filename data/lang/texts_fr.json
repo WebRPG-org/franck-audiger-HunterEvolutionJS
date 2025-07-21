@@ -722,5 +722,7 @@
   "messages.addDebuff" : "%1 de %2 a diminué !",
   "messages.removeBuff" : "%1 de %2 est retournée à la normale !",
   "messages.failAction" : "Il n'y a pas d'effet sur %1 !",
-  "system.fidelityLabel" : "Fidélité : "
+  "system.fidelityLabel" : "Fidélité : ",
+  "system.title": "Hunter x Hunter\nEvolution",
+  "hint.doGuard" : "Je ferai bien de me défendre ou je ne \nvais jamais réussir."
 }
