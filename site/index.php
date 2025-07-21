@@ -20,6 +20,7 @@
   <a href="/release-note.php?lang=<?= $lang ?>" class="btn">📝 <?= t('Notes de version','Release Notes') ?></a>
   <a href="/bug-reports.php?lang=<?= $lang ?>" class="btn">🐞 <?= t('Signaler un bug','Report a bug') ?></a>
   <a href="/feedback.php?lang=<?= $lang ?>" class="btn">💬 <?= t('Donner un avis/Suggestions','Give feedback/Suggestions') ?></a>
+  <a href="/contact.php?lang=<?= $lang ?>" class="btn">📧 <?= t('Contact','Contact') ?></a>
   <div class="disclaimer">
   <h2><?= t('Mention légale', 'Legal Notice') ?></h2>
   <p>
