@@ -1,5 +1,3 @@
-
-
 DataManager.saveGameWeb = function() {
     var json = JsonEx.stringify(this.makeSaveContents());
     if (json.length >= 200000) {
@@ -9,6 +7,8 @@ DataManager.saveGameWeb = function() {
     
     return true;
 };
+
+let lastSaveName = "Save1.rpgsave";
 
 function saveAsFile(filename, content) {
     const blob = new Blob([content], { type: 'application/octet-stream' });
@@ -20,6 +20,7 @@ function saveAsFile(filename, content) {
 
     document.body.appendChild(a);
     a.click();
+    lastSaveName = filename;
     document.body.removeChild(a);
 
     URL.revokeObjectURL(url);
@@ -35,7 +36,7 @@ function openSaveFileAndLoadGame() {
     input.addEventListener('change', function(event) {
         const file = event.target.files[0];
         if (!file) return;
-
+        lastSaveName = file.name;
         fileSelected = true;
 
         const reader = new FileReader();
@@ -74,7 +75,7 @@ function openSaveFileAndLoadGame() {
 
 StorageManager.saveWebToLocalFile = function(json) {
     var data = LZString.compressToBase64(json);
-    saveAsFile("Save1.rpgsave", data);
+    saveAsFile(lastSaveName, data);
 };
 
 
@@ -90,12 +91,10 @@ Scene_Menu.prototype.commandSave = function() {
 Scene_Title.prototype.commandContinue = function() {
     if (!StorageManager.isLocalMode()) {
         openSaveFileAndLoadGame();
-        
     } else {
         SceneManager.push(Scene_Load);
     }
 };
-
 
 Scene_Load.prototype.onLoadSuccess = function() {
     SoundManager.playLoad();
@@ -113,11 +112,12 @@ Scene_Load.prototype.onLoadFailure = function() {
 Window_TitleCommand.prototype.makeCommandList = function() {
     this.addCommand(TextManager.newGame,   'newGame');
     if (!StorageManager.isLocalMode()) {
-        this.addCommand(TextManager.continue_, 'continue');
+        this.addCommand(TextManager.continue_, 'continue', true);
     } else {
         this.addCommand(TextManager.continue_, 'continue', this.isContinueEnabled());
     }
     this.addCommand(TextManager.options,   'options');
+    this.addCommand(TextManager.gameEnd,   'gameEnd');
 };
 
 

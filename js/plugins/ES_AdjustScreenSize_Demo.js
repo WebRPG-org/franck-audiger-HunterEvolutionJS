@@ -54,54 +54,56 @@
         }
     };
 
-    const PARAM_FULLSCREEN = "fullscreen";
-    
-const _Window_Options_addGeneralOptions2 = Window_Options.prototype.addGeneralOptions;
-Window_Options.prototype.addGeneralOptions = function() {
-  _Window_Options_addGeneralOptions2.call(this);
-  this.addCommand(TextManagerEx.t("command.screen"), PARAM_FULLSCREEN);
-};
+    if(Utils.isNwjs()){
+        const PARAM_FULLSCREEN = "fullscreen";
+        
+        const _Window_Options_addGeneralOptions2 = Window_Options.prototype.addGeneralOptions;
+        Window_Options.prototype.addGeneralOptions = function() {
+        _Window_Options_addGeneralOptions2.call(this);
+        this.addCommand(TextManagerEx.t("command.screen"), PARAM_FULLSCREEN);
+        };
 
-// Bascule entre les modes quand on appuie sur Entrée
-const _Window_Options_processOk2 = Window_Options.prototype.processOk;
-Window_Options.prototype.processOk = function() {
-    const symbol = this.commandSymbol(this.index());
-    if (symbol === PARAM_FULLSCREEN) {
-        isFullScreen = !isFullScreen;
-        this.changeValue(symbol, isFullScreen);
-        toggleFullScreen(isFullScreen);
-        return;
-    }
-    _Window_Options_processOk2.call(this);
-};
+        // Bascule entre les modes quand on appuie sur Entrée
+        const _Window_Options_processOk2 = Window_Options.prototype.processOk;
+        Window_Options.prototype.processOk = function() {
+            const symbol = this.commandSymbol(this.index());
+            if (symbol === PARAM_FULLSCREEN) {
+                isFullScreen = !isFullScreen;
+                this.changeValue(symbol, isFullScreen);
+                toggleFullScreen(isFullScreen);
+                return;
+            }
+            _Window_Options_processOk2.call(this);
+        };
 
-// Fonction utilitaire pour basculer le mode plein écran
-function toggleFullScreen(toFullscreen) {
-    const isCurrentlyFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
+        // Fonction utilitaire pour basculer le mode plein écran
+        function toggleFullScreen(toFullscreen) {
+            const isCurrentlyFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
 
-    if (toFullscreen) {
-        if (!isCurrentlyFullscreen) {
-            const canvas = document.getElementById('gameCanvas') || document.body;
-            if (canvas.requestFullscreen) {
-                canvas.requestFullscreen();
-            } else if (canvas.webkitRequestFullscreen) {
-                canvas.webkitRequestFullscreen();
-            } else if (canvas.mozRequestFullScreen) {
-                canvas.mozRequestFullScreen();
+            if (toFullscreen) {
+                if (!isCurrentlyFullscreen) {
+                    const canvas = document.getElementById('gameCanvas') || document.body;
+                    if (canvas.requestFullscreen) {
+                        canvas.requestFullscreen();
+                    } else if (canvas.webkitRequestFullscreen) {
+                        canvas.webkitRequestFullscreen();
+                    } else if (canvas.mozRequestFullScreen) {
+                        canvas.mozRequestFullScreen();
+                    }
+                }
+            } else {
+                if (isCurrentlyFullscreen) {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    } else if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen();
+                    }
+                }
             }
         }
-    } else {
-        if (isCurrentlyFullscreen) {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            } else if (document.mozCancelFullScreen) {
-                document.mozCancelFullScreen();
-            }
-        }
     }
-}
 
     // 🔁 Ajuste dynamiquement à chaque redimensionnement de la fenêtre
     let _previousW = window.innerWidth;
