@@ -14,6 +14,42 @@
     const DEFAULT_HEIGHT = 624;
 
     function adjustScreenSize() {
+        const windowW = window.innerWidth;
+        const windowH = window.innerHeight;
+
+        // 🚫 Si écran trop petit, ne pas toucher à la résolution
+        if (windowW <= DEFAULT_WIDTH || windowH <= DEFAULT_HEIGHT) {
+            console.warn("Résolution trop petite. Utilisation de la résolution par défaut RPG Maker.");
+            return;
+        }
+
+        const scaleX = windowW / DEFAULT_WIDTH;
+        const scaleY = windowH / DEFAULT_HEIGHT;
+        const scale = Math.min(scaleX, scaleY);
+
+        const newWidth = Math.floor(DEFAULT_WIDTH * scale);
+        const newHeight = Math.floor(DEFAULT_HEIGHT * scale);
+
+        SceneManager._screenWidth = newWidth;
+        SceneManager._screenHeight = newHeight;
+        SceneManager._boxWidth = newWidth;
+        SceneManager._boxHeight = newHeight;
+
+        Graphics._width = newWidth;
+        Graphics._height = newHeight;
+        Graphics.boxWidth = newWidth;
+        Graphics.boxHeight = newHeight;
+
+        Graphics._updateAllElements();
+
+        const offsetX = (windowW - newWidth) / 2;
+        const offsetY = (windowH - newHeight) / 2;
+
+        window.moveBy(-offsetX, -offsetY);
+        window.resizeBy(newWidth - window.innerWidth, newHeight - window.innerHeight);
+    }
+/*
+    function adjustScreenSize() {
         const scaleX = window.innerWidth / DEFAULT_WIDTH;
         const scaleY = window.innerHeight / DEFAULT_HEIGHT;
         const scale = Math.min(scaleX, scaleY);
@@ -38,7 +74,7 @@
 
         window.moveBy(-offsetX, -offsetY);
         window.resizeBy(newWidth - window.innerWidth, newHeight - window.innerHeight);
-    }
+    }*/
 
     // Override SceneManager.run to adjust screen size early
     const _SceneManager_run = SceneManager.run;

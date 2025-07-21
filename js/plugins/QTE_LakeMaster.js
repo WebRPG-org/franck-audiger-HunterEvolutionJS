@@ -44,16 +44,14 @@
     }
   }
 
-  const QTE_WINDOW_WIDTH = 340;
-  const QTE_WINDOW_HEIGHT = 80;
+  const QTE_WINDOW_WIDTH = 332;
+  const QTE_WINDOW_HEIGHT = 48;
 
   let useTouchMode = false;
 
 
   const parameters = PluginManager.parameters("QTE_LakeMaster");
   const successSwitch = Number(parameters['Success Switch ID'] || 10);
-
-  const activeOverlay = parameters['Active Overlay']==='true' || false;
 
   function Sprite_QTEButton(letter, difficulty, yMin, yMax, xMin, xMax) {
     this._yMin = yMin;
@@ -83,26 +81,11 @@
     this.anchor.x = 0.0;
     this.anchor.y = 0.0;
     this.opacity = 0;
-    
-    const visibleW = $gameMap.tileWidth() * $gameMap.width();
-    const visibleH = $gameMap.tileHeight() * $gameMap.height();
 
-    const w = Math.min(Graphics.boxWidth, visibleW);
-    const h = Math.min(Graphics.boxHeight, visibleH);
-    let dw = Graphics.boxWidth - w;
-    let dh = Graphics.boxHeight - h;
-    if (dw < 0) dw = 0;
-    if (dh < 0) dh = 0;
+    const bounds = getRealBounds(this._yMin, this._yMax, this._xMin, this._xMax);
 
-    const left = dw/2 + this._xMin * $gameMap.tileWidth();
-    const top = dh/2 + this._yMin * $gameMap.tileHeight();
-    const width = (this._xMax*$gameMap.tileWidth() - this._xMin*$gameMap.tileWidth());
-    const height = (this._yMax*$gameMap.tileHeight() - this._yMin*$gameMap.tileHeight());
-    const right = left + width;
-    const bottom = top + height;
-
-    this.x = left + Math.random() * (right - left)
-    this.y = top + Math.random() * (bottom - top)
+    this.x = bounds.left + Math.random() * bounds.width;
+    this.y = bounds.top + Math.random() * bounds.height
     this._life = 0;
   };
 
@@ -129,8 +112,7 @@
 
   class QTE_Window extends Window_Base {
     
-    constructor(x, y, yMin, yMax, xMin, xMax, difficulty) {
-
+    constructor(x, y, yMin, yMax, xMin, xMax, difficulty, overlay) {
       const visibleW = $gameMap.tileWidth() * $gameMap.width();
       const visibleH = $gameMap.tileHeight() * $gameMap.height();
 
@@ -140,12 +122,18 @@
       let dh = Graphics.boxHeight - h;
       if (dw < 0) dw = 0;
       if (dh < 0) dh = 0;
-      const left = dw/2 + x * $gameMap.tileWidth();
-      const top = dh/2 + y * $gameMap.tileHeight();
+
+      const hiddenTiles = getHiddenTiles();
+
+      const left = dw/2 + (x - hiddenTiles.left) * $gameMap.tileWidth();
+      const top = dh/2 + (y - hiddenTiles.top) * $gameMap.tileHeight();
+
       super();
       super.initialize(left, top, QTE_WINDOW_WIDTH, QTE_WINDOW_HEIGHT);
+      this._refreshFrame();
       this.deactivate();
       this.openness = 0;
+      this._overlay = overlay;
       this._yMin = yMin;
       this._yMax = yMax;
       this._xMin = xMin;
@@ -166,8 +154,7 @@
         this._overlaySprite = null;
       }
       this._overlaySprite = Sprite_QTEOverlay(this._xMin, this._xMax, this._yMin, this._yMax);
-      //if (scene) scene.addChild(this._overlaySprite);
-      if (scene && this._active && activeOverlay) scene.addChild(this._overlaySprite);
+      if (scene && this._active && this._overlay) scene.addChild(this._overlaySprite);
     }
 
     _nextWait() {
@@ -301,7 +288,7 @@
         let col = '#444444';
         if (i < 3 && this._failures > (2 - i)) col = '#ff0000';
         if (i >= 3 && (i - 3) < this._successes) col = '#00ff00';
-        this.contents.fillRect(x, 30, boxW, 10, col);
+        this.contents.fillRect(x, 2, boxW, 10, col);
       }
     }
   }
@@ -316,8 +303,8 @@
     _Scene_Map_update.call(this);
   };
 
-  Scene_Map.prototype.startQTE = function(difficulty, yMin, yMax, xMin, xMax, x, y) { 
-    this._qteWindow = new QTE_Window(x, y, yMin, yMax, xMin, xMax, difficulty);
+  Scene_Map.prototype.startQTE = function(difficulty, yMin, yMax, xMin, xMax, x, y, overlay = false) { 
+    this._qteWindow = new QTE_Window(x, y, yMin, yMax, xMin, xMax, difficulty, overlay);
     const scene = SceneManager._scene;
     scene.addChild(this._qteWindow);
     this._qteWindow._active = false;
@@ -364,7 +351,52 @@
     return alias_canMove2.call(this);
   };
 
+
   function Sprite_QTEOverlay(xMin, xMax, yMin, yMax) {
+    const bounds = getRealBounds(yMin, yMax, xMin, xMax, true);
+    const sprite = new Sprite(new Bitmap(Graphics.boxWidth, Graphics.boxHeight));
+    const bitmap = sprite.bitmap;
+
+    bitmap.fillRect(bounds.left, bounds.top, bounds.width, bounds.height, 'rgba(255, 0, 0, 0.3)');
+
+    sprite.anchor.x = 0;
+    sprite.anchor.y = 0;
+    sprite.x = 0;
+    sprite.y = 0;
+
+    return sprite;
+  }
+
+  function getHiddenTiles() {
+    const tw = $gameMap.tileWidth();
+    const th = $gameMap.tileHeight();
+    const zoom = $gameScreen.zoomScale();
+
+    const screenTileW = Graphics.boxWidth / (tw * zoom);
+    const screenTileH = Graphics.boxHeight / (th * zoom);
+
+    const displayX = $gameMap.displayX();
+    const displayY = $gameMap.displayY();
+
+    const totalMapW = $gameMap.width();
+    const totalMapH = $gameMap.height();
+
+    const left = Math.max(0, Math.floor(displayX));
+    const top = Math.max(0, Math.floor(displayY));
+    const right = Math.max(0, Math.floor(totalMapW - (displayX + screenTileW)));
+    const bottom = Math.max(0, Math.floor(totalMapH - (displayY + screenTileH)));
+
+    return {
+      left,
+      right,
+      top,
+      bottom,
+      horizontal: function() {return this.left + this.right;},
+      vertical: function() {return this.top + this.bottom;},
+    };
+  }
+
+  function getRealBounds(yMin, yMax, xMin, xMax, overlay = false) {
     const visibleW = $gameMap.tileWidth() * $gameMap.width();
     const visibleH = $gameMap.tileHeight() * $gameMap.height();
 
@@ -375,22 +407,90 @@
     if (dw < 0) dw = 0;
     if (dh < 0) dh = 0;
 
-    const left = dw/2 + xMin * $gameMap.tileWidth();
-    const top = dh/2 + yMin * $gameMap.tileHeight();
-    const width = (xMax*$gameMap.tileWidth() - xMin*$gameMap.tileWidth())+$gameMap.tileWidth();
-    const height = (yMax*$gameMap.tileHeight() - yMin*$gameMap.tileHeight())+$gameMap.tileWidth();
+    const hiddenTiles = getHiddenTiles();
 
-    const sprite = new Sprite(new Bitmap(Graphics.boxWidth, Graphics.boxHeight));
-    const bitmap = sprite.bitmap;
+    const horizontalPaging = dw/2;
+    const verticalPaging = dh/2;
 
-    bitmap.fillRect(left, top, width, height, 'rgba(255, 0, 0, 0.3)');
+    let xBoundedMin;
+    if(xMin<hiddenTiles.left){
+      xBoundedMin = xMin;
+    } else {
+      xBoundedMin = xMin - hiddenTiles.left;
+    }
 
-    sprite.anchor.x = 0;
-    sprite.anchor.y = 0;
-    sprite.x = 0;
-    sprite.y = 0;
+    let yBoundedMin;
+    if(yMin<hiddenTiles.top){
+      yBoundedMin = yMin;
+    } else {
+      yBoundedMin = yMin - hiddenTiles.top;
+    }
 
-    return sprite;
+    const maxPossibleX = $gameMap.width()- hiddenTiles.right;
+    if(xMax>$gameMap.width()){
+      xMax = $gameMap.width();
+    }
+    let xBoundedMax = Math.min(maxPossibleX, xMax);
+
+    const maxPossibleY = $gameMap.height()- hiddenTiles.bottom;
+    if(yMax>$gameMap.height()){
+      yMax = $gameMap.height();
+    }
+    let yBoundedMax = Math.min(maxPossibleY, yMax);
+
+    const tileWidth = xBoundedMax - Math.max(xMin, hiddenTiles.left) + (overlay?1:0) -1;
+    const tileHeight = yBoundedMax - Math.max(yMin, hiddenTiles.top) + (overlay?1:0) -1;
+
+    const left = horizontalPaging + (xBoundedMin * $gameMap.tileWidth());
+    const top = verticalPaging + (yBoundedMin * $gameMap.tileHeight());
+    const width = tileWidth * $gameMap.tileWidth();
+    const height = tileHeight * $gameMap.tileHeight();
+
+    return {
+      left, 
+      top, 
+      width, 
+      height,
+      right: left + width,
+      bottom: top + height
+    };
+
   }
-    
+
+  Window.prototype._refreshFrame = function() {
+      var w = this._width;
+      var h = this._height;
+      var m = 16;
+      var bitmap = new Bitmap(w, h);
+
+      this._windowFrameSprite.bitmap = bitmap;
+      this._windowFrameSprite.setFrame(0, 0, w, h);
+
+      if (w > 0 && h > 0 && this._windowskin) {
+          var skin = this._windowskin;
+          var p = 96; // x de départ du cadre dans le skin
+          var q = 0;  // y de départ du cadre dans le skin
+
+          // BORDS
+          bitmap.blt(skin, 
+              p + m, q + 0, 64, m, 
+              m, 0, w - m * 2, m
+          );         // Haut
+          bitmap.blt(skin, 
+              p + m, q + 80, 64, m, 
+              m, h - m, w - m * 2, m
+          );    // Bas
+
+          bitmap.blt(skin, p + 0, q + m, m, 32, 0, m, m, h - m * 2);         // Gauche
+          bitmap.blt(skin, p + 80, q + m, m, 32, w - m, m, m, h - m * 2);    // Droit
+
+          // COINS
+          bitmap.blt(skin, p + 0, q + 0, m, m, 0, 0, m, m);                  // Haut gauche
+          bitmap.blt(skin, p + 80, q + 0, m, m, w - m, 0, m, m);             // Haut droit
+
+          bitmap.blt(skin, p + 0, q + 80, m, m, 0, h - m, m, m);             // Bas gauche
+          bitmap.blt(skin, p + 80, q + 80, m, m, w - m, h - m, m, m);        // Bas droit
+      }
+  };
+
 })();
