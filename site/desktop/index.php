@@ -11,6 +11,7 @@ usort($files, function($a, $b) {
 <html lang="<?= $lang ?>">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?= t('Version Desktop','Desktop version') ?></title>
   <link rel="icon" href="../icon.png" type="image/png">
   <link rel="stylesheet" href="../style.css">

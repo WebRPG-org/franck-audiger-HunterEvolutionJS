@@ -3,6 +3,7 @@
 <html lang="<?= $lang ?>">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Hunter x Hunter Evolution</title>
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="icon.png" type="image/png">
