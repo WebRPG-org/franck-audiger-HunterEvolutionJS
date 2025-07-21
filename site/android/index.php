@@ -6,6 +6,7 @@ $files = glob('*.apk');
 <html lang="<?= $lang ?>">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?= t('Version Android','Android version') ?></title>
   <link rel="icon" href="../icon.png" type="image/png">
   <link rel="stylesheet" href="../style.css">
