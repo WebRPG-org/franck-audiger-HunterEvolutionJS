@@ -5,6 +5,10 @@ window.TextManagerEx = {
   _data: {},
   _language: defaultLang,
 
+  initLanguage(lang){
+    this._language = lang || defaultLang;
+  },
+
   setLanguage(lang) {
     this._language = lang;
     ConfigManager.language = lang;
