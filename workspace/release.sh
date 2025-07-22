@@ -3,84 +3,88 @@
 set -e  # Stop on error
 
 TAG_NAME="$1"
-
 if [ -z "$TAG_NAME" ]; then
   echo "❌ Aucun tag fourni. Abandon."
   exit 1
 fi
 
-echo "📁 Vérification des fichier..."
-# --- Vérification de l'existence des fichiers attendus ---
-if [ ! -d "./data" ] || [ ! -d "./fonts" ] || [ ! -d "./js" ] || [ ! -d "./icon" ] || [ ! -d "./img" ] || [ ! -d "./audio" ] || [ ! -d "./movies" ]; then
-  echo "❌ Dossiers sources manquants dans le dépôt cloné. Abandon."
-  exit 1
-fi
+echo "🚀 Déploiement du tag $TAG_NAME..."
 
-# --- Copie vers le dossier web live ---
-echo "📁 Copie des fichiers vers le dossier du jeu web..."
+# --- Chemins ---
 DEST_WEB="/home/u116286536/domains/hunter-evolution-game.com/public_html"
 DEST_GAME="$DEST_WEB/game"
+DEST_BUILD="$DEST_WEB/workspace/buildWeb/Hunter/www"
+ZIP_OUTPUT="$DEST_WEB/desktop/Hunter$TAG_NAME.zip"
 
-cp -vr ./data/*    "$DEST_GAME/data/"
-cp -vr ./fonts/*   "$DEST_GAME/fonts/"
-cp -vr ./icon/*    "$DEST_GAME/icon/"
-cp -vr ./img/*     "$DEST_GAME/img/"
-cp -vr ./audio/*   "$DEST_GAME/audio/"
-cp -vr ./movies/*  "$DEST_GAME/movies/"
-cp -vr ./js/*      "$DEST_GAME/js/"
+# --- Dossiers à vérifier/copy ---
+REQUIRED_DIRS=("data" "fonts" "js" "icon" "img" "audio" "movies" "workspace" "site")
+RESOURCE_FOLDERS=("data" "fonts" "icon" "img" "audio" "movies" "js")
 
-# --- Copie vers le dossier de build Windows ---
-echo "📁 Copie des fichiers vers le dossier de build Windows..."
-DEST="$DEST_WEB/workspace/buildWeb/Hunter/www"
+echo "📁 Vérification des dossiers requis..."
+for dir in "${REQUIRED_DIRS[@]}"; do
+  if [ ! -d "./$dir" ]; then
+    echo "❌ Dossier manquant : $dir"
+    exit 1
+  fi
+done
 
-cp -vr ./data/*    "$DEST/data/"
-cp -vr ./fonts/*   "$DEST/fonts/"
-cp -vr ./icon/*    "$DEST/icon/"
-cp -vr ./img/*     "$DEST/img/"
-cp -vr ./audio/*   "$DEST/audio/"
-cp -vr ./movies/*  "$DEST/movies/"
-cp -vr ./js/*      "$DEST/js/"
+# --- Copie vers le jeu web ---
+echo "📁 Copie des fichiers vers le dossier du jeu web ($DEST_GAME)..."
+for folder in "${RESOURCE_FOLDERS[@]}"; do
+  mkdir -p "$DEST_GAME/$folder"
+  cp -vr "./$folder/"* "$DEST_GAME/$folder/"
+done
 
-# --- Copie des éléments du site ---
-echo "📁 Copie des fichiers du site"
+# --- Copie vers le build Windows ---
+echo "📁 Copie des fichiers vers le build Windows ($DEST_BUILD)..."
+for folder in "${RESOURCE_FOLDERS[@]}"; do
+  mkdir -p "$DEST_BUILD/$folder"
+  cp -vr "./$folder/"* "$DEST_BUILD/$folder/"
+done
 
-# --- Vérification de l'existence des fichiers attendus ---
-if [ ! -d "./workspace" ]; then
-  echo "❌ Dossiers sources manquants dans le dépôt cloné. Abandon."
-  exit 1
-fi
+# --- Copie des fichiers du site ---
+echo "📁 Copie des fichiers du site web..."
+SITE_FILES=(
+  "desktop/index.php"
+  "bug-reports.php"
+  "favicon.ico"
+  "feedback.php"
+  "contact.php"
+  "icon.png"
+  "icon-36.png"
+  "icon-48.png"
+  "icon-72.png"
+  "icon-96.png"
+  "icon-144.png"
+  "icon-192.png"
+  "index.php"
+  "lang.php"
+  "en.png"
+  "fr.png"
+  "header.php"
+  "release-note.php"
+  "style.css"
+)
 
-cp -vr ./site/desktop/index.php         "$DEST_WEB/desktop/index.php"
-cp -v  ./site/bug-reports.php           "$DEST_WEB/bug-reports.php "
-cp -v  ./site/favicon.ico               "$DEST_WEB/favicon.ico"
-cp -v  ./site/feedback.php              "$DEST_WEB/feedback.php"
-cp -v  ./site/contact.php               "$DEST_WEB/contact.php"
-cp -v  ./site/icon.png*                 "$DEST_WEB/icon.png"
-cp -v  ./site/icon-144.png*             "$DEST_WEB/icon-144.png"
-cp -v  ./site/icon-192.png*             "$DEST_WEB/icon-192.png"
-cp -v  ./site/icon-36.png*              "$DEST_WEB/icon-36.png"
-cp -v  ./site/icon-48.png*              "$DEST_WEB/icon-48.png"
-cp -v  ./site/icon-72.png*              "$DEST_WEB/icon-72.png"
-cp -v  ./site/icon-96.png*              "$DEST_WEB/icon-96.png"
-cp -v  ./site/index.php                 "$DEST_WEB/index.php"
-cp -v  ./site/lang.php                  "$DEST_WEB/lang.php"
-cp -v  ./site/en.png                    "$DEST_WEB/en.png"
-cp -v  ./site/fr.png                    "$DEST_WEB/fr.png"
-cp -v  ./site/header.php                "$DEST_WEB/header.php"
-cp -v  ./site/release-note.php          "$DEST_WEB/release-note.php"
-cp -v  ./site/style.css                 "$DEST_WEB/style.css"
+for file in "${SITE_FILES[@]}"; do
+  src="./site/$file"
+  dest="$DEST_WEB/${file##*/}"
+  if [ -f "$src" ]; then
+    cp -v "$src" "$dest"
+  else
+    echo "⚠️ Fichier manquant (ignoré) : $src"
+  fi
+done
 
+# --- Nettoyage temporaire ---
+echo "🧹 Nettoyage des fichiers temporaires..."
 cd ..
-
 rm -rf ./tmpRelease
 
-echo "📦 Création de l'archive ZIP..."
-
-cd buildWeb
-
-cd /home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/buildWeb
+# --- Création de l’archive ZIP ---
+echo "📦 Création de l’archive ZIP Hunter$TAG_NAME.zip..."
+cd "$DEST_WEB/workspace/buildWeb"
 zip -r "Hunter$TAG_NAME.zip" Hunter
-
-mv /home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/buildWeb/Hunter$TAG_NAME.zip /home/u116286536/domains/hunter-evolution-game.com/public_html/desktop/Hunter$TAG_NAME.zip
+mv "Hunter$TAG_NAME.zip" "$ZIP_OUTPUT"
 
 echo "✅ Déploiement et archivage du tag $TAG_NAME terminé avec succès."
