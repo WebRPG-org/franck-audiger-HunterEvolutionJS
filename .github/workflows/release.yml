@@ -14,15 +14,15 @@ jobs:
       - name: Installer sshpass
         run: sudo apt-get update && sudo apt-get install -y sshpass
 
-      - name: Upload release script
+      - name: Prepare release script
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PASSWORD: ${{ secrets.FTP_PASS }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
         run: |
-          sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -P $SSH_PORT workspace/release.sh $SSH_USER@$SSH_HOST:/home/$SSH_USER/domains/hunter-evolution-game.com/public_html/workspace/release.sh
-
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST -p $SSH_PORT "cd /home/$SSH_USER/domains/hunter-evolution-game.com/public_html/workspace && bash prepare.sh $TAG_NAME"
+          
       - name: Exécuter le script release.sh sur le serveur
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
