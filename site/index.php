@@ -9,8 +9,8 @@ include 'header.php';
     <p class="intro"><?= t("Hunter x Hunter Evolution est un projet de fan élaboré par un passionné du manga et de technique. L'objectif est de proposer une version du jeu qui retrace fidèlement l'histoire de l'anime de 2011.", "Hunter x Hunter Evolution is a fan project developed by a manga and technology enthusiast. The goal is to offer a version of the game that faithfully follows the story of the 2011 anime.") ?></p>
     <p class="info">
       <?= t(
-        "Vous pouvez jouer en plein écran sur la version web en appuyant sur F11 pour mettre le navigateur en mode plein écran. Cette option fonctionne depuis le site ou l'écran titre du jeu, mais ne fonctionne pas une fois en jeu.",
-        "You can play in fullscreen on the web version by pressing F11 to put the browser in fullscreen mode. This works from the site or the game title screen, but does not work once in-game."
+        "Vous pouvez jouer en plein écran sur la version web en appuyant sur F11 pour mettre le navigateur en mode plein écran. Cette option fonctionne depuis le site UNIQUEMENT et ne fonctionne pas une fois en jeu.",
+        "You can play in fullscreen on the web version by pressing F11 to put the browser in fullscreen mode. This works from the site ONLY and does not work once in-game."
       ) ?>
     </p>
     <a href="/desktop/?lang=<?= $lang ?>" class="btn">🖥️ <?= t('Télécharger la version Desktop','Download Desktop version') ?></a>
