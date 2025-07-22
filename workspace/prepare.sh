@@ -43,16 +43,3 @@ fi
 cp -vr ./workspace/*                    "$DEST_WEB/workspace/"
 
 cd ..
-
-rm -rf ./tmpRelease
-
-echo "📦 Création de l'archive ZIP..."
-
-cd buildWeb
-
-cd /home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/buildWeb
-zip -r "Hunter$TAG_NAME.zip" Hunter
-
-mv /home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/buildWeb/Hunter$TAG_NAME.zip /home/u116286536/domains/hunter-evolution-game.com/public_html/desktop/Hunter$TAG_NAME.zip
-
-echo "✅ Déploiement et archivage du tag $TAG_NAME terminé avec succès."

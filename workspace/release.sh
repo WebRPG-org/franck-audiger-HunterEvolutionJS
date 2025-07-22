@@ -9,6 +9,15 @@ if [ -z "$TAG_NAME" ]; then
   exit 1
 fi
 
+# --- Vérification de l'existence des fichiers attendus ---
+if [ ! -d "./tmpRelease" ]; then
+  echo "❌ Dossiers tmpRelease manquants dans le dépôt cloné. Abandon."
+  exit 1
+fi
+
+
+cd ./tmpRelease
+
 echo "📁 Vérification des fichier..."
 # --- Vérification de l'existence des fichiers attendus ---
 if [ ! -d "./data" ] || [ ! -d "./fonts" ] || [ ! -d "./js" ] || [ ! -d "./icon" ] || [ ! -d "./img" ] || [ ! -d "./audio" ] || [ ! -d "./movies" ]; then
