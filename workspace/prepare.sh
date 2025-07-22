@@ -2,6 +2,7 @@
 
 set -e  # Stop on error
 
+DEST_WEB="/home/u116286536/domains/hunter-evolution-game.com/public_html"
 TAG_NAME="$1"
 
 if [ -z "$TAG_NAME" ]; then
@@ -29,8 +30,7 @@ if [ ! -d "./data" ] || [ ! -d "./fonts" ] || [ ! -d "./js" ] || [ ! -d "./icon"
   exit 1
 fi
 
-
-# --- Copie des éléments du workspace ---
+# --- Copie des éléments du site ---
 echo "📁 Copie des fichiers du workspace..."
 
 # --- Vérification de l'existence des fichiers attendus ---
@@ -39,7 +39,20 @@ if [ ! -d "./workspace" ]; then
   exit 1
 fi
 
-cp -vr ./tmpRelease/workspace/* "./workspace/"
 
+cp -vr ./workspace/*                    "$DEST_WEB/workspace/"
 
-echo "✅ Préparation du tag $TAG_NAME terminé avec succès."
+cd ..
+
+rm -rf ./tmpRelease
+
+echo "📦 Création de l'archive ZIP..."
+
+cd buildWeb
+
+cd /home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/buildWeb
+zip -r "Hunter$TAG_NAME.zip" Hunter
+
+mv /home/u116286536/domains/hunter-evolution-game.com/public_html/workspace/buildWeb/Hunter$TAG_NAME.zip /home/u116286536/domains/hunter-evolution-game.com/public_html/desktop/Hunter$TAG_NAME.zip
+
+echo "✅ Déploiement et archivage du tag $TAG_NAME terminé avec succès."
