@@ -128,13 +128,26 @@ li {
   padding-left: 0;
 }
 
-/* Langue : position légère à gauche du contenu */
+.page .info {
+  font-size: 0.95em;
+  max-width: 700px;
+  margin: 0 auto 20px auto;
+  color: #ccc;
+  line-height: 1.6;
+}
+
 .lang-switch {
   position: absolute;
   top: 10px;
-  left: 30px; /* un peu décalé pour éviter d'être collé au bord */
+  left: calc(20% - 73px); /* position dynamique sur écran large */
   display: flex;
   gap: 8px;
+}
+
+@media (max-width: 600px) {
+  .lang-switch {
+    left: 0; /* colle à gauche sur petits écrans */
+  }
 }
 
 .lang-switch img {
