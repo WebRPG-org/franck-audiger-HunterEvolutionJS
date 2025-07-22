@@ -1,5 +1,5 @@
 <?php include 'lang.php'; ?>
-<?phpn
+<?php
 $title = t('Notes de version','Release notes');
 $base = '';
 include 'header.php';
