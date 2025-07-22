@@ -7,7 +7,7 @@ include 'header.php';
   <h1><?= $title ?></h1>
   <div class="container">
     <section class="release">
-      <h2>Version 0.4.1 : <?= t("Corrections diverses et améliorations (En cours de développement)", "Misc fixes and improvements (In development)") ?></h2>
+      <h2>Version 0.4.1 : <?= t("Corrections diverses et améliorations", "Misc fixes and improvements") ?></h2>
       <ul>
         <li><?= t("Début du support pour les petits écrans", "Start support for small screens") ?></li>
         <li><?= t("Ajout du support du redimensionnement d'écran", "Adding support for screen resizing") ?></li>
