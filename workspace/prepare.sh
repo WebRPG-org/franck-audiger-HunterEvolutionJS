@@ -11,6 +11,7 @@ fi
 
 echo "🏷 Clonage du tag $TAG_NAME..."
 
+# Nettoyage du dossier temporaire
 echo "🧹 Suppression de ./tmpRelease..."
 rm -rf ./tmpRelease
 
@@ -21,25 +22,18 @@ cd ./tmpRelease
 echo "📥 Clonage du dépôt à partir du tag $TAG_NAME..."
 git clone --branch "$TAG_NAME" --depth 1 https://github.com/franck-audiger/HunterEvolutionJS.git .
 
+# Vérification des répertoires sources
+echo "📁 Vérification des dossiers..."
+REQUIRED_DIRS=("data" "fonts" "js" "icon" "img" "audio" "movies" "workspace")
 
-echo "📁 Vérification des fichier..."
-# --- Vérification de l'existence des fichiers attendus ---
-if [ ! -d "./data" ] || [ ! -d "./fonts" ] || [ ! -d "./js" ] || [ ! -d "./icon" ] || [ ! -d "./img" ] || [ ! -d "./audio" ] || [ ! -d "./movies" ]; then
-  echo "❌ Dossiers sources manquants dans le dépôt cloné. Abandon."
-  exit 1
-fi
+for dir in "${REQUIRED_DIRS[@]}"; do
+  if [ ! -d "./$dir" ]; then
+    echo "❌ Dossier manquant : $dir"
+    exit 1
+  fi
+done
 
+# Copie vers le dossier de destination
+cp -vr ./tmpRelease/workspace/* "./workspace/"
 
-# --- Copie des éléments du workspace ---
-echo "📁 Copie des fichiers du workspace..."
-
-# --- Vérification de l'existence des fichiers attendus ---
-if [ ! -d "./workspace" ] then
-  echo "❌ Dossiers sources manquants dans le dépôt cloné. Abandon."
-  exit 1
-fi
-
-cp -vr ./workspace/*                    "$DEST_WEB/workspace/"
-
-
-echo "✅ Préparation du tag $TAG_NAME terminé avec succès."
+echo "✅ Préparation du tag $TAG_NAME terminée avec succès."
