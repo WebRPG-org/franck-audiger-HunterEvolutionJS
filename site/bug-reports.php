@@ -1,9 +1,10 @@
 <?php
 include 'lang.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $contact = trim($_POST['contact'] ?? '');
-    $title = trim($_POST['title'] ?? '');
-    $description = trim($_POST['description'] ?? '');
+    $contact = htmlspecialchars(trim($_POST['contact'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $rawTitle = trim($_POST['title'] ?? '');
+    $title = htmlspecialchars($rawTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $description = htmlspecialchars(trim($_POST['description'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     $timestamp = time();
 
     if ($contact && $title && $description) {
@@ -20,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mkdir($folder, 0755, true);
         }
 
-        $sanitizedTitle = preg_replace('/[^a-zA-Z0-9_-]/', '_', $title);
+        $sanitizedTitle = preg_replace('/[^a-zA-Z0-9_-]/', '_', $rawTitle);
         $filename = $folder . $timestamp . '-' . $sanitizedTitle . '.json';
         file_put_contents($filename, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
@@ -49,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="<?= $lang ?>">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?= t('Rapport de bug','Bug report') ?></title>
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="icon.png" type="image/png">
