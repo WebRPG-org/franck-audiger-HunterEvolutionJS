@@ -7,19 +7,11 @@ usort($files, function($a, $b) {
     return filemtime($b) - filemtime($a);
 });
 ?>
-<!DOCTYPE html>
-<html lang="<?= $lang ?>">
-<head>
-  <meta charset="UTF-8">
-  <title><?= t('Version Desktop','Desktop version') ?></title>
-  <link rel="icon" href="../icon.png" type="image/png">
-  <link rel="stylesheet" href="../style.css">
-</head>
-<body>
-  <div class="lang-switch">
-    <a href="?lang=fr">🇫🇷</a>
-    <a href="?lang=en">🇬🇧</a>
-  </div>
+<?php
+$title = t('Version Android','Android version');
+$base = '../';
+include '../header.php';
+?>
   <h1><?= t('Version Desktop','Desktop version') ?></h1>
   <div class="intro">
     <p><?= t("Dézippez l'archive téléchargée puis ouvrez le dossier extrait. Double-cliquez sur l'application <strong>Game</strong> pour lancer le jeu. Les sauvegardes se trouvent dans le dossier <strong>save</strong> et peuvent être copiées pour être réutilisées dans une nouvelle version.",

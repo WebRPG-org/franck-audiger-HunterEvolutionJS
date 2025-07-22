@@ -112,10 +112,32 @@ li {
   margin-left: 20px;
   padding-left: 0;
 }
+
 .lang-switch {
   position: fixed;
   top: 10px;
   left: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.lang-switch img {
+  width: 32px;
+  height: 21px;
+  border-radius: 4px;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+
+/* Halo blanc au hover */
+.lang-switch img:hover {
+  box-shadow: 0 0 6px 3px white;
+  transform: scale(1.05);
+}
+
+/* Langue active */
+.lang-switch img.selected {
+  box-shadow: 0 0 8px 4px rgba(255, 255, 255, 0.8), 0 0 12px 6px rgba(0, 0, 0, 0.5);
 }
 
 .disclaimer {

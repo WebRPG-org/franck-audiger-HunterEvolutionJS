@@ -45,19 +45,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="<?= $lang ?>">
-<head>
-  <meta charset="UTF-8">
-  <title><?= t('Feedback sur le jeu','Game feedback') ?></title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="icon.png" type="image/png">
-</head>
-<body>
-  <div class="lang-switch">
-    <a href="?lang=fr">🇫🇷</a>
-    <a href="?lang=en">🇬🇧</a>
-  </div>
+<?php
+$title = t('Feedback sur le jeu','Game feedback');
+$base = '';
+include 'header.php';
+?>
 <?php if (!empty($success)): ?>
   <div class="msg success">✅ <?= t('Feedback enregistré avec succès !','Feedback saved successfully!') ?></div>
 <?php elseif (!empty($error)): ?>

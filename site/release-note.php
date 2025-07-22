@@ -1,19 +1,25 @@
 <?php include 'lang.php'; ?>
-<!DOCTYPE html>
-<html lang="<?= $lang ?>">
-<head>
-  <meta charset="UTF-8">
-  <title><?= t('Notes de version','Release notes') ?></title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="icon.png" type="image/png">
-</head>
-<body>
-  <div class="lang-switch">
-    <a href="?lang=fr">🇫🇷</a>
-    <a href="?lang=en">🇬🇧</a>
-  </div>
+<?php
+include 'lang.php';
+$title = t('Notes de version','Release notes');
+$base = '';
+include 'header.php';
+?>
   <h1><?= t('Notes de version','Release notes') ?></h1>
   <div class="container">
+    <section class="release">
+      <h2>Version 0.4.0 : <?= t("Corrections diverses et améliorations", "Misc fixes and improvements") ?></h2>
+      <ul>
+        <li><?= t("Début du support pour les petits écrans", "Start support for small screens") ?></li>
+        <li><?= t("Ajout du support du redimensionnement d'écran", "Adding support for screen resizing") ?></li>
+        <li><?= t("Support du mode plein écran/fenêtré sur ordinateur (et le redimensionnement fonctionne sur la version web)", "Fullscreen/Windowed mode support on desktop (and resize works for web version)") ?></li>
+        <li><?= t("Correction d’un bug sur le bouton 'Continuer' du menu Titre", "Fixing bug on the Title menu 'Continue' button") ?></li>
+        <li><?= t("Ajout d’un message indiquant au joueur qu’il peut se défendre en combat", "Add message informing the player they can use defense in battles") ?></li>
+        <li><?= t("Ajout d’un avertissement légal sur le site web", "Add legal disclaimer on website") ?></li>
+        <li><?= t("Ajout d’un formulaire de contact sur le site web", "Add contact form on website") ?></li>
+        <li><?= t("Refonte graphique du site web", "Graphics refactor of website") ?></li>
+      </ul>
+    </section>
     <section class="release">
       <h2>Version 0.4.0 : <?= t("Fin de Milestone 3","End of Milestone 3") ?></h2>
       <ul>

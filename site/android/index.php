@@ -2,19 +2,11 @@
 include '../lang.php';
 $files = glob('*.apk');
 ?>
-<!DOCTYPE html>
-<html lang="<?= $lang ?>">
-<head>
-  <meta charset="UTF-8">
-  <title><?= t('Version Android','Android version') ?></title>
-  <link rel="icon" href="../icon.png" type="image/png">
-  <link rel="stylesheet" href="../style.css">
-</head>
-<body>
-  <div class="lang-switch">
-    <a href="?lang=fr">🇫🇷</a>
-    <a href="?lang=en">🇬🇧</a>
-  </div>
+<?php
+$title = t('Version Android','Android version');
+$base = '../';
+include '../header.php';
+?>
   <h1><?= t('Version Android','Android version') ?></h1>
   <div class="intro">
     <p><?= t("Téléchargez l'APK ci-dessous, puis transférez-le sur votre appareil Android. Ouvrez-le pour installer le jeu. Vous devrez peut-être autoriser l'installation de sources inconnues dans les paramètres de sécurité de votre téléphone.",
