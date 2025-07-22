@@ -1,6 +1,6 @@
 <?php include 'lang.php'; ?>
 <?php
-$title = t('Feedback sur le jeu','Game feedback');
+$title = t('Hunter x Hunter Evolution','Hunter x Hunter Evolution');
 $base = '';
 include 'header.php';
 ?>

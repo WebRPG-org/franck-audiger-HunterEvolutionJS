@@ -31,27 +31,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<!DOCTYPE html>
-<html lang="<?= $lang ?>">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><?= t('Nous contacter','Contact us') ?></title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="icon.png" type="image/png">
-</head>
-<body>
-  <div class="lang-switch">
-    <a href="?lang=fr">🇫🇷</a>
-    <a href="?lang=en">🇬🇧</a>
-  </div>
+<?php include 'lang.php'; ?>
+<?php
+$title = t('Formulaire de contact','Contact form');
+$base = '';
+include 'header.php';
+?>
 <?php if (!empty($success)): ?>
   <div class="msg success">✅ <?= t('Message envoyé avec succès !','Message sent successfully!') ?></div>
 <?php elseif (!empty($error)): ?>
   <div class="msg error">❌ <?= htmlspecialchars($error) ?></div>
 <?php endif; ?>
 <div class="container">
-  <h2><?= t('Formulaire de contact','Contact form') ?></h2>
+  <h2><?= $title ?></h2>
   <form method="post">
     <label><?= t('Adresse email :','Email address:') ?></label>
     <input type="email" name="email" required>

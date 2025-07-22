@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <?php
-$title = t('Feedback sur le jeu','Game feedback');
+$title = t('Envoyer un feedback sur le jeu','Send feedback about the game');
 $base = '';
 include 'header.php';
 ?>
@@ -57,7 +57,7 @@ include 'header.php';
   <div class="msg error">❌ <?= htmlspecialchars($error) ?></div>
 <?php endif; ?>
 <div class="container">
-  <h2><?= t('Envoyer un feedback sur le jeu','Send feedback about the game') ?></h2>
+  <h2><?= $title ?></h2>
   <form method="post" enctype="multipart/form-data">
     <label><?= t('Contact :','Contact:') ?></label>
     <input type="text" name="contact" required>

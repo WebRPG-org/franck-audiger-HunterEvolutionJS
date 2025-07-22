@@ -5,7 +5,7 @@ $title = t('Notes de version','Release notes');
 $base = '';
 include 'header.php';
 ?>
-  <h1><?= t('Notes de version','Release notes') ?></h1>
+  <h1><?= $title ?></h1>
   <div class="container">
     <section class="release">
       <h2>Version 0.4.0 : <?= t("Corrections diverses et améliorations", "Misc fixes and improvements") ?></h2>

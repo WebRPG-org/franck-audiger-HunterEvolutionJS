@@ -8,11 +8,11 @@ usort($files, function($a, $b) {
 });
 ?>
 <?php
-$title = t('Version Android','Android version');
+$title = t('Version Desktop','Desktop version');
 $base = '../';
 include '../header.php';
 ?>
-  <h1><?= t('Version Desktop','Desktop version') ?></h1>
+  <h1><?= $title ?></h1>
   <div class="intro">
     <p><?= t("Dézippez l'archive téléchargée puis ouvrez le dossier extrait. Double-cliquez sur l'application <strong>Game</strong> pour lancer le jeu. Les sauvegardes se trouvent dans le dossier <strong>save</strong> et peuvent être copiées pour être réutilisées dans une nouvelle version.",
             "Unzip the downloaded archive and open the extracted folder. Double-click the <strong>Game</strong> application to start. Saves are in the <strong>save</strong> folder and can be copied to use in a new version.") ?></p>

@@ -45,28 +45,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
-<!DOCTYPE html>
-<html lang="<?= $lang ?>">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><?= t('Rapport de bug','Bug report') ?></title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="icon.png" type="image/png">
-</head>
-<body>
-  <div class="lang-switch">
-    <a href="?lang=fr">🇫🇷</a>
-    <a href="?lang=en">🇬🇧</a>
-  </div>
+<?php
+$title = t('Soumettre un rapport de bug','Submit a bug report');
+$base = '';
+include 'header.php';
+?>
 <?php if (!empty($success)): ?>
   <div class="msg success">✅ <?= t('Rapport sauvegardé avec succès !','Report saved successfully!') ?></div>
 <?php elseif (!empty($error)): ?>
   <div class="msg error">❌ <?= htmlspecialchars($error) ?></div>
 <?php endif; ?>
 <div class="container">
-  <h2><?= t('Soumettre un rapport de bug','Submit a bug report') ?></h2>
+  <h2><?= $title ?></h2>
   <form method="post" enctype="multipart/form-data">
     <label><?= t('Contact :','Contact:') ?></label>
     <input type="text" name="contact" required>
