@@ -123,7 +123,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.3,
       enduranceFactor: 1,
-      distanceWarning : (WARNING_DISTANCE/2)+15,
+      distanceWarning : (WARNING_DISTANCE/2)+12,
       counterAspiration : 0,
       maxAspiration : 5,
     },
@@ -134,7 +134,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.3,
       enduranceFactor: 1,
-      distanceWarning : (WARNING_DISTANCE/2)+15,
+      distanceWarning : (WARNING_DISTANCE/2)+17,
       counterAspiration : 0,
       maxAspiration : 5,
     },
@@ -156,7 +156,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.3,
       enduranceFactor: 1,
-      distanceWarning : (WARNING_DISTANCE/2)+15,
+      distanceWarning : (WARNING_DISTANCE/2)+16,
       counterAspiration : 0,
       maxAspiration : 5,
     },
@@ -167,7 +167,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.3,
       enduranceFactor: 1,
-      distanceWarning : (WARNING_DISTANCE/2)+15,
+      distanceWarning : (WARNING_DISTANCE/2)+14,
       counterAspiration : 0,
       maxAspiration : 5,
     },
@@ -178,7 +178,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.3,
       enduranceFactor: 1,
-      distanceWarning : (WARNING_DISTANCE/2)+15,
+      distanceWarning : (WARNING_DISTANCE/2)+13,
       counterAspiration : 0,
       maxAspiration : 5,
     },
@@ -577,6 +577,7 @@ Game_Event.prototype.applyStrategy = function(participant, minThreshold, maxThre
     this.moveStraight(6);
     this.updateEndurance();
     if(py === this.y && this.x > px && this.x - px <= ASPIRATION_RANGE+1){
+      this.requestAnimation(127);
       participant.counterAspiration += 1;
     }
   } else if (!this.isMoving() && dx > SPACE_WITH_SATOTSU){
@@ -834,6 +835,7 @@ Game_Player.prototype.updateEndurancePursuit = function() {
 
   // Vérifie l'aspiration
   if (isPlayerInAspirationZone()) {
+    this.requestAnimation(126);
     if (baseFactor < 0) finalFactor = baseFactor * 0.8;
     else if (baseFactor > 0) finalFactor = baseFactor * 1.2;
   }
