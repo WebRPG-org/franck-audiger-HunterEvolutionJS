@@ -18,3 +18,15 @@
             class="<?= ($_GET['lang'] ?? 'fr') === 'en' ? 'selected' : '' ?>">
     </a>
     </div>
+    <h1 id="main-title">
+      <?php 
+        if($_GET['lang']){
+          $linkUrl = '?lang=' . htmlspecialchars($_GET['lang']);
+        } else {
+          $linkUrl = '';
+        }
+      ?>
+      <a href="/<?= $linkUrl ?>" class="title-link">
+        Hunter x Hunter Evolution
+      </a>
+    </h1>

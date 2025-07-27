@@ -19,6 +19,7 @@
       'LangText.js',
       'MiniGameAutoScroll.js',
       'MiniGameAutoScrollPursuit.js',
+      'MiniGameAutoScrollRace.js',
       'FogScreen.js'
     ];
   
