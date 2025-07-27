@@ -2,8 +2,8 @@ let canChangeSpeed = true;
 const ENDURANCE_VAR_ID = 100;
 const DELAY_INPUT_SPEED = 400;
 const MAX_ENDURANCE = 2000;
-const MAX_DISTANCE = 50;
-const WARNING_DISTANCE = 25;
+const MAX_DISTANCE = 60;
+const WARNING_DISTANCE = 30;
 const SPACE_WITH_SATOTSU = 2; // Espace minimum entre le joueur et Satotsu pour changer de vitesse
 const ASPIRATION_RANGE = 2;
 let playerBlinking = false;
@@ -471,6 +471,7 @@ const _Scene_Map_createAllWindows3 = Scene_Map.prototype.createAllWindows;
 Scene_Map.prototype.createAllWindows = function() {
   _Scene_Map_createAllWindows3.call(this);
   if (isMiniGameAutoScrollRaceActive()) {
+    miniGameAutoScrollRaceConfigs[$gameMap.mapId()].satotsu = null;
     $gameVariables.setValue(ENDURANCE_VAR_ID, MAX_ENDURANCE);
   }
   this.createEnduranceHUD();
