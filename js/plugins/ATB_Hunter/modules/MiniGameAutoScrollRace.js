@@ -36,6 +36,7 @@ const miniGameAutoScrollRaceConfigs = {
       6: -20,    // x4
     },
     satotsu : null,
+    aspirationFactor : 0.4,
   },
   frameExausted : 150,
   participants : {
@@ -836,8 +837,8 @@ Game_Player.prototype.updateEndurancePursuit = function() {
   // Vérifie l'aspiration
   if (isPlayerInAspirationZone()) {
     this.requestAnimation(126);
-    if (baseFactor < 0) finalFactor = baseFactor * 0.8;
-    else if (baseFactor > 0) finalFactor = baseFactor * 1.2;
+    if (baseFactor < 0) finalFactor = baseFactor * (1 - miniGameAutoScrollRaceConfigs[$gameMap.mapId()].aspirationFactor);
+    else if (baseFactor > 0) finalFactor = baseFactor * (1 + miniGameAutoScrollRaceConfigs[$gameMap.mapId()].aspirationFactor);
   }
   console.log("finalFactor : " + finalFactor);
   const current = this.getEndurance();
