@@ -30,4 +30,35 @@
       document.body.appendChild(script);
     });
 
+    AudioManager._replayBgmActive        = true;
+    
+    window.activeReplayBgm = function(){
+      AudioManager._replayBgmActive = true;
+    }
+
+    window.deactiveReplayBgm = function(){
+      AudioManager._replayBgmActive = false;
+    }
+
+    AudioManager.playBgm = function(bgm, pos) {
+        if (this.isCurrentBgm(bgm)) {
+            this.updateBgmParameters(bgm);
+        } else {
+            this.stopBgm();
+            if (bgm.name) { 
+                if(Decrypter.hasEncryptedAudio && this.shouldUseHtml5Audio()){
+                    this.playEncryptedBgm(bgm, pos);
+                }
+                else {
+                    this._bgmBuffer = this.createBuffer('bgm', bgm.name);
+                    this.updateBgmParameters(bgm);
+                    if (!this._meBuffer) {
+                        this._bgmBuffer.play(this._replayBgmActive, pos || 0);
+                    }
+                }
+            }
+        }
+        this.updateCurrentBgm(bgm, pos);
+    };
+
 })();
