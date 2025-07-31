@@ -183,6 +183,7 @@ const miniGameAutoScrollRaceConfigs = {
     },
     animation : function(){
       const satotsu = getSatotsuEvent();
+      if(!satotsu) return true;
       return satotsu.x <= 250;
     }
   },
@@ -209,6 +210,7 @@ const miniGameAutoScrollRaceConfigs = {
     },
     animation : function(){
       const satotsu = getSatotsuEvent();
+      if(!satotsu) return true;
       return satotsu.x <= 30;
     }
   },
@@ -235,6 +237,7 @@ const miniGameAutoScrollRaceConfigs = {
     },
     animation : function(){
       const satotsu = getSatotsuEvent();
+      if(!satotsu) return true;
       return satotsu.x <= 30;
     }
   },
@@ -697,8 +700,9 @@ window.saveEvents = function () {
       miniGameAutoScrollRaceConfigs.participants[name].y = element.y;
     }
   });
-  const tmpSatotsu = $gameMap.events().find(e => e.event().name === "Satotsu");
+  const tmpSatotsu = getSatotsuEvent();
   miniGameAutoScrollRaceConfigs.satotsuEventSave = tmpSatotsu.event()
+  resetSatotsu();
   miniGameAutoScrollRaceConfigs.satotsuX = tmpSatotsu.x;
   miniGameAutoScrollRaceConfigs.satotsuY = tmpSatotsu.y;
   console.log(miniGameAutoScrollRaceConfigs.participants);
@@ -714,7 +718,7 @@ window.loadEvents = function () {
     restoreEvent(data.event, eventName, resetDx)
   });
   restoreEvent(miniGameAutoScrollRaceConfigs.satotsuEventSave, "Satotsu", resetDx)
-  miniGameAutoScrollRaceConfigs.satotsu = $gameMap.events().find(e => e.event().name === "Satotsu");
+  //miniGameAutoScrollRaceConfigs.satotsu = $gameMap.events().find(e => e.event().name === "Satotsu");
   resetDx = 0;
 };
 
@@ -978,6 +982,7 @@ Game_Player.prototype.update = function(sceneActive) {
 
   if (isMiniGameAutoScrollRaceActive() && miniGameAutoScrollRaceEnable) {
     const satotsu = getSatotsuEvent();
+    if(!satotsu) return;
     const dx = Math.abs(this.x - satotsu.x);
     if (dx >= WARNING_DISTANCE && !$gameTemp._satotsuWarningShown) {
       $gameTemp._satotsuWarningShown = true;
@@ -1029,11 +1034,12 @@ Game_Player.prototype.update = function(sceneActive) {
       const canPassTop = this.canPass(this.x + 1, this.y - 1);
       const canPassBottom = this.canPass(this.x + 1, this.y + 1);
       const canPassStraight = this.canPass(this.x + 1, this.y);
+      console.log("this.getEndurance() > 0 : " + this.getEndurance() + " > 0 ")
       if(this.getEndurance() > 0 && counterEnableChangeSpeed <= 0) {
         
         const zPressed = Input.isPressed(Input.keyMapper[90]); // Z
         const sPressed = Input.isPressed(Input.keyMapper[83]); // S
-
+        console.log("Z Pressed: " + zPressed + ", S Pressed: " + sPressed);
 
         // === Détection écran tactile ===
         let touchTop = false;
@@ -1168,6 +1174,86 @@ function isPlayerInAspirationZone() {
   showAspiration = false;
   return false;
 }
+
+
+// === LISTE DES COMMANDES DU MINI-JEU ===
+const MiniGameInputs = [
+    { label: "Touch haut / Touche Haut", value: "Déplacement vers le haut" },
+    { label: "Touch bas / Touche Bas", value: "Déplacement vers le bas" },
+    { label: "Double touch haut / Touche Droite", value: "Augmente la vitesse" },
+    { label: "Double touch bas / Touche Gauche", value: "Réduit la vitesse" }
+];
+
+// === CLASSE FENÊTRE MINI-JEU ===
+function Window_MiniGameInputList() {
+    this.initialize.apply(this, arguments);
+}
+
+Window_MiniGameInputList.prototype = Object.create(Window_Command.prototype);
+Window_MiniGameInputList.prototype.constructor = Window_MiniGameInputList;
+
+Window_MiniGameInputList.prototype.initialize = function(x, y) {
+    this._inputList = MiniGameInputs;
+    Window_Command.prototype.initialize.call(this, x, y);
+    this.select(-1);
+    this.deactivate();
+};
+
+Window_MiniGameInputList.prototype.makeCommandList = function() {
+    this._inputList.forEach(input => {
+        this.addCommand(input.label, null, false, input.value);
+    });
+};
+
+Window_MiniGameInputList.prototype.drawItem = function(index) {
+    const rect = this.itemRect(index);
+    const name = this.commandName(index);
+    const key = this._list[index].ext;
+    const half = rect.width / 2;
+
+    this.resetTextColor();
+    this.drawText(name, rect.x + this.textPadding(), rect.y, half - this.textPadding(), 'left');
+    this.drawText(key, rect.x + half, rect.y, half - this.textPadding(), 'right');
+};
+
+Window_MiniGameInputList.prototype.windowWidth = function() {
+    return 480;
+};
+
+Window_MiniGameInputList.prototype.windowHeight = function() {
+    return this.fittingHeight(this._inputList.length);
+};
+
+// === MÉTHODE POUR AFFICHER LA FENÊTRE ET BLOQUER L'ÉVÉNEMENT ===
+window.showMinigameInputList = function() {
+    return new Promise(resolve => {
+        const tempWindow = new Window_MiniGameInputList(0, 0);
+        const x = (Graphics.boxWidth - tempWindow.windowWidth()) / 2;
+        const y = (Graphics.boxHeight - tempWindow.windowHeight()) / 2;
+        console.log("showMinigameInputList called at x: " + x + ", y: " + y);
+        const window = new Window_MiniGameInputList(x, y);
+        SceneManager._scene.addWindow(window);
+
+        const closeOnInput = () => {
+            if (Input.isTriggered('ok') || Input.isTriggered('cancel') || TouchInput.isTriggered()) {
+                SceneManager._scene.removeChild(window);
+                SceneManager._scene._windowLayer.removeChild(window);
+                window.close();
+                resolve();
+                return true;
+            }
+            return false;
+        };
+
+        const updateLoop = function() {
+            if (!closeOnInput()) {
+                requestAnimationFrame(updateLoop);
+            }
+        };
+
+        requestAnimationFrame(updateLoop);
+    });
+};
 
 
 if(MODE_DEBUG) {
