@@ -1,5 +1,69 @@
 const miniGameAutoScrollConfigs = {
-  1: {} // ID des maps où le plugin est actif
+  1: {
+    messagesShown : {},
+    messagesConfig : {
+      80 : {
+        actorName : "Capitaine", 
+        actorIndex : 0, 
+        text : "langText[Mer.Evnt.dialogue1]", 
+        duration : 300
+      },
+      75 : {
+        actorName : "Capitaine", 
+        actorIndex : 6, 
+        text : "langText[Mer.Evnt.dialogue2]", 
+        duration : 300
+      },
+      70 : {
+        actorName : "Capitaine", 
+        actorIndex : 5, 
+        text : "langText[Mer.Evnt.dialogue3]", 
+        duration : 300
+      },
+      62 : {
+        actorName : "Capitaine", 
+        actorIndex : 2, 
+        text : "langText[Mer.Evnt.dialogue4]", 
+        duration : 300
+      },
+      53 : {
+        actorName : "Capitaine", 
+        actorIndex : 2, 
+        text : "langText[Mer.Evnt.dialogue5]", 
+        duration : 300
+      },
+      43 : {
+        actorName : "Capitaine", 
+        actorIndex : 4, 
+        text : "langText[Mer.Evnt.dialogue6]", 
+        duration : 300
+      },
+      32 : {
+        actorName : "Capitaine", 
+        actorIndex : 0, 
+        text : "langText[Mer.Evnt.dialogue7]", 
+        duration : 300
+      },
+      22 : {
+        actorName : "Capitaine", 
+        actorIndex : 2, 
+        text : "langText[Mer.Evnt.dialogue8]", 
+        duration : 300
+      },
+      15 : {
+        actorName : "Capitaine", 
+        actorIndex : 3, 
+        text : "langText[Mer.Evnt.dialogue9]", 
+        duration : 300
+      },
+      10 : {
+        actorName : "Capitaine", 
+        actorIndex : 0, 
+        text : "langText[Mer.Evnt.dialogue10]", 
+        duration : 300
+      }
+    }
+  } // ID des maps où le plugin est actif
 };
 
 let activeWaves = [];
@@ -198,68 +262,6 @@ const rockList = [
   {x: 19, y: 53}
 ];
 
-let messagesConfig = {
-  80 : {
-    actorName : "Capitaine", 
-    actorIndex : 0, 
-    text : "langText[Mer.Evnt.dialogue1]", 
-    duration : 300
-  },
-  75 : {
-    actorName : "Capitaine", 
-    actorIndex : 6, 
-    text : "langText[Mer.Evnt.dialogue2]", 
-    duration : 300
-  },
-  70 : {
-    actorName : "Capitaine", 
-    actorIndex : 5, 
-    text : "langText[Mer.Evnt.dialogue3]", 
-    duration : 300
-  },
-  62 : {
-    actorName : "Capitaine", 
-    actorIndex : 2, 
-    text : "langText[Mer.Evnt.dialogue4]", 
-    duration : 300
-  },
-  53 : {
-    actorName : "Capitaine", 
-    actorIndex : 2, 
-    text : "langText[Mer.Evnt.dialogue5]", 
-    duration : 300
-  },
-  43 : {
-    actorName : "Capitaine", 
-    actorIndex : 4, 
-    text : "langText[Mer.Evnt.dialogue6]", 
-    duration : 300
-  },
-  32 : {
-    actorName : "Capitaine", 
-    actorIndex : 0, 
-    text : "langText[Mer.Evnt.dialogue7]", 
-    duration : 300
-  },
-  22 : {
-    actorName : "Capitaine", 
-    actorIndex : 2, 
-    text : "langText[Mer.Evnt.dialogue8]", 
-    duration : 300
-  },
-  15 : {
-    actorName : "Capitaine", 
-    actorIndex : 3, 
-    text : "langText[Mer.Evnt.dialogue9]", 
-    duration : 300
-  },
-  10 : {
-    actorName : "Capitaine", 
-    actorIndex : 0, 
-    text : "langText[Mer.Evnt.dialogue10]", 
-    duration : 300
-  }
-}
 const MESSAGE_HEIGHT = 168;
 
 function Sprite_CustomMessage() {
@@ -354,8 +356,6 @@ Sprite_CustomMessage.prototype.update = function() {
   }
 };
 
-let messagesShown = {}; 
-
 let timerGameOver = -1;
 
 // === GESTION DES MESSAGES CUSTOM ===
@@ -363,8 +363,8 @@ let customMessageTimer = 0;
 let customMessageActive = false;
 
 
-function showCustomAutoMessage(scene, faceName, faceIndex, text, durationFrames = 240) {
-  const spr = scene._customMessageSprite;
+window.showCustomAutoMessage = function(faceName, faceIndex, text, durationFrames = 240) {
+  const spr = SceneManager._scene._customMessageSprite;
   if (!spr) return;
 
 
@@ -374,13 +374,11 @@ function showCustomAutoMessage(scene, faceName, faceIndex, text, durationFrames 
   spr.setMessage(faceName, faceIndex, text, durationFrames);
 }
 
-function checkMessagesToShow(playerY) {
-  if(messagesConfig[playerY] && !messagesShown[playerY]) {
-    const config = messagesConfig[playerY];
-    if (!messagesShown[playerY]) {
-      showCustomAutoMessage(SceneManager._scene, config.actorName, config.actorIndex, config.text, config.duration);
-      messagesShown[playerY] = true;
-    }
+function checkMessagesToShow(coord, configs) {
+  if(configs.messagesConfig[coord] && !configs.messagesShown[coord]) {
+    console.log("show message : " + configs.messagesConfig[coord].text);
+    showCustomAutoMessage(configs.messagesConfig[coord].actorName, configs.messagesConfig[coord].actorIndex, configs.messagesConfig[coord].text, configs.messagesConfig[coord].duration);
+    configs.messagesShown[coord] = true;
   }
 }
 
@@ -642,9 +640,9 @@ Game_Player.prototype.update = function(sceneActive) {
       DataManager.setupNewGame();
       miniGameLives = 3;
       miniGameHitCooldown = 0;
-      messagesShown = {};
-      activeWaves = [];   
-      inactiveWaves = [];      
+      miniGameAutoScrollConfigs[$gameMap.mapId()].messagesShown = {};
+      activeWaves = [];
+      inactiveWaves = [];
       SceneManager.goto(Scene_Gameover);
       
     } else if(timerGameOver > 0){
@@ -655,7 +653,7 @@ Game_Player.prototype.update = function(sceneActive) {
       timerGameOver = 60;
     }
 
-    checkMessagesToShow(this._y);
+    checkMessagesToShow(this._y, miniGameAutoScrollConfigs[$gameMap.mapId()]);
   }
 
   Number.prototype.clamp = function(min, max) {

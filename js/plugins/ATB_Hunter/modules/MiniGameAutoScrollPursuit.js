@@ -156,32 +156,9 @@ Game_Player.prototype.update = function(sceneActive) {
         }
       }
     }
-    checkMessagesToShow2(this._y);
+    checkMessagesToShow(this._y, miniGameAutoScrollPursuitConfigs[$gameMap.mapId()]);
   }
 };
-
-
-function showCustomAutoMessage2(scene, faceName, faceIndex, text, durationFrames = 240) {
-  const spr = scene._customMessageSprite;
-  if (!spr) return;
-
-
-  text = text.replace(/langText\[(.+?)\]/gi, (_, key) => {
-    return TextManagerEx.t(key);
-  });
-  spr.setMessage(faceName, faceIndex, text, durationFrames);
-}
-
-
-function checkMessagesToShow2(playerY) {
-  if(miniGameAutoScrollPursuitConfigs[$gameMap.mapId()].messagesConfig[playerY] && !miniGameAutoScrollPursuitConfigs[$gameMap.mapId()].messagesShown[playerY]) {
-    const config = miniGameAutoScrollPursuitConfigs[$gameMap.mapId()].messagesConfig[playerY];
-    if (!miniGameAutoScrollPursuitConfigs[$gameMap.mapId()].messagesShown[playerY]) {
-      showCustomAutoMessage2(SceneManager._scene, config.actorName, config.actorIndex, config.text, config.duration);
-      miniGameAutoScrollPursuitConfigs[$gameMap.mapId()].messagesShown[playerY] = true;
-    }
-  }
-}
 
 // === Affichage des cœurs ===
 const _Scene_Map_createAllWindows2 = Scene_Map.prototype.createAllWindows;

@@ -15,29 +15,231 @@ const MOVE_STRAIGHT = 0;
 const MOVE_UP = 1;
 const MOVE_DOWN = 2;
 let lastMove = MOVE_STRAIGHT;
-
+const LOAD_EVENT_VARIABLE_ID = 44;
+const RESET_SHIFT = 190;
+const MODE_DEBUG = false;
 const miniGameAutoScrollRaceConfigs = {
   92: {
     messagesShown : {},
     messagesConfig : {
-      45 : {
+      15 : {
+        actorName : "Leolio", 
+        actorIndex : 0, 
+        text : "langText[Egout1.Envt.dialogue1]", 
+        duration : 300
+      },
+      30 : {
+        actorName : "Leolio", 
+        actorIndex : 5, 
+        text : "langText[Egout1.Envt.dialogue2]", 
+        duration : 300
+      },
+      50 : {
         actorName : "Faces-Gon", 
-        actorIndex : 7, 
-        text : "langText[FôretCèdre-RunForet1.Envt.dialogue6]", 
+        actorIndex : 0, 
+        text : "langText[Egout1.Envt.dialogue3]", 
+        duration : 300
+      },
+      65 : {
+        actorName : "Kurapika", 
+        actorIndex : 0, 
+        text : "langText[Egout1.Envt.dialogue3b]", 
+        duration : 300
+      },
+      90 : {
+        actorName : "Satotsu", 
+        actorIndex : 0, 
+        text : "langText[Egout1.Envt.dialogue4]", 
+        duration : 300
+      },
+      105 : {
+        actorName : "Satotsu", 
+        actorIndex : 6, 
+        text : "langText[Egout1.Envt.dialogue5]", 
+        duration : 300
+      },
+      120 : {
+        actorName : "Hanzo", 
+        actorIndex : 0, 
+        text : "langText[Egout1.Envt.dialogue6]", 
+        duration : 300
+      },
+      140 : {
+        actorName : "Satotsu", 
+        actorIndex : 0, 
+        text : "langText[Egout1.Envt.dialogue7]", 
+        duration : 300
+      },
+      155 : {
+        actorName : "Satotsu", 
+        actorIndex : 6, 
+        text : "langText[Egout1.Envt.dialogue8]", 
+        duration : 300
+      },
+      170 : {
+        actorName : "Satotsu", 
+        actorIndex : 0, 
+        text : "langText[Egout1.Envt.dialogue9]", 
+        duration : 300
+      },
+      185 : {
+        actorName : "Hanzo", 
+        actorIndex : 0, 
+        text : "langText[Egout1.Envt.dialogue10]", 
+        duration : 300
+      },
+      200 : {
+        actorName : "Satotsu", 
+        actorIndex : 6, 
+        text : "langText[Egout1.Envt.dialogue11]", 
         duration : 300
       }
     },
     speedValues : {
-      1: +200,   // 1/8
+      1: +400,   // 1/8
       2: +100,   // 1/4
       3: -20,   // 1/2
       4: -20,     // x1
       5: -20,    // x2
       6: -20,    // x4
     },
-    satotsu : null,
     aspirationFactor : 0.4,
+    nextMapFunction : function() {
+      saveEvents();
+      $gameVariables.setValue(LOAD_EVENT_VARIABLE_ID, 1);
+      teleportPlayer(100);
+    },
+    satotsuSpeed : function() {
+      const satotsu = getSatotsuEvent();
+      return satotsu.x >= 50 ? 4 : 3;
+    },
+    animation : function(){
+      const satotsu = getSatotsuEvent();
+      return satotsu.x <= 250;
+    }
   },
+  100 : {
+    messagesShown : {},
+    messagesConfig : {
+      30 : {
+        actorName : "Satotsu", 
+        actorIndex : 0, 
+        text : "langText[Egout1.Envt.dialogue12]", 
+        duration : 300
+      },
+      45 : {
+        actorName : "Kurapika", 
+        actorIndex : 0, 
+        text : "langText[Egout1.Envt.dialogue13]", 
+        duration : 300
+      },
+      60 : {
+        actorName : "Leolio", 
+        actorIndex : 3, 
+        text : "langText[Egout1.Envt.dialogue14]", 
+        duration : 300
+      },
+      80 : {
+        actorName : "Kurapika", 
+        actorIndex : 0, 
+        text : "langText[Egout1.Envt.dialogue15]", 
+        duration : 300
+      },
+      95 : {
+        actorName : "Leolio", 
+        actorIndex : 0, 
+        text : "langText[Egout1.Envt.dialogue16]", 
+        duration : 300
+      },
+      110 : {
+        actorName : "Kurapika", 
+        actorIndex : 1, 
+        text : "langText[Egout1.Envt.dialogue17]", 
+        duration : 300
+      },
+      125 : {
+        actorName : "Kurapika", 
+        actorIndex : 2, 
+        text : "langText[Egout1.Envt.dialogue18]", 
+        duration : 300
+      }
+    },
+    speedValues : {
+      1: +400,   // 1/8
+      2: +100,   // 1/4
+      3: -20,   // 1/2
+      4: -20,     // x1
+      5: -20,    // x2
+      6: -20,    // x4
+    },
+    aspirationFactor : 0.4,
+    nextMapFunction : function() {
+      saveEvents();
+      $gameVariables.setValue(LOAD_EVENT_VARIABLE_ID, 1);
+      teleportPlayer(101, 21);
+    },
+    satotsuSpeed : function() {
+      return 4; 
+    },
+    animation : function(){
+      const satotsu = getSatotsuEvent();
+      return satotsu.x <= 250;
+    }
+  },
+  103 : {
+    messagesShown : {},
+    messagesConfig : {
+    },
+    speedValues : {
+      1: +400,   // 1/8
+      2: +100,   // 1/4
+      3: +20,   // 1/2
+      4: -20,     // x1
+      5: -20,    // x2
+      6: -20,    // x4
+    },
+    aspirationFactor : 0.4,
+    nextMapFunction : function() {
+      saveEvents();
+      $gameVariables.setValue(LOAD_EVENT_VARIABLE_ID, 1);
+      teleportPlayer(104);
+    },
+    satotsuSpeed : function() {
+      return 4; 
+    },
+    animation : function(){
+      const satotsu = getSatotsuEvent();
+      return satotsu.x <= 30;
+    }
+  },
+  104 : {
+    messagesShown : {},
+    messagesConfig : {
+    },
+    speedValues : {
+      1: +400,   // 1/8
+      2: +100,   // 1/4
+      3: +20,   // 1/2
+      4: -20,     // x1
+      5: -20,    // x2
+      6: -20,    // x4
+    },
+    aspirationFactor : 0.4,
+    nextMapFunction : function() {
+      saveEvents();
+      $gameVariables.setValue(LOAD_EVENT_VARIABLE_ID, 1);
+      teleportPlayer(104);
+    },
+    satotsuSpeed : function() {
+      return 4; 
+    },
+    animation : function(){
+      const satotsu = getSatotsuEvent();
+      return satotsu.x <= 30;
+    }
+  },
+  playerEndurance : MAX_ENDURANCE,
+  satotsu : null,
   frameExausted : 150,
   participants : {
     "Hanzo" : {
@@ -47,7 +249,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.5,
       enduranceFactor: 0.5,
-      distanceWarning : (WARNING_DISTANCE/2)-10,
+      distanceWarning : 4,
       counterAspiration : 0,
       maxAspiration : 3,
     },
@@ -58,7 +260,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.5,
       enduranceFactor: 0.5,
-      distanceWarning : (WARNING_DISTANCE/2)-7,
+      distanceWarning : 9,
       counterAspiration : 0,
       maxAspiration : 3,
     },
@@ -69,7 +271,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.5,
       enduranceFactor: 0,
-      distanceWarning : (WARNING_DISTANCE+5),
+      distanceWarning : 12,
       counterAspiration : 0,
       maxAspiration : 1,
     },
@@ -80,7 +282,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1,
       enduranceFactor: 1,
-      distanceWarning : (WARNING_DISTANCE/2),
+      distanceWarning : 4,
       counterAspiration : 0,
       maxAspiration : 4,
     },
@@ -91,7 +293,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.2,
       enduranceFactor: 0.8,
-      distanceWarning : (WARNING_DISTANCE/2)+2,
+      distanceWarning : 12,
       counterAspiration : 0,
       maxAspiration : 4,
     },
@@ -102,86 +304,9 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.3,
       enduranceFactor: 0.7,
-      distanceWarning : (WARNING_DISTANCE/2)-5,
+      distanceWarning : 7,
       counterAspiration : 0,
       maxAspiration : 3,
-    },
-    "Tompa" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 0,
-      isRecuperating : false,
-      recupFactor: 1.2,
-      enduranceFactor: 1,
-      distanceWarning : (WARNING_DISTANCE/2)+10,
-      counterAspiration : 0,
-      maxAspiration : 2,
-    },
-    "Cherry" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 1,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 1,
-      distanceWarning : (WARNING_DISTANCE/2)+12,
-      counterAspiration : 0,
-      maxAspiration : 5,
-    },
-    "CherrySbire1" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 1,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 1,
-      distanceWarning : (WARNING_DISTANCE/2)+17,
-      counterAspiration : 0,
-      maxAspiration : 5,
-    },
-    "CherrySbire2" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 1,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 1,
-      distanceWarning : (WARNING_DISTANCE/2)+15,
-      counterAspiration : 0,
-      maxAspiration : 5,
-    },
-    "CherrySbire3" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 1,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 1,
-      distanceWarning : (WARNING_DISTANCE/2)+16,
-      counterAspiration : 0,
-      maxAspiration : 5,
-    },
-    "CherrySbire4" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 1,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 1,
-      distanceWarning : (WARNING_DISTANCE/2)+14,
-      counterAspiration : 0,
-      maxAspiration : 5,
-    },
-    "CherrySbire5" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 1,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 1,
-      distanceWarning : (WARNING_DISTANCE/2)+13,
-      counterAspiration : 0,
-      maxAspiration : 5,
     },
     "Shishito" : {
       speed : 4,
@@ -190,7 +315,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.5,
       enduranceFactor: 1,
-      distanceWarning : (WARNING_DISTANCE/2)-3,
+      distanceWarning : 12,
       counterAspiration : 0,
       maxAspiration : 4,
     },
@@ -201,7 +326,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.2,
       enduranceFactor: 0.5,
-      distanceWarning : (WARNING_DISTANCE/2)-7,
+      distanceWarning : 6,
       counterAspiration : 0,
       maxAspiration : 3,
     },
@@ -212,7 +337,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.5,
       enduranceFactor: 0.5,
-      distanceWarning : (WARNING_DISTANCE/2)-10,
+      distanceWarning : 5,
       counterAspiration : 0,
       maxAspiration : 4,
     },
@@ -223,7 +348,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.4,
       enduranceFactor: 0.8,
-      distanceWarning : (WARNING_DISTANCE/2)-5,
+      distanceWarning : 3,
       counterAspiration : 0,
       maxAspiration : 5,
     },
@@ -234,7 +359,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.3,
       enduranceFactor: 1,
-      distanceWarning : (WARNING_DISTANCE/2)+3,
+      distanceWarning : 12,
       counterAspiration : 0,
       maxAspiration : 5,
     },
@@ -245,7 +370,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.4,
       enduranceFactor: 1,
-      distanceWarning : (WARNING_DISTANCE/2)+4,
+      distanceWarning : 13,
       counterAspiration : 0,
       maxAspiration : 5,
     },
@@ -256,7 +381,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.6,
       enduranceFactor: 0.6,
-      distanceWarning : (WARNING_DISTANCE/2)+4,
+      distanceWarning : 7,
       counterAspiration : 0,
       maxAspiration : 3,
     },
@@ -267,9 +392,86 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.4,
       enduranceFactor: 0.4,
-      distanceWarning : (WARNING_DISTANCE/2)+2,
+      distanceWarning : 6,
       counterAspiration : 0,
       maxAspiration : 3,
+    },
+    "Tompa" : {
+      speed : 4,
+      endurance : MAX_ENDURANCE,
+      strategy : 0,
+      isRecuperating : false,
+      recupFactor: 1.2,
+      enduranceFactor: 1,
+      distanceWarning : 25,
+      counterAspiration : 0,
+      maxAspiration : 2,
+    },
+    "Cherry" : {
+      speed : 4,
+      endurance : MAX_ENDURANCE,
+      strategy : 1,
+      isRecuperating : false,
+      recupFactor: 1.3,
+      enduranceFactor: 1,
+      distanceWarning : 20,
+      counterAspiration : 0,
+      maxAspiration : 5,
+    },
+    "CherrySbire1" : {
+      speed : 4,
+      endurance : MAX_ENDURANCE,
+      strategy : 1,
+      isRecuperating : false,
+      recupFactor: 1.3,
+      enduranceFactor: 1,
+      distanceWarning : 20,
+      counterAspiration : 0,
+      maxAspiration : 5,
+    },
+    "CherrySbire2" : {
+      speed : 4,
+      endurance : MAX_ENDURANCE,
+      strategy : 1,
+      isRecuperating : false,
+      recupFactor: 1.3,
+      enduranceFactor: 1,
+      distanceWarning : 22,
+      counterAspiration : 0,
+      maxAspiration : 5,
+    },
+    "CherrySbire3" : {
+      speed : 4,
+      endurance : MAX_ENDURANCE,
+      strategy : 1,
+      isRecuperating : false,
+      recupFactor: 1.3,
+      enduranceFactor: 1,
+      distanceWarning : 22,
+      counterAspiration : 0,
+      maxAspiration : 5,
+    },
+    "CherrySbire4" : {
+      speed : 4,
+      endurance : MAX_ENDURANCE,
+      strategy : 1,
+      isRecuperating : false,
+      recupFactor: 1.3,
+      enduranceFactor: 1,
+      distanceWarning : 20,
+      counterAspiration : 0,
+      maxAspiration : 5,
+    },
+    "CherrySbire5" : {
+      speed : 4,
+      endurance : MAX_ENDURANCE,
+      strategy : 1,
+      isRecuperating : false,
+      recupFactor: 1.3,
+      enduranceFactor: 1,
+      distanceWarning : 22,
+      counterAspiration : 0,
+      maxAspiration : 5,
     },
     "Amory" : {
       speed : 4,
@@ -278,7 +480,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.3,
       enduranceFactor: 0.7,
-      distanceWarning : (WARNING_DISTANCE/2)+6,
+      distanceWarning : 15,
       counterAspiration : 0,
       maxAspiration : 3,
     },
@@ -289,7 +491,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.3,
       enduranceFactor: 0.7,
-      distanceWarning : (WARNING_DISTANCE/2)+7,
+      distanceWarning : 16,
       counterAspiration : 0,
       maxAspiration : 3,
     },
@@ -300,7 +502,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.3,
       enduranceFactor: 0.7,
-      distanceWarning : (WARNING_DISTANCE/2)+7,
+      distanceWarning : 16,
       counterAspiration : 0,
       maxAspiration : 3,
     },
@@ -311,7 +513,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.3,
       enduranceFactor: 0,
-      distanceWarning : (WARNING_DISTANCE/2)-7,
+      distanceWarning : 14,
       counterAspiration : 0,
       maxAspiration : 1,
     },
@@ -322,7 +524,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.3,
       enduranceFactor: 0.9,
-      distanceWarning : (WARNING_DISTANCE/2),
+      distanceWarning : 18,
       counterAspiration : 0,
       maxAspiration : 7,
     },
@@ -333,7 +535,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.3,
       enduranceFactor: 0.9,
-      distanceWarning : (WARNING_DISTANCE/2),
+      distanceWarning : 15,
       counterAspiration : 0,
       maxAspiration : 7,
     },
@@ -344,7 +546,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.5,
       enduranceFactor: 0.7,
-      distanceWarning : (WARNING_DISTANCE/2)-4,
+      distanceWarning : 10,
       counterAspiration : 0,
       maxAspiration : 2,
     },
@@ -355,7 +557,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.2,
       enduranceFactor: 0.2,
-      distanceWarning : (WARNING_DISTANCE/2)-4,
+      distanceWarning : 10,
       counterAspiration : 0,
       maxAspiration : 3,
     },
@@ -366,7 +568,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.6,
       enduranceFactor: 0.4,
-      distanceWarning : (WARNING_DISTANCE/2)+6,
+      distanceWarning : 12,
       counterAspiration : 0,
       maxAspiration : 2,
     },
@@ -377,7 +579,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.5,
       enduranceFactor: 0,
-      distanceWarning : (WARNING_DISTANCE+7),
+      distanceWarning : 14,
       counterAspiration : 0,
       maxAspiration : 1,
     },
@@ -388,7 +590,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.8,
       enduranceFactor: 1,
-      distanceWarning : (WARNING_DISTANCE+11),
+      distanceWarning : 18,
       counterAspiration : 0,
       maxAspiration : 1,
     },
@@ -399,7 +601,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.2,
       enduranceFactor: 0.2,
-      distanceWarning : (WARNING_DISTANCE+9),
+      distanceWarning : 22,
       counterAspiration : 0,
       maxAspiration : 3,
     },
@@ -410,7 +612,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1.6,
       enduranceFactor: 0.8,
-      distanceWarning : (WARNING_DISTANCE+13),
+      distanceWarning : 26,
       counterAspiration : 0,
       maxAspiration : 3,
     },
@@ -421,7 +623,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1,
       enduranceFactor: 1,
-      distanceWarning : (WARNING_DISTANCE+13),
+      distanceWarning : 21,
       counterAspiration : 0,
       maxAspiration : 3,
     },
@@ -432,7 +634,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 1,
       enduranceFactor: 1,
-      distanceWarning : (WARNING_DISTANCE+15),
+      distanceWarning : 20,
       counterAspiration : 0,
       maxAspiration : 3,
     },
@@ -443,7 +645,7 @@ const miniGameAutoScrollRaceConfigs = {
       isRecuperating : false,
       recupFactor: 0.8,
       enduranceFactor: 1.2,
-      distanceWarning : (WARNING_DISTANCE),
+      distanceWarning : 14,
       counterAspiration : 0,
       maxAspiration : 3,
     },
@@ -459,6 +661,92 @@ function isMiniGameAutoScrollRaceActive() {
 
 let miniGameAutoScrollRaceEnable = true;
 
+window.resetSatotsu = function() {
+  miniGameAutoScrollRaceConfigs.satotsu = null;
+}
+
+window.teleportPlayer = function (mapId, newX){
+  let x = newX ? newX : $gamePlayer.x - RESET_SHIFT + resetDx;
+  if(x < 0){
+    x = 0;
+  }
+  const y = $gamePlayer.y;
+  const direction = 0; // 8 = inchangé
+  const fadeType = 2; // 2 = aucun fondu
+  // VÉRIFICATION : on ne doit pas appeler cette fonction à la volée si la scène n'est pas prête
+  if (SceneManager._scene instanceof Scene_Map) {
+    $gamePlayer.reserveTransfer(mapId, x, y, direction, fadeType);
+  } else {
+    console.warn("Teleportation échouée : la scène active n'est pas Scene_Map");
+  }
+}
+let resetDx = 0;
+
+window.saveEvents = function () {
+  if($gamePlayer.x < 30){
+    resetDx = 30 - $gamePlayer.x;
+  }
+  $gameMap.events().forEach(element => {
+    const name = element.event().name;
+
+    // Vérifie que la structure existe avant d'y accéder
+    if (miniGameAutoScrollRaceConfigs.participants &&
+        miniGameAutoScrollRaceConfigs.participants[name]) {
+      miniGameAutoScrollRaceConfigs.participants[name].event = element.event();
+      miniGameAutoScrollRaceConfigs.participants[name].x = element.x;
+      miniGameAutoScrollRaceConfigs.participants[name].y = element.y;
+    }
+  });
+  const tmpSatotsu = $gameMap.events().find(e => e.event().name === "Satotsu");
+  miniGameAutoScrollRaceConfigs.satotsuEventSave = tmpSatotsu.event()
+  miniGameAutoScrollRaceConfigs.satotsuX = tmpSatotsu.x;
+  miniGameAutoScrollRaceConfigs.satotsuY = tmpSatotsu.y;
+  console.log(miniGameAutoScrollRaceConfigs.participants);
+};
+
+window.loadEvents = function () {
+  const config = miniGameAutoScrollRaceConfigs.participants;
+  if (!config) return;
+  Object.keys(config).forEach(eventName => {
+    const data = config[eventName];
+    if (!data.event || data.event == null) return;
+
+    restoreEvent(data.event, eventName, resetDx)
+  });
+  restoreEvent(miniGameAutoScrollRaceConfigs.satotsuEventSave, "Satotsu", resetDx)
+  miniGameAutoScrollRaceConfigs.satotsu = $gameMap.events().find(e => e.event().name === "Satotsu");
+  resetDx = 0;
+};
+
+function restoreEvent(originalEvent, eventName, dx){
+  const newEventId = $dataMap.events.length;
+  const eventData = JsonEx.makeDeepCopy(originalEvent);
+  // Appliquer le décalage X de -200, minimum 0
+  if(eventName !== "Satotsu"){
+    eventData.x = Math.max(0, miniGameAutoScrollRaceConfigs.participants[eventName].x) - RESET_SHIFT + dx;
+    eventData.y = miniGameAutoScrollRaceConfigs.participants[eventName].y;
+  } else {
+    eventData.x = miniGameAutoScrollRaceConfigs.satotsuX - RESET_SHIFT + dx;
+    eventData.y = miniGameAutoScrollRaceConfigs.satotsuY;
+  }
+
+  // Ajouter aux données de la carte
+  $dataMap.events[newEventId] = eventData;
+
+  // Créer et insérer dans le gameMap
+  const newEvent = new Game_Event($gameMap.mapId(), newEventId);
+  $gameMap._events[newEventId] = newEvent;
+
+  newEvent.refresh();
+  // 🔽 Affichage dynamique
+  if (SceneManager._scene instanceof Scene_Map) {
+    const spriteSet = SceneManager._scene._spriteset;
+    const sprite = new Sprite_Character(newEvent);
+    spriteSet._characterSprites.push(sprite);
+    spriteSet._tilemap.addChild(sprite);
+  }
+}
+
 window.disableMiniGameAutoScrollRace = function() {
   miniGameAutoScrollRaceEnable = false;  
 }
@@ -471,10 +759,6 @@ window.enableMiniGameAutoScrollRace = function() {
 const _Scene_Map_createAllWindows3 = Scene_Map.prototype.createAllWindows;
 Scene_Map.prototype.createAllWindows = function() {
   _Scene_Map_createAllWindows3.call(this);
-  if (isMiniGameAutoScrollRaceActive()) {
-    miniGameAutoScrollRaceConfigs[$gameMap.mapId()].satotsu = null;
-    $gameVariables.setValue(ENDURANCE_VAR_ID, MAX_ENDURANCE);
-  }
   this.createEnduranceHUD();
 };
 
@@ -496,10 +780,10 @@ Scene_Map.prototype.createEnduranceHUD = function() {
 };
 
 function getSatotsuEvent(){
-  if(!miniGameAutoScrollRaceConfigs[$gameMap.mapId()].satotsu){
-    miniGameAutoScrollRaceConfigs[$gameMap.mapId()].satotsu = $gameMap.events().find(e => e.event().name === "Satotsu");
+  if(!miniGameAutoScrollRaceConfigs.satotsu){
+    miniGameAutoScrollRaceConfigs.satotsu = $gameMap.events().find(e => e.event().name === "Satotsu");
   }
-  return miniGameAutoScrollRaceConfigs[$gameMap.mapId()].satotsu;
+  return miniGameAutoScrollRaceConfigs.satotsu;
 }
 
 const _Scene_Map_update3 = Scene_Map.prototype.update;
@@ -511,8 +795,8 @@ Scene_Map.prototype.update = function() {
   _Scene_Map_update3.call(this);
   if (isMiniGameAutoScrollRaceActive() && !this._callGameOver) {
     this.updateEnduranceHUD();
-    this.updateSatotsuMovement();
     this.updateFollowerEvents();
+    this.updateSatotsuMovement();
   }
 };
 
@@ -611,27 +895,33 @@ Game_Event.prototype.setEndurance = function(val) {
 };
 
 Game_Event.prototype.updateEndurance = function() {
-  const speed = this.realMoveSpeed();
-  let factor = miniGameAutoScrollRaceConfigs[$gameMap.mapId()].speedValues[speed] || 0;
-  if(factor > 0){
-    factor = factor * miniGameAutoScrollRaceConfigs.participants[this.event().name].recupFactor;
-  } else {
-    factor = factor * miniGameAutoScrollRaceConfigs.participants[this.event().name].enduranceFactor;
+  if(!miniGameAutoScrollRaceConfigs[$gameMap.mapId()].animation()){
+    const speed = this.realMoveSpeed();
+    let factor = miniGameAutoScrollRaceConfigs[$gameMap.mapId()].speedValues[speed] || 0;
+    if(factor > 0){
+      factor = factor * miniGameAutoScrollRaceConfigs.participants[this.event().name].recupFactor;
+    } else {
+      factor = factor * miniGameAutoScrollRaceConfigs.participants[this.event().name].enduranceFactor;
+    }
+    this.setEndurance(this.getEndurance() + factor);
   }
-  this.setEndurance(this.getEndurance() + factor);
 };
 
 Scene_Map.prototype.updateSatotsuMovement = function() {
   const satotsu = getSatotsuEvent();
   if (satotsu && !satotsu.isMoving() && satotsu.canPass(satotsu.x + 1, satotsu.y)) {
-    const speed = satotsu.x >= 50 ? 4 : 3;
-    satotsu.setMoveSpeed(speed);
-    satotsu.moveStraight(6);
+    if(satotsu.x >= 230){
+      miniGameAutoScrollRaceConfigs[$gameMap.mapId()].nextMapFunction();
+    } else {
+      const speed = miniGameAutoScrollRaceConfigs[$gameMap.mapId()].satotsuSpeed();
+      satotsu.setMoveSpeed(speed);
+      satotsu.moveStraight(6);
+    }
   }
 };
 
 Scene_Map.prototype.updateEnduranceHUD = function() {
-  if (!this._enduranceSprite) return;
+  if (!this._enduranceSprite || miniGameAutoScrollRaceConfigs[$gameMap.mapId()].animation()) return;
   const bmp = this._enduranceSprite.bitmap;
   bmp.clear();
   const val = $gameVariables.value(ENDURANCE_VAR_ID)*100/ MAX_ENDURANCE;
@@ -701,29 +991,35 @@ Game_Player.prototype.update = function(sceneActive) {
       }, calculateDistanceWarningValue(dx)); // Réinitialise après 1 seconde
     }
 
-    const qPressed = Input.isPressed(Input.keyMapper[81]); // Q
-    const dPressed = Input.isPressed(Input.keyMapper[68]); // D
-    if(canChangeSpeed && counterEnableChangeSpeed <= 0) {
-      // === Gestion de la vitesse ===
-      if( qPressed) {
-        const current = this.moveSpeed();
-        if (current > 1) {
-          this.setMoveSpeed(current - 1);
-          canChangeSpeed = false;
-          setTimeout(() => {
-            canChangeSpeed = true;
-          }, DELAY_INPUT_SPEED); // Réactive après 1 seconde
-        }
-      } else if (dPressed) {
-        const current = this.moveSpeed();
-        if (current < 6) {
-          this.setMoveSpeed(current + 1);
-          canChangeSpeed = false;
-          setTimeout(() => {
-            canChangeSpeed = true;
-          }, DELAY_INPUT_SPEED); // Réactive après 1 seconde
+    const isAnimation = miniGameAutoScrollRaceConfigs[$gameMap.mapId()].animation();
+
+    if(!isAnimation){
+      const qPressed = Input.isPressed(Input.keyMapper[81]); // Q
+      const dPressed = Input.isPressed(Input.keyMapper[68]); // D
+      if(canChangeSpeed && counterEnableChangeSpeed <= 0) {
+        // === Gestion de la vitesse ===
+        if( qPressed) {
+          const current = this.moveSpeed();
+          if (current > 1) {
+            this.setMoveSpeed(current - 1);
+            canChangeSpeed = false;
+            setTimeout(() => {
+              canChangeSpeed = true;
+            }, DELAY_INPUT_SPEED); // Réactive après 1 seconde
+          }
+        } else if (dPressed) {
+          const current = this.moveSpeed();
+          if (current < 6) {
+            this.setMoveSpeed(current + 1);
+            canChangeSpeed = false;
+            setTimeout(() => {
+              canChangeSpeed = true;
+            }, DELAY_INPUT_SPEED); // Réactive après 1 seconde
+          }
         }
       }
+    } else {
+      this.setMoveSpeed(satotsu.moveSpeed());
     }
     
     if((satotsu._x - this._x < SPACE_WITH_SATOTSU) && (this.moveSpeed() > satotsu.moveSpeed())) {
@@ -750,38 +1046,45 @@ Game_Player.prototype.update = function(sceneActive) {
         }
 
         playerBlinking=false;
-
-        if (zPressed || touchTop) { // Touche Z
-          this.moveDiagonally(6, 8); // Droite-Haut
-          lastMove = MOVE_UP;
-        } else if (sPressed || touchBottom) { // Touche S
-          this.moveDiagonally(6, 2); // Droite-Bas
-          lastMove = MOVE_DOWN;
-        } else {
-          if(canPassStraight){
-            this.moveStraight(6); // Avance droite
-            lastMove = MOVE_STRAIGHT;
+        console.log("isAnimation : " + isAnimation);
+        if(!isAnimation){
+          if (zPressed || touchTop) { // Touche Z
+            this.moveDiagonally(6, 8); // Droite-Haut
+            lastMove = MOVE_UP;
+          } else if (sPressed || touchBottom) { // Touche S
+            this.moveDiagonally(6, 2); // Droite-Bas
+            lastMove = MOVE_DOWN;
           } else {
-            const direction = Math.random();
-            if(direction > 0.5){
-              if(this.y > 1){
-                this.moveDiagonally(6, 8)
-                lastMove = MOVE_UP;
-              } else {
-                this.moveDiagonally(6, 2)
-                lastMove = MOVE_DOWN;
-              }
+            if(canPassStraight){
+              this.moveStraight(6); // Avance droite
+              lastMove = MOVE_STRAIGHT;
             } else {
-              if(this.y < $gameMap.height() - 1){
-                this.moveDiagonally(6, 2)
-                lastMove = MOVE_DOWN;
+              const direction = Math.random();
+              if(direction > 0.5){
+                if(this.y > 1){
+                  this.moveDiagonally(6, 8)
+                  lastMove = MOVE_UP;
+                } else {
+                  this.moveDiagonally(6, 2)
+                  lastMove = MOVE_DOWN;
+                }
               } else {
-                this.moveDiagonally(6, 8)
-                lastMove = MOVE_UP;
+                if(this.y < $gameMap.height() - 1){
+                  this.moveDiagonally(6, 2)
+                  lastMove = MOVE_DOWN;
+                } else {
+                  this.moveDiagonally(6, 8)
+                  lastMove = MOVE_UP;
+                }
               }
             }
           }
+        } else {
+          this.moveStraight(6); // Avance droite
+          lastMove = MOVE_STRAIGHT;
         }
+
+        
       } else if(this.getEndurance() <= 0){
         this.setMoveSpeed(1);
         this.setEndurance(1);
@@ -816,7 +1119,7 @@ Game_Player.prototype.update = function(sceneActive) {
 
     counterEnableChangeSpeed--;
     counterBlinkPlayer--;
-    checkMessagesToShow2(this._x);
+    checkMessagesToShow(this._x, miniGameAutoScrollRaceConfigs[$gameMap.mapId()]);
   }
 };
 
@@ -830,19 +1133,20 @@ Game_Player.prototype.setEndurance = function(val) {
 
 
 Game_Player.prototype.updateEndurancePursuit = function() {
-  const speed = this.realMoveSpeed();
-  const baseFactor = miniGameAutoScrollRaceConfigs[$gameMap.mapId()].speedValues[speed] || 0;
-  let finalFactor = baseFactor;
+  if(!miniGameAutoScrollRaceConfigs[$gameMap.mapId()].animation()){
+    const speed = this.realMoveSpeed();
+    const baseFactor = miniGameAutoScrollRaceConfigs[$gameMap.mapId()].speedValues[speed] || 0;
+    let finalFactor = baseFactor;
 
-  // Vérifie l'aspiration
-  if (isPlayerInAspirationZone()) {
-    this.requestAnimation(126);
-    if (baseFactor < 0) finalFactor = baseFactor * (1 - miniGameAutoScrollRaceConfigs[$gameMap.mapId()].aspirationFactor);
-    else if (baseFactor > 0) finalFactor = baseFactor * (1 + miniGameAutoScrollRaceConfigs[$gameMap.mapId()].aspirationFactor);
+    // Vérifie l'aspiration
+    if (isPlayerInAspirationZone()) {
+      this.requestAnimation(126);
+      if (baseFactor < 0) finalFactor = baseFactor * (1 - miniGameAutoScrollRaceConfigs[$gameMap.mapId()].aspirationFactor);
+      else if (baseFactor > 0) finalFactor = baseFactor * (1 + miniGameAutoScrollRaceConfigs[$gameMap.mapId()].aspirationFactor);
+    }
+    const current = this.getEndurance();
+    this.setEndurance(current + finalFactor);
   }
-  console.log("finalFactor : " + finalFactor);
-  const current = this.getEndurance();
-  this.setEndurance(current + finalFactor);
 };
 
 
@@ -865,24 +1169,76 @@ function isPlayerInAspirationZone() {
   return false;
 }
 
-function showCustomAutoMessage2(scene, faceName, faceIndex, text, durationFrames = 240) {
-  const spr = scene._customMessageSprite;
-  if (!spr) return;
 
+if(MODE_DEBUG) {
+  let enduranceBarsReady = false;
 
-  text = text.replace(/langText\[(.+?)\]/gi, (_, key) => {
-    return TextManagerEx.t(key);
-  });
-  spr.setMessage(faceName, faceIndex, text, durationFrames);
-}
+  const _Spriteset_Map_createCharacters = Spriteset_Map.prototype.createCharacters;
+  Spriteset_Map.prototype.createCharacters = function() {
+    _Spriteset_Map_createCharacters.call(this);
+    this.createEnduranceBars();
+  };
 
+  Spriteset_Map.prototype.createEnduranceBars = function() {
+    this._enduranceBars = {};
+    for (let sprite of this._characterSprites) {
+      const char = sprite._character;
+      if (!(char instanceof Game_Event)) continue;
 
-function checkMessagesToShow2(playerX) {
-  if(miniGameAutoScrollRaceConfigs[$gameMap.mapId()].messagesConfig[playerX] && !miniGameAutoScrollRaceConfigs[$gameMap.mapId()].messagesShown[playerX]) {
-    const config = miniGameAutoScrollRaceConfigs[$gameMap.mapId()].messagesConfig[playerX];
-    if (!miniGameAutoScrollRaceConfigs[$gameMap.mapId()].messagesShown[playerX]) {
-      showCustomAutoMessage2(SceneManager._scene, config.actorName, config.actorIndex, config.text, config.duration);
-      miniGameAutoScrollRaceConfigs[$gameMap.mapId()].messagesShown[playerX] = true;
+      const name = char.event().name;
+      if (name === "Satotsu" || name === "Evnt") continue;
+
+      if (!miniGameAutoScrollRaceConfigs.participants[name]) continue;
+
+      const bar = new Sprite(new Bitmap(40, 6));
+      bar.anchor.x = 0.5;
+      bar.anchor.y = 1;
+      sprite.addChild(bar);
+      this._enduranceBars[char.eventId()] = bar;
     }
-  }
+    enduranceBarsReady = true;
+  };
+
+  const _Spriteset_Map_update = Spriteset_Map.prototype.update;
+  Spriteset_Map.prototype.update = function() {
+    _Spriteset_Map_update.call(this);
+    if (!enduranceBarsReady) this.createEnduranceBars();
+    this.updateEnduranceBars();
+  };
+
+  Spriteset_Map.prototype.updateEnduranceBars = function() {
+    if (!this._enduranceBars) return;
+
+    for (let sprite of this._characterSprites) {
+      const char = sprite._character;
+      if (!(char instanceof Game_Event)) continue;
+
+      const bar = this._enduranceBars[char.eventId()];
+      if (!bar) continue;
+
+      const participant = miniGameAutoScrollRaceConfigs.participants[char.event().name];
+      if (!participant) continue;
+
+      const bmp = bar.bitmap;
+      bmp.clear();
+
+      const percent = participant.endurance / MAX_ENDURANCE;
+      const w = 40;
+      const h = 6;
+      const filled = Math.floor(w * percent);
+
+      bmp.fillRect(0, 0, w, h, "#000000");
+      bmp.fillRect(1, 1, filled - 2, h - 2, percent > 0.3 ? "#2ecc71" : "#e74c3c");
+
+      bar.x = 0;
+      bar.y = -sprite.patternHeight() / 2 - 4;
+    }
+  };
+
+  // Ajout : forcer le refresh après téléportation
+  const _Scene_Map_onMapLoaded = Scene_Map.prototype.onMapLoaded;
+  Scene_Map.prototype.onMapLoaded = function() {
+    _Scene_Map_onMapLoaded.call(this);
+    enduranceBarsReady = false;
+  };
 }
