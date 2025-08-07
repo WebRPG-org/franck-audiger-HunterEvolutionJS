@@ -36,7 +36,28 @@ Window_BattleStatus.prototype.initialize = function() {
 var _ATB_drawBasicArea = Window_BattleStatus.prototype.drawBasicArea;
 Window_BattleStatus.prototype.drawBasicArea = function(rect, actor) {
     _ATB_drawBasicArea.call(this, rect, actor);
+    const nameY = rect.y;
+    const nameHeight = this.lineHeight();
+    this.drawActorExpBar(actor, rect.x, nameY + nameHeight - 6, rect.width);
     this.drawActorGuardCount(actor, rect.x, rect.y);
+};
+
+Window_BattleStatus.prototype.drawActorExpBar = function(actor, x, y, width) {
+    const currentExp = actor.currentExp();
+    const thisLevelExp = actor.currentLevelExp();
+    const nextLevelExp = actor.nextLevelExp();
+
+    if (nextLevelExp <= thisLevelExp) return; // Niveau max
+
+    const rate = (currentExp - thisLevelExp) / (nextLevelExp - thisLevelExp);
+    const fillW = Math.floor(width * rate);
+
+    const gaugeH = 4;
+
+    // Fond
+    this.contents.fillRect(x, y+2, width, gaugeH, this.gaugeBackColor());
+    // Remplissage gris clair
+    this.contents.fillRect(x, y+2, fillW, gaugeH, '#C0C0C0');
 };
 
 Window_BattleStatus.prototype.drawActorGuardCount = function(actor, x, y) {

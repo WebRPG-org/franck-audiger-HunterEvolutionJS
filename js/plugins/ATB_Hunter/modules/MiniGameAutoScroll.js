@@ -278,6 +278,7 @@ function Sprite_CustomMessage() {
   this.visible = false;
 }
 
+
 Sprite_CustomMessage.prototype = Object.create(Sprite.prototype);
 Sprite_CustomMessage.prototype.constructor = Sprite_CustomMessage;
 
@@ -715,4 +716,13 @@ function spawnRandomWaveEvent(playerX, playerY) {
     scene._spriteset._tilemap.addChild(sprite);
     scene._spriteset._characterSprites.push(sprite);
   }
+}
+
+
+window.disableDashing() = function() {
+  $gameVariables.setValue(46, 1); // Désactive le dash
+}
+
+window.enableDashing() = function() {
+  $gameVariables.setValue(46, 0); // Réactive le dash
 }

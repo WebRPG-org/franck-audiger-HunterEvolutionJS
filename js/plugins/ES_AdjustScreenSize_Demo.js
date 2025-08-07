@@ -568,4 +568,40 @@
         }, this);
     };
 
+    const _Sprite_Picture_updateBitmap = Sprite_Picture.prototype.updateBitmap;
+    Sprite_Picture.prototype.updateBitmap = function() {
+        _Sprite_Picture_updateBitmap.call(this);
+
+        if (this._pictureName !== this._lastScaledName) {
+            this._lastScaledName = this._pictureName;
+
+            if (this.bitmap) {
+                this.bitmap.addLoadListener(() => {
+                    // Déforme l’image pour remplir toute la box
+                    const w = Graphics.boxWidth;
+                    const h = Graphics.boxHeight;
+
+                    this.scale.x = w / this.bitmap.width;
+                    this.scale.y = h / this.bitmap.height;
+
+                    // Position en haut à gauche
+                    this.x = 0;
+                    this.y = 0;
+                });
+            }
+        }
+    };
+
+    // Forcer la position à (0,0) même si elle a été définie par l’événement
+    Sprite_Picture.prototype.updatePosition = function() {
+        this.x = 0;
+        this.y = 0;
+    };
+
+    
+    // Empêche RPG Maker de modifier le scale
+    Sprite_Picture.prototype.updateScale = function() {
+        // Vide : on ne veut pas appliquer les scale X/Y normaux
+    };
+
 })();

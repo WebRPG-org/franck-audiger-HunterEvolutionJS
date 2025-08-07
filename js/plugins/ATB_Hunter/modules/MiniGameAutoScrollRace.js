@@ -18,175 +18,8 @@ let lastMove = MOVE_STRAIGHT;
 const LOAD_EVENT_VARIABLE_ID = 44;
 const RESET_SHIFT = 190;
 const MODE_DEBUG = false;
+
 const miniGameAutoScrollRaceConfigs = {
-  92: {
-    messagesShown : {},
-    messagesConfig : {
-      15 : {
-        actorName : "Leolio", 
-        actorIndex : 0, 
-        text : "langText[Egout1.Envt.dialogue1]", 
-        duration : 300
-      },
-      30 : {
-        actorName : "Leolio", 
-        actorIndex : 5, 
-        text : "langText[Egout1.Envt.dialogue2]", 
-        duration : 300
-      },
-      50 : {
-        actorName : "Faces-Gon", 
-        actorIndex : 0, 
-        text : "langText[Egout1.Envt.dialogue3]", 
-        duration : 300
-      },
-      65 : {
-        actorName : "Kurapika", 
-        actorIndex : 0, 
-        text : "langText[Egout1.Envt.dialogue3b]", 
-        duration : 300
-      },
-      90 : {
-        actorName : "Satotsu", 
-        actorIndex : 0, 
-        text : "langText[Egout1.Envt.dialogue4]", 
-        duration : 300
-      },
-      105 : {
-        actorName : "Satotsu", 
-        actorIndex : 6, 
-        text : "langText[Egout1.Envt.dialogue5]", 
-        duration : 300
-      },
-      120 : {
-        actorName : "Hanzo", 
-        actorIndex : 0, 
-        text : "langText[Egout1.Envt.dialogue6]", 
-        duration : 300
-      },
-      140 : {
-        actorName : "Satotsu", 
-        actorIndex : 0, 
-        text : "langText[Egout1.Envt.dialogue7]", 
-        duration : 300
-      },
-      155 : {
-        actorName : "Satotsu", 
-        actorIndex : 6, 
-        text : "langText[Egout1.Envt.dialogue8]", 
-        duration : 300
-      },
-      170 : {
-        actorName : "Satotsu", 
-        actorIndex : 0, 
-        text : "langText[Egout1.Envt.dialogue9]", 
-        duration : 300
-      },
-      185 : {
-        actorName : "Hanzo", 
-        actorIndex : 0, 
-        text : "langText[Egout1.Envt.dialogue10]", 
-        duration : 300
-      },
-      200 : {
-        actorName : "Satotsu", 
-        actorIndex : 6, 
-        text : "langText[Egout1.Envt.dialogue11]", 
-        duration : 300
-      }
-    },
-    speedValues : {
-      1: +400,   // 1/8
-      2: +100,   // 1/4
-      3: -20,   // 1/2
-      4: -20,     // x1
-      5: -20,    // x2
-      6: -20,    // x4
-    },
-    aspirationFactor : 0.4,
-    nextMapFunction : function() {
-      saveEvents();
-      $gameVariables.setValue(LOAD_EVENT_VARIABLE_ID, 1);
-      teleportPlayer(100);
-    },
-    satotsuSpeed : function() {
-      const satotsu = getSatotsuEvent();
-      return satotsu.x >= 50 ? 4 : 3;
-    },
-    animation : function(){
-      const satotsu = getSatotsuEvent();
-      return satotsu.x <= 250;
-    }
-  },
-  100 : {
-    messagesShown : {},
-    messagesConfig : {
-      30 : {
-        actorName : "Satotsu", 
-        actorIndex : 0, 
-        text : "langText[Egout1.Envt.dialogue12]", 
-        duration : 300
-      },
-      45 : {
-        actorName : "Kurapika", 
-        actorIndex : 0, 
-        text : "langText[Egout1.Envt.dialogue13]", 
-        duration : 300
-      },
-      60 : {
-        actorName : "Leolio", 
-        actorIndex : 3, 
-        text : "langText[Egout1.Envt.dialogue14]", 
-        duration : 300
-      },
-      80 : {
-        actorName : "Kurapika", 
-        actorIndex : 0, 
-        text : "langText[Egout1.Envt.dialogue15]", 
-        duration : 300
-      },
-      95 : {
-        actorName : "Leolio", 
-        actorIndex : 0, 
-        text : "langText[Egout1.Envt.dialogue16]", 
-        duration : 300
-      },
-      110 : {
-        actorName : "Kurapika", 
-        actorIndex : 1, 
-        text : "langText[Egout1.Envt.dialogue17]", 
-        duration : 300
-      },
-      125 : {
-        actorName : "Kurapika", 
-        actorIndex : 2, 
-        text : "langText[Egout1.Envt.dialogue18]", 
-        duration : 300
-      }
-    },
-    speedValues : {
-      1: +400,   // 1/8
-      2: +100,   // 1/4
-      3: -20,   // 1/2
-      4: -20,     // x1
-      5: -20,    // x2
-      6: -20,    // x4
-    },
-    aspirationFactor : 0.4,
-    nextMapFunction : function() {
-      saveEvents();
-      $gameVariables.setValue(LOAD_EVENT_VARIABLE_ID, 1);
-      teleportPlayer(101, 21);
-    },
-    satotsuSpeed : function() {
-      return 4; 
-    },
-    animation : function(){
-      const satotsu = getSatotsuEvent();
-      if(!satotsu) return true;
-      return satotsu.x <= 250;
-    }
-  },
   103 : {
     messagesShown : {},
     messagesConfig : {
@@ -228,17 +61,16 @@ const miniGameAutoScrollRaceConfigs = {
     },
     aspirationFactor : 0.4,
     nextMapFunction : function() {
-      saveEvents();
-      $gameVariables.setValue(LOAD_EVENT_VARIABLE_ID, 1);
-      teleportPlayer(104);
+      $gameScreen.startFadeOut(10);
+      setTimeout(() => {
+        teleportPlayer(106, 22, 8);
+      }, 1000);
     },
     satotsuSpeed : function() {
       return 4; 
     },
     animation : function(){
-      const satotsu = getSatotsuEvent();
-      if(!satotsu) return true;
-      return satotsu.x <= 30;
+      return false;
     }
   },
   playerEndurance : MAX_ENDURANCE,
@@ -668,12 +500,12 @@ window.resetSatotsu = function() {
   miniGameAutoScrollRaceConfigs.satotsu = null;
 }
 
-window.teleportPlayer = function (mapId, newX){
+window.teleportPlayer = function (mapId, newX, newY){
   let x = newX ? newX : $gamePlayer.x - RESET_SHIFT + resetDx;
+  let y = newY ? newY : $gamePlayer.y;
   if(x < 0){
     x = 0;
   }
-  const y = $gamePlayer.y;
   const direction = 0; // 8 = inchangé
   const fadeType = 2; // 2 = aucun fondu
   // VÉRIFICATION : on ne doit pas appeler cette fonction à la volée si la scène n'est pas prête
@@ -705,7 +537,6 @@ window.saveEvents = function () {
   resetSatotsu();
   miniGameAutoScrollRaceConfigs.satotsuX = tmpSatotsu.x;
   miniGameAutoScrollRaceConfigs.satotsuY = tmpSatotsu.y;
-  console.log(miniGameAutoScrollRaceConfigs.participants);
 };
 
 window.loadEvents = function () {
@@ -924,6 +755,9 @@ Scene_Map.prototype.updateSatotsuMovement = function() {
   }
 };
 
+
+
+
 Scene_Map.prototype.updateEnduranceHUD = function() {
   if (!this._enduranceSprite || miniGameAutoScrollRaceConfigs[$gameMap.mapId()].animation()) return;
   const bmp = this._enduranceSprite.bitmap;
@@ -955,6 +789,9 @@ Game_Player.prototype.moveByInput = function() {
 
 const _Game_Player_isDashing2 = Game_Player.prototype.isDashing;
 Game_Player.prototype.isDashing = function() {
+  if($gameVariables.value(46) === 1){
+    return false;
+  }
   if (isMiniGameAutoScrollRaceActive() && miniGameAutoScrollRaceEnable) {
     return false; // Interdit la course
   }
@@ -974,6 +811,11 @@ function calculateDistanceWarningValue(distance) {
   const ratio = (distance - minDist) / (maxDist - minDist);
   return Math.floor(minValue + (maxValue - minValue) * ratio);
 }
+
+let touchTop = false;
+let touchBottom = false;
+let touchRight = false;
+let touchLeft = false;
 
 // === Mise à jour à chaque frame ===
 const _Game_Player_update_MiniGame3 = Game_Player.prototype.update;
@@ -998,12 +840,28 @@ Game_Player.prototype.update = function(sceneActive) {
 
     const isAnimation = miniGameAutoScrollRaceConfigs[$gameMap.mapId()].animation();
 
+    console.log("is triggered : " + TouchInput.isTriggered());
+    if (TouchInput.isPressed()) {
+      //console.log("TouchInput.x : " + TouchInput.x + " TouchInput.y : " + TouchInput.y + " TouchInput._pressedX : " + TouchInput._pressedX + " TouchInput._pressedY : " + TouchInput._pressedY);
+      const dx = TouchInput.x - Graphics.width / 2;
+      const dy = TouchInput.y - Graphics.height / 2;
+
+      console.log("dx : " + dx + " dy : " + dy);
+      if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx < -10) touchLeft = true;
+        else if (dx > 10) touchRight = true;
+      } else {
+        if (dy < -10) touchTop = true;
+        else if (dy > 10) touchBottom = true;
+      }
+    } 
+
     if(!isAnimation){
       const qPressed = Input.isPressed(Input.keyMapper[81]); // Q
       const dPressed = Input.isPressed(Input.keyMapper[68]); // D
       if(canChangeSpeed && counterEnableChangeSpeed <= 0) {
         // === Gestion de la vitesse ===
-        if( qPressed) {
+        if( qPressed || touchLeft) { // Touche Q
           const current = this.moveSpeed();
           if (current > 1) {
             this.setMoveSpeed(current - 1);
@@ -1012,7 +870,8 @@ Game_Player.prototype.update = function(sceneActive) {
               canChangeSpeed = true;
             }, DELAY_INPUT_SPEED); // Réactive après 1 seconde
           }
-        } else if (dPressed) {
+          touchLeft = false;
+        } else if (dPressed || touchRight) { // Touche D
           const current = this.moveSpeed();
           if (current < 6) {
             this.setMoveSpeed(current + 1);
@@ -1021,6 +880,7 @@ Game_Player.prototype.update = function(sceneActive) {
               canChangeSpeed = true;
             }, DELAY_INPUT_SPEED); // Réactive après 1 seconde
           }
+          touchRight = false;
         }
       }
     } else {
@@ -1034,32 +894,21 @@ Game_Player.prototype.update = function(sceneActive) {
       const canPassTop = this.canPass(this.x + 1, this.y - 1);
       const canPassBottom = this.canPass(this.x + 1, this.y + 1);
       const canPassStraight = this.canPass(this.x + 1, this.y);
-      console.log("this.getEndurance() > 0 : " + this.getEndurance() + " > 0 ")
       if(this.getEndurance() > 0 && counterEnableChangeSpeed <= 0) {
         
         const zPressed = Input.isPressed(Input.keyMapper[90]); // Z
         const sPressed = Input.isPressed(Input.keyMapper[83]); // S
-        console.log("Z Pressed: " + zPressed + ", S Pressed: " + sPressed);
-
-        // === Détection écran tactile ===
-        let touchTop = false;
-        let touchBottom = false;
-        if (TouchInput.isPressed()) {
-          const y = TouchInput.y;
-          const screenMid = Graphics.height / 2;
-          if (y > screenMid) touchBottom = true;
-          else touchTop = true;
-        }
 
         playerBlinking=false;
-        console.log("isAnimation : " + isAnimation);
         if(!isAnimation){
           if (zPressed || touchTop) { // Touche Z
             this.moveDiagonally(6, 8); // Droite-Haut
             lastMove = MOVE_UP;
+            touchTop = false;
           } else if (sPressed || touchBottom) { // Touche S
             this.moveDiagonally(6, 2); // Droite-Bas
             lastMove = MOVE_DOWN;
+            touchBottom = false;
           } else {
             if(canPassStraight){
               this.moveStraight(6); // Avance droite
@@ -1163,7 +1012,6 @@ function isPlayerInAspirationZone() {
     const participant = miniGameAutoScrollRaceConfigs.participants[event.event().name];
     if (participant){
       if(event.y == py) {
-        console.log(event.x - px + " <= " + ASPIRATION_RANGE);
         if (event.x > px && event.x - px <= ASPIRATION_RANGE){
           showAspiration = true;
           return true;
@@ -1178,10 +1026,10 @@ function isPlayerInAspirationZone() {
 
 // === LISTE DES COMMANDES DU MINI-JEU ===
 const MiniGameInputs = [
-    { label: "Touch haut / Touche Haut", value: "Déplacement vers le haut" },
-    { label: "Touch bas / Touche Bas", value: "Déplacement vers le bas" },
-    { label: "Double touch haut / Touche Droite", value: "Augmente la vitesse" },
-    { label: "Double touch bas / Touche Gauche", value: "Réduit la vitesse" }
+    { label: "Touch haut / Touche Haut", value: "Déplacement vers le haut", touchIcon: 330, inputIcon: 326 },
+    { label: "Touch bas / Touche Bas", value: "Déplacement vers le bas", touchIcon: 331, inputIcon: 327 },
+    { label: "Double touch haut / Touche Droite", value: "Augmente la vitesse", touchIcon: 332, inputIcon: 328 },
+    { label: "Double touch bas / Touche Gauche", value: "Réduit la vitesse", touchIcon: 333, inputIcon: 329 }
 ];
 
 // === CLASSE FENÊTRE MINI-JEU ===
@@ -1201,19 +1049,24 @@ Window_MiniGameInputList.prototype.initialize = function(x, y) {
 
 Window_MiniGameInputList.prototype.makeCommandList = function() {
     this._inputList.forEach(input => {
-        this.addCommand(input.label, null, false, input.value);
+        this.addCommand("", null, false, input);
     });
 };
 
 Window_MiniGameInputList.prototype.drawItem = function(index) {
     const rect = this.itemRect(index);
-    const name = this.commandName(index);
-    const key = this._list[index].ext;
+    const input = this._list[index].ext;
     const half = rect.width / 2;
 
     this.resetTextColor();
-    this.drawText(name, rect.x + this.textPadding(), rect.y, half - this.textPadding(), 'left');
-    this.drawText(key, rect.x + half, rect.y, half - this.textPadding(), 'right');
+
+    // Dessine les icônes
+    this.drawIcon(input.touchIcon, rect.x + this.textPadding(), rect.y + 2);
+    this.drawText("/", rect.x + this.textPadding() + 40, rect.y, 20, 'left');
+    this.drawIcon(input.inputIcon, rect.x + this.textPadding() + 60, rect.y + 2);
+
+    // Dessine la description à droite
+    this.drawText(input.value, rect.x + half, rect.y, half - this.textPadding(), 'right');
 };
 
 Window_MiniGameInputList.prototype.windowWidth = function() {
@@ -1230,7 +1083,6 @@ window.showMinigameInputList = function() {
         const tempWindow = new Window_MiniGameInputList(0, 0);
         const x = (Graphics.boxWidth - tempWindow.windowWidth()) / 2;
         const y = (Graphics.boxHeight - tempWindow.windowHeight()) / 2;
-        console.log("showMinigameInputList called at x: " + x + ", y: " + y);
         const window = new Window_MiniGameInputList(x, y);
         SceneManager._scene.addWindow(window);
 
