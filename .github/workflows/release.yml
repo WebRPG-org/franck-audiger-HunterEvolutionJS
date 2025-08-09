@@ -221,16 +221,16 @@ jobs:
           set -euo pipefail
 
           # Android SDK (cmdline-tools) — install once under /opt/android-sdk
-          sudo mkdir -p "${ANDROID_SDK_ROOT}"
+          mkdir -p "${ANDROID_SDK_ROOT}"
           if [ ! -x "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" ]; then
             TMP=/tmp/androidcli && rm -rf "$TMP" && mkdir -p "$TMP"
             wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O "$TMP/tools.zip"
-            sudo mkdir -p "${ANDROID_SDK_ROOT}/cmdline-tools/latest"
-            sudo unzip -q "$TMP/tools.zip" -d "${ANDROID_SDK_ROOT}/cmdline-tools"
+            mkdir -p "${ANDROID_SDK_ROOT}/cmdline-tools/latest"
+            unzip -q "$TMP/tools.zip" -d "${ANDROID_SDK_ROOT}/cmdline-tools"
             # Le zip crée un dossier "cmdline-tools"; on le renomme "latest" si besoin
             if [ -d "${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools" ]; then
-              sudo mv "${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools"/* "${ANDROID_SDK_ROOT}/cmdline-tools/latest"/
-              sudo rmdir "${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools"
+              mv "${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools"/* "${ANDROID_SDK_ROOT}/cmdline-tools/latest"/
+              rmdir "${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools"
             fi
             rm -rf "$TMP"
           fi
@@ -243,7 +243,7 @@ jobs:
           sdkmanager "platform-tools" "build-tools;${ANDROID_BUILD_TOOLS}" "platforms;${ANDROID_PLATFORM}" >/dev/null
 
           # Dossiers de sortie
-          sudo mkdir -p "${ANDROID_OUT_DIR}"
+          mkdir -p "${ANDROID_OUT_DIR}"
 
       - name: Android | Préparer le payload Cordova (www)
         run: |
