@@ -47,4 +47,3 @@ jobs:
           rm -rf ./tmp
 
           echo "✅ Déploiement du commit terminé avec succès."
- 
