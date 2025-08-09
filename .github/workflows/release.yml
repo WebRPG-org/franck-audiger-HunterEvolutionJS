@@ -1,35 +1,210 @@
-name: Déploiement Release via SSH
+name: Déploiement Release + Installer Windows
 
 on:
   push:
     tags:
-      - '*' 
+      - '*'
 
 jobs:
   release:
     if: github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+
+    env:
+      DEST_WEB: /var/www
+      BUILD_ROOT: /var/www/workspace/buildWeb
+      APP_DIR: /var/www/workspace/buildWeb/Hunter            # dossier du build desktop
+      APP_PAYLOAD: /var/www/workspace/buildWeb/Hunter        # ce qu'on installe
+      INSTALLER_DIR: /var/www/desktop                        # où déposer l'EXE final
 
     steps:
-      - name: Installer sshpass
-        run: sudo apt-get update && sudo apt-get install -y sshpass
-
-      - name: Prepare release script
+      - name: Prepare (cloner le tag et copier workspace)
         env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_PASSWORD: ${{ secrets.FTP_PASS }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
           TAG_NAME: ${{ github.ref_name }}
         run: |
-          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST -p $SSH_PORT "cd /home/$SSH_USER/domains/hunter-evolution-game.com/public_html/workspace && bash prepare.sh $TAG_NAME"
+          set -euo pipefail
 
-      - name: Exécuter le script release.sh sur le serveur
+          echo "🏷 TAG: ${TAG_NAME}"
+
+          rm -rf ./tmpRelease
+          mkdir ./tmpRelease
+          cd ./tmpRelease
+
+          echo "📥 Clone du repo @ tag ${TAG_NAME}"
+          git clone --branch "${TAG_NAME}" --depth 1 https://github.com/franck-audiger/HunterEvolutionJS.git .
+
+          echo "🔎 Vérifications de base…"
+          for d in data fonts js icon img audio movies workspace; do
+            [ -d "./$d" ] || { echo "❌ Dossier manquant: $d"; exit 1; }
+          done
+
+          echo "📁 Sync workspace vers ${DEST_WEB}/workspace"
+          sudo mkdir -p "${DEST_WEB}/workspace"
+          sudo cp -vr ./workspace/* "${DEST_WEB}/workspace/"
+
+          cd ..
+
+      - name: Release (copie vers /var/www)
+        run: |
+          set -euo pipefail
+
+          DEST_GAME="${DEST_WEB}/game"
+
+          [ -d "./tmpRelease" ] || { echo "❌ tmpRelease absent"; exit 1; }
+          cd ./tmpRelease
+
+          echo "📁 Prépare dossiers cibles…"
+          sudo mkdir -p \
+            "${DEST_GAME}/data" "${DEST_GAME}/fonts" "${DEST_GAME}/icon" \
+            "${DEST_GAME}/img" "${DEST_GAME}/audio" "${DEST_GAME}/movies" \
+            "${DEST_GAME}/js"
+
+          echo "📤 Copie assets vers ${DEST_GAME}"
+          sudo cp -vr ./data/*   "${DEST_GAME}/data/"
+          sudo cp -vr ./fonts/*  "${DEST_GAME}/fonts/"
+          sudo cp -vr ./icon/*   "${DEST_GAME}/icon/"
+          sudo cp -vr ./img/*    "${DEST_GAME}/img/"
+          sudo cp -vr ./audio/*  "${DEST_GAME}/audio/"
+          sudo cp -vr ./movies/* "${DEST_GAME}/movies/"
+          sudo cp -vr ./js/*     "${DEST_GAME}/js/"
+
+          echo "🧱 Copie vers build web (Windows payload)"
+          PAYLOAD_WWW="${BUILD_ROOT}/Hunter/www"
+          sudo mkdir -p \
+            "${PAYLOAD_WWW}/data" "${PAYLOAD_WWW}/fonts" "${PAYLOAD_WWW}/icon" \
+            "${PAYLOAD_WWW}/img" "${PAYLOAD_WWW}/audio" "${PAYLOAD_WWW}/movies" \
+            "${PAYLOAD_WWW}/js"
+          sudo cp -vr ./data/*   "${PAYLOAD_WWW}/data/"
+          sudo cp -vr ./fonts/*  "${PAYLOAD_WWW}/fonts/"
+          sudo cp -vr ./icon/*   "${PAYLOAD_WWW}/icon/"
+          sudo cp -vr ./img/*    "${PAYLOAD_WWW}/img/"
+          sudo cp -vr ./audio/*  "${PAYLOAD_WWW}/audio/"
+          sudo cp -vr ./movies/* "${PAYLOAD_WWW}/movies/"
+          sudo cp -vr ./js/*     "${PAYLOAD_WWW}/js/"
+
+          echo "🗂️  Fichiers site -> ${DEST_WEB}"
+          sudo mkdir -p "${DEST_WEB}/desktop"
+          sudo cp -v ./site/desktop/index.php   "${DEST_WEB}/desktop/index.php"
+          sudo cp -v ./site/bug-reports.php     "${DEST_WEB}/bug-reports.php"
+          sudo cp -v ./site/favicon.ico         "${DEST_WEB}/favicon.ico"
+          sudo cp -v ./site/feedback.php        "${DEST_WEB}/feedback.php"
+          sudo cp -v ./site/contact.php         "${DEST_WEB}/contact.php"
+          sudo cp -v ./site/icon.png            "${DEST_WEB}/icon.png"
+          sudo cp -v ./site/icon-144.png        "${DEST_WEB}/icon-144.png" || true
+          sudo cp -v ./site/icon-192.png        "${DEST_WEB}/icon-192.png" || true
+          sudo cp -v ./site/icon-36.png         "${DEST_WEB}/icon-36.png"  || true
+          sudo cp -v ./site/icon-48.png         "${DEST_WEB}/icon-48.png"  || true
+          sudo cp -v ./site/icon-72.png         "${DEST_WEB}/icon-72.png"  || true
+          sudo cp -v ./site/icon-96.png         "${DEST_WEB}/icon-96.png"  || true
+          sudo cp -v ./site/index.php           "${DEST_WEB}/index.php"
+          sudo cp -v ./site/lang.php            "${DEST_WEB}/lang.php"
+          sudo cp -v ./site/en.png              "${DEST_WEB}/en.png"        || true
+          sudo cp -v ./site/fr.png              "${DEST_WEB}/fr.png"        || true
+          sudo cp -v ./site/header.php          "${DEST_WEB}/header.php"
+          sudo cp -v ./site/release-note.php    "${DEST_WEB}/release-note.php"
+          sudo cp -v ./site/style.css           "${DEST_WEB}/style.css"
+
+          cd ..
+          echo "🧹 Nettoyage tmpRelease…"
+          rm -rf ./tmpRelease
+
+
+      - name: Générer l’installateur Windows (NSIS) + icône cohérente
         env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_PASSWORD: ${{ secrets.FTP_PASS }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
           TAG_NAME: ${{ github.ref_name }}
         run: |
-          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST -p $SSH_PORT "cd /home/$SSH_USER/domains/hunter-evolution-game.com/public_html/workspace && bash release.sh $TAG_NAME"
+          set -euo pipefail
+
+          sudo mkdir -p "${INSTALLER_DIR}" "${APP_DIR}/www/icon"
+
+          echo "🖼️  Conversion icon.png -> .ico pour l'installateur et les raccourcis"
+          ICON_SRC=""
+          if [ -f "${DEST_WEB}/icon.png" ]; then
+            ICON_SRC="${DEST_WEB}/icon.png"
+          elif [ -f "${APP_DIR}/www/icon/icon.png" ]; then
+            ICON_SRC="${APP_DIR}/www/icon/icon.png"
+          elif [ -f "${APP_DIR}/icon.png" ]; then
+            ICON_SRC="${APP_DIR}/icon.png"
+          else
+            echo "❌ icon.png introuvable (cherche ${DEST_WEB}/icon.png en priorité)."; exit 1
+          fi
+
+          ICO_PATH="${BUILD_ROOT}/installer_icon.ico"
+          if command -v magick >/dev/null 2>&1; then
+            magick "${ICON_SRC}" -resize 256x256 "${ICO_PATH}"
+          else
+            convert "${ICON_SRC}" -resize 256x256 "${ICO_PATH}"
+          fi
+
+          # Copier l'icône .ico aussi dans le payload -> utilisée par les raccourcis
+          cp -f "${ICO_PATH}" "${APP_DIR}/www/icon/icon.ico"
+
+          echo "📝 Génération du script NSIS…"
+          NSI="${BUILD_ROOT}/HunterInstaller.nsi"
+          cat > "${NSI}" <<'NSIS'
+          !include "MUI2.nsh"
+          !define APP_NAME "HunterEvolution"
+          !define COMPANY  "HunterEvolution"
+          !define APP_VERSION "${TAG_NAME}"
+          !define INSTALL_DIR "$PROGRAMFILES\HunterEvolution"
+          !define STARTMENU_FOLDER "HunterEvolution"
+          !define PAYLOAD_DIR "${APP_DIR}"
+          !define OUT_EXE "${INSTALLER_DIR}\Game.exe"
+
+          Name "${APP_NAME} ${APP_VERSION}"
+          OutFile "${OUT_EXE}"
+          InstallDir "${INSTALL_DIR}"
+          RequestExecutionLevel admin
+
+          !define MUI_ABORTWARNING
+          !define MUI_ICON "${ICO_PATH}"
+          !define MUI_UNICON "${ICO_PATH}"
+
+          !insertmacro MUI_PAGE_WELCOME
+          !insertmacro MUI_PAGE_DIRECTORY
+          !insertmacro MUI_PAGE_INSTFILES
+          !insertmacro MUI_PAGE_FINISH
+          !insertmacro MUI_UNPAGE_CONFIRM
+          !insertmacro MUI_UNPAGE_INSTFILES
+          !insertmacro MUI_LANGUAGE "French"
+
+          Section "Installer"
+            SetOutPath "$INSTDIR"
+            File /r "${PAYLOAD_DIR}\*.*"
+
+            ; Cible du raccourci: exe si présent, sinon index.html
+            StrCpy $0 ""
+            IfFileExists "$INSTDIR\Hunter.exe" 0 +2
+              StrCpy $0 "$INSTDIR\Hunter.exe"
+            IfFileExists "$0" 0 +3
+              FindFirst $1 $2 "$INSTDIR\*.exe"
+              StrCmp $2 "" 0 +2
+              StrCpy $0 "$INSTDIR\www\index.html"
+
+            ; Raccourcis avec l'icône fournie
+            CreateShortCut "$DESKTOP\HunterEvolution.lnk" "$0" "" "$INSTDIR\www\icon\icon.ico" 0
+            CreateDirectory "$SMPROGRAMS\${STARTMENU_FOLDER}"
+            CreateShortCut "$SMPROGRAMS\${STARTMENU_FOLDER}\HunterEvolution.lnk" "$0" "" "$INSTDIR\www\icon\icon.ico" 0
+
+            ; Désinstalleur
+            WriteUninstaller "$INSTDIR\Uninstall.exe"
+            CreateShortCut "$SMPROGRAMS\${STARTMENU_FOLDER}\Désinstaller HunterEvolution.lnk" "$INSTDIR\Uninstall.exe"
+          SectionEnd
+
+          Section "Uninstall"
+            Delete "$SMPROGRAMS\${STARTMENU_FOLDER}\HunterEvolution.lnk"
+            Delete "$SMPROGRAMS\${STARTMENU_FOLDER}\Désinstaller HunterEvolution.lnk"
+            RMDir  "$SMPROGRAMS\${STARTMENU_FOLDER}"
+            RMDir /r "$INSTDIR"
+          SectionEnd
+          NSIS
+
+          echo "⚙️  Compilation NSIS…"
+          makensis \
+            -DAPP_DIR="${APP_DIR}" \
+            -DINSTALLER_DIR="${INSTALLER_DIR}" \
+            -DTAG_NAME="${TAG_NAME}" \
+            -DICO_PATH="${ICO_PATH}" \
+            "${NSI}"
+
+          echo "✅ Installateur généré: ${INSTALLER_DIR}/Hunter-${TAG_NAME}-Setup.exe"
