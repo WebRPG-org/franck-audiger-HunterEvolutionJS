@@ -1,6 +1,6 @@
 <?php
 include '../lang.php';
-$files = array_merge(glob('*.7z'), glob('*.zip'));
+$files = array_merge(glob('*.exe'), array_merge(glob('*.7z'), glob('*.zip')));
 
 // Tri décroissant par date de modification
 usort($files, function($a, $b) {
