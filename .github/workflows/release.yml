@@ -217,7 +217,6 @@ jobs:
 
       - name: Android | Installer (SDK)
         run: |
-          set -euo pipefail
           mkdir -p "${ANDROID_SDK_ROOT}"
           if [ ! -x "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" ]; then
             TMP=/tmp/androidcli && rm -rf "$TMP" && mkdir -p "$TMP"
