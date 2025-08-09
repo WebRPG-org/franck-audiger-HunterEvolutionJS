@@ -10,14 +10,5 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Installer sshpass
-        run: sudo apt-get update && sudo apt-get install -y sshpass
-
-      - name: Exécuter le script distant avec sshpass
-        env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_PASSWORD: ${{ secrets.FTP_PASS }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
-        run: |
-          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST -p $SSH_PORT "cd /home/$SSH_USER/domains/hunter-evolution-game.com/public_html/workspace && bash deploy-dev.sh"
+      - name: Test
+        run: whoami
