@@ -1,4 +1,4 @@
-name: Déploiement Dev via SSH
+name: Déploiement Dev
 
 on:
   push:
@@ -10,5 +10,40 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Test
-        run: whoami
+      - name: Exécuter le script de déploiement dev
+        run: |
+          #!/bin/bash
+          set -e  # Stop on error
+
+          echo "🧹 Suppression de ./tmp..."
+          rm -rf ./tmp
+
+          echo "📁 Création de ./tmp..."
+          mkdir ./tmp
+          cd ./tmp
+
+          echo "📥 Clonage de la branche main du repo HunterEvolutionJS..."
+          git clone --branch main https://github.com/franck-audiger/HunterEvolutionJS.git .
+
+          echo "📁 Copie des fichiers vers le dossier game-dev..."
+
+          # --- Vérification de l'existence des fichiers attendus ---
+          if [ ! -d "./data" ] || [ ! -d "./fonts" ] || [ ! -d "./js" ] || [ ! -d "./icon" ] || [ ! -d "./img" ] || [ ! -d "./audio" ] || [ ! -d "./movies" ]; then
+            echo "❌ Dossiers sources manquants dans le dépôt cloné. Abandon."
+            exit 1
+          fi
+
+          DEST=/var/www/game-dev
+
+          cp -vr ./data/* "$DEST/data/"
+          cp -vr ./fonts/* "$DEST/fonts/"
+          cp -vr ./icon/* "$DEST/icon/"
+          cp -vr ./img/* "$DEST/img/"
+          cp -vr ./audio/* "$DEST/audio/"
+          cp -vr ./movies/* "$DEST/movies/"
+          cp -vr ./js/* "$DEST/js/"
+
+          cd ..
+          rm -rf ./tmp
+
+          echo "✅ Déploiement du commit terminé avec succès."
