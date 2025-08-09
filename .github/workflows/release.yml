@@ -39,8 +39,8 @@ jobs:
           done
 
           echo "📁 Sync workspace vers ${DEST_WEB}/workspace"
-          sudo mkdir -p "${DEST_WEB}/workspace"
-          sudo cp -vr ./workspace/* "${DEST_WEB}/workspace/"
+          mkdir -p "${DEST_WEB}/workspace"
+          cp -vr ./workspace/* "${DEST_WEB}/workspace/"
 
           cd ..
 
@@ -54,55 +54,55 @@ jobs:
           cd ./tmpRelease
 
           echo "📁 Prépare dossiers cibles…"
-          sudo mkdir -p \
+          mkdir -p \
             "${DEST_GAME}/data" "${DEST_GAME}/fonts" "${DEST_GAME}/icon" \
             "${DEST_GAME}/img" "${DEST_GAME}/audio" "${DEST_GAME}/movies" \
             "${DEST_GAME}/js"
 
           echo "📤 Copie assets vers ${DEST_GAME}"
-          sudo cp -vr ./data/*   "${DEST_GAME}/data/"
-          sudo cp -vr ./fonts/*  "${DEST_GAME}/fonts/"
-          sudo cp -vr ./icon/*   "${DEST_GAME}/icon/"
-          sudo cp -vr ./img/*    "${DEST_GAME}/img/"
-          sudo cp -vr ./audio/*  "${DEST_GAME}/audio/"
-          sudo cp -vr ./movies/* "${DEST_GAME}/movies/"
-          sudo cp -vr ./js/*     "${DEST_GAME}/js/"
+          cp -vr ./data/*   "${DEST_GAME}/data/"
+          cp -vr ./fonts/*  "${DEST_GAME}/fonts/"
+          cp -vr ./icon/*   "${DEST_GAME}/icon/"
+          cp -vr ./img/*    "${DEST_GAME}/img/"
+          cp -vr ./audio/*  "${DEST_GAME}/audio/"
+          cp -vr ./movies/* "${DEST_GAME}/movies/"
+          cp -vr ./js/*     "${DEST_GAME}/js/"
 
           echo "🧱 Copie vers build web (Windows payload)"
           PAYLOAD_WWW="${BUILD_ROOT}/Hunter/www"
-          sudo mkdir -p \
+          mkdir -p \
             "${PAYLOAD_WWW}/data" "${PAYLOAD_WWW}/fonts" "${PAYLOAD_WWW}/icon" \
             "${PAYLOAD_WWW}/img" "${PAYLOAD_WWW}/audio" "${PAYLOAD_WWW}/movies" \
             "${PAYLOAD_WWW}/js"
-          sudo cp -vr ./data/*   "${PAYLOAD_WWW}/data/"
-          sudo cp -vr ./fonts/*  "${PAYLOAD_WWW}/fonts/"
-          sudo cp -vr ./icon/*   "${PAYLOAD_WWW}/icon/"
-          sudo cp -vr ./img/*    "${PAYLOAD_WWW}/img/"
-          sudo cp -vr ./audio/*  "${PAYLOAD_WWW}/audio/"
-          sudo cp -vr ./movies/* "${PAYLOAD_WWW}/movies/"
-          sudo cp -vr ./js/*     "${PAYLOAD_WWW}/js/"
+          cp -vr ./data/*   "${PAYLOAD_WWW}/data/"
+          cp -vr ./fonts/*  "${PAYLOAD_WWW}/fonts/"
+          cp -vr ./icon/*   "${PAYLOAD_WWW}/icon/"
+          cp -vr ./img/*    "${PAYLOAD_WWW}/img/"
+          cp -vr ./audio/*  "${PAYLOAD_WWW}/audio/"
+          cp -vr ./movies/* "${PAYLOAD_WWW}/movies/"
+          cp -vr ./js/*     "${PAYLOAD_WWW}/js/"
 
           echo "🗂️  Fichiers site -> ${DEST_WEB}"
-          sudo mkdir -p "${DEST_WEB}/desktop"
-          sudo cp -v ./site/desktop/index.php   "${DEST_WEB}/desktop/index.php"
-          sudo cp -v ./site/bug-reports.php     "${DEST_WEB}/bug-reports.php"
-          sudo cp -v ./site/favicon.ico         "${DEST_WEB}/favicon.ico"
-          sudo cp -v ./site/feedback.php        "${DEST_WEB}/feedback.php"
-          sudo cp -v ./site/contact.php         "${DEST_WEB}/contact.php"
-          sudo cp -v ./site/icon.png            "${DEST_WEB}/icon.png"
-          sudo cp -v ./site/icon-144.png        "${DEST_WEB}/icon-144.png" || true
-          sudo cp -v ./site/icon-192.png        "${DEST_WEB}/icon-192.png" || true
-          sudo cp -v ./site/icon-36.png         "${DEST_WEB}/icon-36.png"  || true
-          sudo cp -v ./site/icon-48.png         "${DEST_WEB}/icon-48.png"  || true
-          sudo cp -v ./site/icon-72.png         "${DEST_WEB}/icon-72.png"  || true
-          sudo cp -v ./site/icon-96.png         "${DEST_WEB}/icon-96.png"  || true
-          sudo cp -v ./site/index.php           "${DEST_WEB}/index.php"
-          sudo cp -v ./site/lang.php            "${DEST_WEB}/lang.php"
-          sudo cp -v ./site/en.png              "${DEST_WEB}/en.png"        || true
-          sudo cp -v ./site/fr.png              "${DEST_WEB}/fr.png"        || true
-          sudo cp -v ./site/header.php          "${DEST_WEB}/header.php"
-          sudo cp -v ./site/release-note.php    "${DEST_WEB}/release-note.php"
-          sudo cp -v ./site/style.css           "${DEST_WEB}/style.css"
+          mkdir -p "${DEST_WEB}/desktop"
+          cp -v ./site/desktop/index.php   "${DEST_WEB}/desktop/index.php"
+          cp -v ./site/bug-reports.php     "${DEST_WEB}/bug-reports.php"
+          cp -v ./site/favicon.ico         "${DEST_WEB}/favicon.ico"
+          cp -v ./site/feedback.php        "${DEST_WEB}/feedback.php"
+          cp -v ./site/contact.php         "${DEST_WEB}/contact.php"
+          cp -v ./site/icon.png            "${DEST_WEB}/icon.png"
+          cp -v ./site/icon-144.png        "${DEST_WEB}/icon-144.png" || true
+          cp -v ./site/icon-192.png        "${DEST_WEB}/icon-192.png" || true
+          cp -v ./site/icon-36.png         "${DEST_WEB}/icon-36.png"  || true
+          cp -v ./site/icon-48.png         "${DEST_WEB}/icon-48.png"  || true
+          cp -v ./site/icon-72.png         "${DEST_WEB}/icon-72.png"  || true
+          cp -v ./site/icon-96.png         "${DEST_WEB}/icon-96.png"  || true
+          cp -v ./site/index.php           "${DEST_WEB}/index.php"
+          cp -v ./site/lang.php            "${DEST_WEB}/lang.php"
+          cp -v ./site/en.png              "${DEST_WEB}/en.png"        || true
+          cp -v ./site/fr.png              "${DEST_WEB}/fr.png"        || true
+          cp -v ./site/header.php          "${DEST_WEB}/header.php"
+          cp -v ./site/release-note.php    "${DEST_WEB}/release-note.php"
+          cp -v ./site/style.css           "${DEST_WEB}/style.css"
 
           cd ..
           echo "🧹 Nettoyage tmpRelease…"
@@ -115,7 +115,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          sudo mkdir -p "${INSTALLER_DIR}" "${APP_DIR}/www/icon"
+          mkdir -p "${INSTALLER_DIR}" "${APP_DIR}/www/icon"
 
           echo "🖼️  Conversion icon.png -> .ico pour l'installateur et les raccourcis"
           ICON_SRC=""
