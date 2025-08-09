@@ -19,7 +19,7 @@ jobs:
       # --- Android ---
       ANDROID_ROOT: /var/www/workspace/buildAndroid
       ANDROID_APP: /var/www/workspace/buildAndroid/Hunter            # projet Cordova
-      ANDROID_SDK_ROOT: /opt/android-sdk
+      ANDROID_SDK_ROOT: /opt/hunter/android-sdk
       ANDROID_BUILD_TOOLS: 34.0.0
       ANDROID_PLATFORM: android-34
       ANDROID_OUT_DIR: /var/www/android
