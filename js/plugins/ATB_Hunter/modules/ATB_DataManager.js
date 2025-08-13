@@ -50,4 +50,71 @@
 
         return savePath + path.sep;
     };
+
+    
+    StorageManager.save = function(savefileId, json) {
+        this.saveToLocalFile(savefileId, json);
+    };
+
+    StorageManager.load = function(savefileId) {
+        return this.loadFromLocalFile(savefileId);
+    };
+
+    StorageManager.exists = function(savefileId) {
+        return this.localFileExists(savefileId);
+    };
+
+    StorageManager.remove = function(savefileId) {
+        this.removeLocalFile(savefileId);
+    };
+    
+    StorageManager.backup = function(savefileId) {
+        if (this.exists(savefileId)) {
+            var data = this.loadFromLocalFile(savefileId);
+            var compressed = LZString.compressToBase64(data);
+            var fs = require('fs');
+            var dirPath = this.localFileDirectoryPath();
+            var filePath = this.localFilePath(savefileId) + ".bak";
+            if (!fs.existsSync(dirPath)) {
+                fs.mkdirSync(dirPath);
+            }
+            fs.writeFileSync(filePath, compressed);
+        }
+    };
+
+
+    StorageManager.cleanBackup = function(savefileId) {
+        if (this.backupExists(savefileId)) {
+            var fs = require('fs');
+            var dirPath = this.localFileDirectoryPath();
+            var filePath = this.localFilePath(savefileId);
+            fs.unlinkSync(filePath + ".bak");
+        }
+    };
+
+    StorageManager.restoreBackup = function(savefileId) {
+        if (this.backupExists(savefileId)) {
+            var data = this.loadFromLocalBackupFile(savefileId);
+            var compressed = LZString.compressToBase64(data);
+            var fs = require('fs');
+            var dirPath = this.localFileDirectoryPath();
+            var filePath = this.localFilePath(savefileId);
+            if (!fs.existsSync(dirPath)) {
+                fs.mkdirSync(dirPath);
+            }
+            fs.writeFileSync(filePath, compressed);
+            fs.unlinkSync(filePath + ".bak");
+        }
+    };
+
+    StorageManager.saveToLocalFile = function(savefileId, json) {
+        var data = LZString.compressToBase64(json);
+        var fs = require('fs');
+        var dirPath = this.localFileDirectoryPath();
+        var filePath = this.localFilePath(savefileId);
+        if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath);
+        }
+        fs.writeFileSync(filePath, data);
+    };
 })();
