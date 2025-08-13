@@ -19,7 +19,7 @@ const LOAD_EVENT_VARIABLE_ID = 44;
 const RESET_SHIFT = 190;
 const MODE_DEBUG = false;
 
-const miniGameAutoScrollRaceConfigs = {
+const defaultMiniGameAutoScrollRaceConfigs = {
   103 : {
     messagesShown : {},
     messagesConfig : {
@@ -61,6 +61,7 @@ const miniGameAutoScrollRaceConfigs = {
     },
     aspirationFactor : 0.4,
     nextMapFunction : function() {
+      $gameVariables.setValue(24, 1);
       $gameScreen.startFadeOut(10);
       setTimeout(() => {
         teleportPlayer(106, 22, 8);
@@ -487,6 +488,23 @@ const miniGameAutoScrollRaceConfigs = {
   }
 };
 
+function restoreFunctions(source, target) {
+  Object.keys(source).forEach(key => {
+    const sourceVal = source[key];
+    const targetVal = target[key];
+
+    if (typeof sourceVal === 'function') {
+      target[key] = sourceVal;
+    } else if (typeof sourceVal === 'object' && sourceVal !== null) {
+      if (!targetVal) target[key] = {};
+      restoreFunctions(sourceVal, target[key]);
+    }
+  });
+}
+
+let miniGameAutoScrollRaceConfigs = JsonEx.makeDeepCopy(defaultMiniGameAutoScrollRaceConfigs);
+restoreFunctions(defaultMiniGameAutoScrollRaceConfigs, miniGameAutoScrollRaceConfigs);
+
 function isMiniGameAutoScrollRaceActive() {
   if(!$gameMap){
     return false;
@@ -495,6 +513,19 @@ function isMiniGameAutoScrollRaceActive() {
 }
 
 let miniGameAutoScrollRaceEnable = true;
+
+window.resetMiniGameAutoScrollRace = function() {
+  // Réinitialise les données globales
+  miniGameAutoScrollRaceConfigs = JsonEx.makeDeepCopy(defaultMiniGameAutoScrollRaceConfigs);
+  restoreFunctions(defaultMiniGameAutoScrollRaceConfigs, miniGameAutoScrollRaceConfigs);
+  resetDx = 0;
+  showAspiration = false;
+  playerBlinking = false;
+  counterEnableChangeSpeed = 0;
+  counterBlinkPlayer = 0;
+  blinkShown = false;
+  $gameTemp._satotsuWarningShown = false;
+};
 
 window.resetSatotsu = function() {
   miniGameAutoScrollRaceConfigs.satotsu = null;
@@ -625,6 +656,9 @@ const _Scene_Map_update3 = Scene_Map.prototype.update;
 Scene_Map.prototype.update = function() {
   if(this._callGameOver){
     this._callGameOver = false;
+    setTimeout(() => {
+      resetMiniGameAutoScrollRace();
+    }, 2000); // 2 secondes après
     SceneManager.goto(Scene_Gameover);
   }
   _Scene_Map_update3.call(this);
@@ -1022,89 +1056,100 @@ function isPlayerInAspirationZone() {
   showAspiration = false;
   return false;
 }
-
-
 // === LISTE DES COMMANDES DU MINI-JEU ===
 const MiniGameInputs = [
-    { label: "Touch haut / Touche Haut", value: "Déplacement vers le haut", touchIcon: 330, inputIcon: 326 },
-    { label: "Touch bas / Touche Bas", value: "Déplacement vers le bas", touchIcon: 331, inputIcon: 327 },
-    { label: "Double touch haut / Touche Droite", value: "Augmente la vitesse", touchIcon: 332, inputIcon: 328 },
-    { label: "Double touch bas / Touche Gauche", value: "Réduit la vitesse", touchIcon: 333, inputIcon: 329 }
+  { label: "Touch haut / Touche Haut", value: "Déplacement vers le haut", touchIcon: 330, inputIcon: 326 },
+  { label: "Touch bas / Touche Bas", value: "Déplacement vers le bas", touchIcon: 331, inputIcon: 327 },
+  { label: "Double touch haut / Touche Droite", value: "Augmente la vitesse", touchIcon: 332, inputIcon: 328 },
+  { label: "Double touch bas / Touche Gauche", value: "Réduit la vitesse", touchIcon: 333, inputIcon: 329 }
 ];
 
 // === CLASSE FENÊTRE MINI-JEU ===
-function Window_MiniGameInputList() {
-    this.initialize.apply(this, arguments);
-}
-
+function Window_MiniGameInputList() { this.initialize.apply(this, arguments); }
 Window_MiniGameInputList.prototype = Object.create(Window_Command.prototype);
 Window_MiniGameInputList.prototype.constructor = Window_MiniGameInputList;
 
 Window_MiniGameInputList.prototype.initialize = function(x, y) {
-    this._inputList = MiniGameInputs;
-    Window_Command.prototype.initialize.call(this, x, y);
-    this.select(-1);
-    this.deactivate();
+  this._inputList = MiniGameInputs;
+  Window_Command.prototype.initialize.call(this, x, y);
+  this.select(-1);
+  this.deactivate(); // on activera juste après l’ajout
 };
 
 Window_MiniGameInputList.prototype.makeCommandList = function() {
-    this._inputList.forEach(input => {
-        this.addCommand("", null, false, input);
-    });
+  this._inputList.forEach(input => this.addCommand("", null, false, input));
 };
 
 Window_MiniGameInputList.prototype.drawItem = function(index) {
-    const rect = this.itemRect(index);
-    const input = this._list[index].ext;
-    const half = rect.width / 2;
-
-    this.resetTextColor();
-
-    // Dessine les icônes
-    this.drawIcon(input.touchIcon, rect.x + this.textPadding(), rect.y + 2);
-    this.drawText("/", rect.x + this.textPadding() + 40, rect.y, 20, 'left');
-    this.drawIcon(input.inputIcon, rect.x + this.textPadding() + 60, rect.y + 2);
-
-    // Dessine la description à droite
-    this.drawText(input.value, rect.x + half, rect.y, half - this.textPadding(), 'right');
+  const rect  = this.itemRect(index);
+  const input = this._list[index].ext;
+  const half  = rect.width / 2;
+  this.resetTextColor();
+  this.drawIcon(input.touchIcon, rect.x + this.textPadding(), rect.y + 2);
+  this.drawText("/", rect.x + this.textPadding() + 40, rect.y, 20, 'left');
+  this.drawIcon(input.inputIcon, rect.x + this.textPadding() + 60, rect.y + 2);
+  this.drawText(input.value, rect.x + half, rect.y, half - this.textPadding(), 'right');
 };
 
-Window_MiniGameInputList.prototype.windowWidth = function() {
-    return 480;
-};
+Window_MiniGameInputList.prototype.windowWidth  = function()  { return 480; };
+Window_MiniGameInputList.prototype.windowHeight = function()  { return this.fittingHeight(this._inputList.length); };
 
-Window_MiniGameInputList.prototype.windowHeight = function() {
-    return this.fittingHeight(this._inputList.length);
-};
+Window_MiniGameInputList.prototype.playOkSound = function() {};
 
-// === MÉTHODE POUR AFFICHER LA FENÊTRE ET BLOQUER L'ÉVÉNEMENT ===
+Window_MiniGameInputList.prototype.playBuzzerSound = function() {};
+
+// === AFFICHER LA FENÊTRE & RÉSOUDRE SUR INPUT ===
 window.showMinigameInputList = function() {
-    return new Promise(resolve => {
-        const tempWindow = new Window_MiniGameInputList(0, 0);
-        const x = (Graphics.boxWidth - tempWindow.windowWidth()) / 2;
-        const y = (Graphics.boxHeight - tempWindow.windowHeight()) / 2;
-        const window = new Window_MiniGameInputList(x, y);
-        SceneManager._scene.addWindow(window);
+  return new Promise(resolve => {
+    const scene = SceneManager._scene;
+    if (!scene) return resolve();
 
-        const closeOnInput = () => {
-            if (Input.isTriggered('ok') || Input.isTriggered('cancel') || TouchInput.isTriggered()) {
-                SceneManager._scene.removeChild(window);
-                SceneManager._scene._windowLayer.removeChild(window);
-                window.close();
-                resolve();
-                return true;
-            }
-            return false;
-        };
+    const tmp  = new Window_MiniGameInputList(0, 0);
+    const x    = (Graphics.boxWidth  - tmp.windowWidth())  / 2;
+    const y    = (Graphics.boxHeight - tmp.windowHeight()) / 2;
+    const win  = new Window_MiniGameInputList(x, y);
 
-        const updateLoop = function() {
-            if (!closeOnInput()) {
-                requestAnimationFrame(updateLoop);
-            }
-        };
+    scene.addWindow(win);
+    win.openness = 255;
+    win.activate();
+    win.select(-1);
 
-        requestAnimationFrame(updateLoop);
-    });
+    let done = false;
+    const _origUpdate = scene.update.bind(scene);
+
+    const timeoutId = setTimeout(() => {
+      SoundManager.playOk();
+      cleanup();
+    }, 30000); // 30 secondes de sécurité
+
+    const cleanup = () => {
+      clearTimeout(timeoutId);
+      if (done) return;
+      done = true;
+      if (scene._windowLayer && win.parent === scene._windowLayer) {
+        scene._windowLayer.removeChild(win);
+      }
+      scene.update = _origUpdate;
+      resolve();
+    };
+
+    // Fermer proprement si changement de scène
+    const _origStop = scene.stop || function(){};
+    scene.stop = function() {
+      try { cleanup(); } finally { _origStop.apply(this, arguments); }
+    };
+
+    // Surveiller l'input
+    scene.update = function() {
+      _origUpdate();
+      if (done) return;
+
+      if (Input.isTriggered('ok') || Input.isTriggered('cancel') || TouchInput.isTriggered()) {
+        SoundManager.playOk(); // toujours jouer le son OK
+        cleanup();
+      }
+    };
+  });
 };
 
 
