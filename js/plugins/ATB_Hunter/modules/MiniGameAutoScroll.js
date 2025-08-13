@@ -314,7 +314,7 @@ Sprite_CustomMessage.prototype.refresh = function() {
   if (dh < 0) dh = 0;
 
   const left = dw / 2;
-  const baseX = (w / 2) - (312 - (faceWidth/2));
+  const baseX = (w / 2) - (408 - (faceWidth/2));
   
   // === Fond (noir semi-transparent)
   bmp.fillRect(left-1, 0, w+2, height, 'rgba(0, 0, 0, 180)');

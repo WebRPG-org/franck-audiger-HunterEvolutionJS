@@ -1,134 +1,53 @@
-DataManager.saveGameWeb = function() {
-    var json = JsonEx.stringify(this.makeSaveContents());
-    if (json.length >= 200000) {
-        console.warn('Save data too big!');
-    }
-    StorageManager.saveWebToLocalFile(json);
-    
-    return true;
-};
+/*:
+ * @plugindesc Redirige les sauvegardes vers un dossier AppData personnalisé (HxHEvo/save) pour version Desktop (NW.js/Electron). ⌁
+ * @author GPT
+ * 
+ * @help
+ * Ce plugin redirige tous les fichiers de sauvegarde vers :
+ * - Windows : %APPDATA%/HxHEvo/save/
+ * - macOS   : ~/Library/Application Support/HxHEvo/save/
+ * - Linux   : ~/.config/HxHEvo/save/
+ * 
+ * ⚠️ Fonctionne uniquement en mode local (Desktop).
+ * Aucun plugin command requis. Intégration native avec le menu RPG Maker.
+ */
 
-let lastSaveName = "Save1.rpgsave";
+(function() {
+    const path = require('path');
+    const fs = require('fs');
 
-function saveAsFile(filename, content) {
-    const blob = new Blob([content], { type: 'application/octet-stream' });
-    const url = URL.createObjectURL(blob);
+    function ensureDirectoryExists(dirPath) {
+        const segments = dirPath.split(path.sep);
+        let currentPath = segments[0];
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-
-    document.body.appendChild(a);
-    a.click();
-    lastSaveName = filename;
-    document.body.removeChild(a);
-
-    URL.revokeObjectURL(url);
-}
-
-function openSaveFileAndLoadGame() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.rpgsave';
-
-    let fileSelected = false;
-
-    input.addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        lastSaveName = file.name;
-        fileSelected = true;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const compressed = e.target.result;
-                const json = LZString.decompressFromBase64(compressed);
-                const data = JsonEx.parse(json);
-                if (data) {
-                    DataManager.createGameObjects();
-                    DataManager.extractSaveContents(data);
-                    SoundManager.playLoad();
-                    SceneManager._scene.fadeOutAll();
-                    if ($gameSystem.versionId() !== $dataSystem.versionId) {
-                        $gamePlayer.reserveTransfer($gameMap.mapId(), $gamePlayer.x, $gamePlayer.y);
-                        $gamePlayer.requestMapReload();
-                    }
-                    SceneManager.goto(Scene_Map);
+        for (let i = 1; i < segments.length; i++) {
+            currentPath = path.join(currentPath, segments[i]);
+            if (!fs.existsSync(currentPath)) {
+                try {
+                    fs.mkdirSync(currentPath);
+                } catch (e) {
+                    console.error("Impossible de créer le dossier :", currentPath, e);
                 }
-            } catch (err) {
-                alert("Impossible de charger cette sauvegarde.");
-                SceneManager.goto(Scene_Title);
             }
-        };
-        reader.readAsText(file);
-    });
-
-    input.click();
-
-    setTimeout(() => {
-        if (!fileSelected) {
-            SceneManager.goto(Scene_Title);
         }
-    }, 1000);
-}
-
-StorageManager.saveWebToLocalFile = function(json) {
-    var data = LZString.compressToBase64(json);
-    saveAsFile(lastSaveName, data);
-};
-
-
-Scene_Menu.prototype.commandSave = function() {
-    if(!StorageManager.isLocalMode()){
-        DataManager.saveGameWeb();
-        SceneManager.pop();
-    } else {
-        SceneManager.push(Scene_Save);
     }
-};
 
-Scene_Title.prototype.commandContinue = function() {
-    if (!StorageManager.isLocalMode()) {
-        openSaveFileAndLoadGame();
-    } else {
-        SceneManager.push(Scene_Load);
-    }
-};
+    StorageManager.localFileDirectoryPath = function() {
+        const appName = 'HxHEvo';
+        let base;
 
-Scene_Load.prototype.onLoadSuccess = function() {
-    SoundManager.playLoad();
-    this.fadeOutAll();
-    this.reloadMapIfUpdated();
-    SceneManager.goto(Scene_Map);
-    this._loadSuccess = true;
-};
-
-Scene_Load.prototype.onLoadFailure = function() {
-    SoundManager.playBuzzer();
-    this.activateListWindow();
-};
-
-Window_TitleCommand.prototype.makeCommandList = function() {
-    this.addCommand(TextManager.newGame,   'newGame');
-    if (!StorageManager.isLocalMode()) {
-        this.addCommand(TextManager.continue_, 'continue', true);
-    } else {
-        this.addCommand(TextManager.continue_, 'continue', this.isContinueEnabled());
-    }
-    this.addCommand(TextManager.options,   'options');
-    this.addCommand(TextManager.gameEnd,   'gameEnd');
-};
-
-
-// Open Save Screen
-Game_Interpreter.prototype.command352 = function() {
-    if (!$gameParty.inBattle()) {
-        if(StorageManager.isLocalMode()){
-            SceneManager.push(Scene_Save);
+        if (process.platform === 'win32') {
+            base = process.env.APPDATA;
+        } else if (process.platform === 'darwin') {
+            base = path.join(process.env.HOME, 'Library', 'Application Support');
         } else {
-            return DataManager.saveGameWeb();
+            base = path.join(process.env.HOME || process.env.XDG_CONFIG_HOME, '.config');
         }
-    }
-    return true;
-};
+
+        const savePath = path.join(base, appName, 'save');
+
+        ensureDirectoryExists(savePath);
+
+        return savePath + path.sep;
+    };
+})();
