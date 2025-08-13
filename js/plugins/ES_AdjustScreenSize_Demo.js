@@ -374,8 +374,6 @@
         this.addWindow(this._commandWindow);
     };
 
-
-
     Scene_Title.prototype.commandQuit = function() {
         if (Utils.isNwjs()) {
             const nwWin = require('nw.gui').Window.get();
@@ -383,6 +381,14 @@
         } else {
             window.location.href = "https://hunter-evolution-game.com/"; 
         }
+    };
+
+    
+    Window_TitleCommand.prototype.makeCommandList = function() {
+        this.addCommand(TextManager.newGame,   'newGame');
+        this.addCommand(TextManager.continue_, 'continue', this.isContinueEnabled());
+        this.addCommand(TextManager.options,   'options');
+        this.addCommand(TextManager.gameEnd,   'gameEnd');
     };
 
     Window_Message.prototype.drawMessageFace = function() {
