@@ -13,11 +13,10 @@
  */
 
 (function() {
-    const path = require('path');
     const fs = require('fs');
 
     function ensureDirectoryExists(dirPath) {
-        const segments = dirPath.split(path.sep);
+        const segments = dirPath.split('/');
         let currentPath = segments[0];
 
         for (let i = 1; i < segments.length; i++) {
