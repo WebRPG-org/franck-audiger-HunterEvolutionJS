@@ -7,6 +7,14 @@ include 'header.php';
   <h1><?= $title ?></h1>
   <div class="container">
     <section class="release">
+      <h2>Version 0.5.0.0 : <?= t("Debut Phase 1 Exam Hunter", "Starting Phase 1 Exam Hunter") ?></h2>
+      <ul>
+        <li><?= t("Ajout des scenes d'introduction : Tompa, Hisoka, Killua, Phase 1", "Adding introduction scenes: Tompa, Hisoka, Killua, Phase 1") ?></li>
+        <li><?= t("Mini-jeu course phase1", "Mini-game race phase 1") ?></li>
+        <li><?= t("Installeur pour le build desktop", "Installer for desktop build") ?></li>
+      </ul>
+    </section>
+    <section class="release">
       <h2>Version 0.4.1 : <?= t("Corrections diverses et améliorations", "Misc fixes and improvements") ?></h2>
       <ul>
         <li><?= t("Début du support pour les petits écrans", "Start support for small screens") ?></li>
