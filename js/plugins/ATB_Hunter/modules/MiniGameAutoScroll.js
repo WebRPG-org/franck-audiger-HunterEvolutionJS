@@ -262,6 +262,7 @@ const rockList = [
   {x: 19, y: 53}
 ];
 
+const DEFAULT_WIDTH = 816;
 const MESSAGE_HEIGHT = 168;
 
 function Sprite_CustomMessage() {
@@ -313,7 +314,8 @@ Sprite_CustomMessage.prototype.refresh = function() {
   if (dh < 0) dh = 0;
 
   const left = dw / 2;
-
+  const baseX = (w / 2) - (312 - (faceWidth/2));
+  
   // === Fond (noir semi-transparent)
   bmp.fillRect(left-1, 0, w+2, height, 'rgba(0, 0, 0, 180)');
 
@@ -321,16 +323,16 @@ Sprite_CustomMessage.prototype.refresh = function() {
   const faceBmp = ImageManager.loadFace(this._faceName);
   const pw = Window_Base._faceWidth;
   const ph = Window_Base._faceHeight;
-  const sx = (this._faceIndex % 4) * pw;
+  const sx = ((this._faceIndex % 4) * pw);
   const sy = Math.floor(this._faceIndex / 4) * ph;
   const faceY = (height - ph) / 2;
 
   faceBmp.addLoadListener(() => {
-    bmp.blt(faceBmp, sx, sy, pw, ph, left + padding, faceY);
+    bmp.blt(faceBmp, sx, sy, pw, ph, left + padding + baseX, faceY);
   });
 
   // === Texte
-  const textX = left + faceWidth + padding * 2;
+  const textX = (left + faceWidth + padding * 2) + baseX ;
   const textWidth = w - faceWidth - padding * 3;
   const lineHeight = 28;
   bmp.fontSize = 20;
@@ -542,6 +544,7 @@ Scene_Map.prototype.createDisplayObjects = function() {
 
   this._customMessageSprite = new Sprite_CustomMessage();
   this._customMessageSprite.y = Graphics.height - MESSAGE_HEIGHT;
+  this._customMessageSprite.x = (Graphics.boxWidth - Graphics.width) / 2;
   this.addChild(this._customMessageSprite);
 };
 
@@ -719,10 +722,10 @@ function spawnRandomWaveEvent(playerX, playerY) {
 }
 
 
-window.disableDashing() = function() {
+window.disableDashing = function() {
   $gameVariables.setValue(46, 1); // Désactive le dash
 }
 
-window.enableDashing() = function() {
+window.enableDashing = function() {
   $gameVariables.setValue(46, 0); // Réactive le dash
 }

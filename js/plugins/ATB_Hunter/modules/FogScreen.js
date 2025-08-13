@@ -59,7 +59,11 @@ const fogConfigs = {
   85: { name: "Fog1", speedX: 0.7, speedY: -0.8, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
   87: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
   88: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  120: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 300, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
+  122: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 300, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
 };
+
+let hiddingFog = false;
 
 let lastDisplayX = 0; // Variable pour suivre la dernière position d'affichage
 let counterDelayThunder = -1;
@@ -76,6 +80,14 @@ function scheduleNextFlash() {
 
 function instantFlash() {
   lightningFlashFrame = Graphics.frameCount + 1; // Force le flash instantanément
+}
+
+window.hideFog = function() {
+  hiddingFog = true;
+}
+
+window.showFog = function() {
+  hiddingFog = false;
 }
 
 window.instantFlash = instantFlash; // Rendre la fonction accessible globalement
@@ -149,7 +161,7 @@ function updateFogOverlay() {
 
   // === Fog
   if (this._fogOverlay) {
-    this._fogOverlay.visible = enable;
+    this._fogOverlay.visible = enable && !hiddingFog;
     this._fogOverlay.move(bounds.x, bounds.y, bounds.width, bounds.height);
 
     if (enable && config.name) {
@@ -160,13 +172,13 @@ function updateFogOverlay() {
 
   // === Overlay nuit
   if (this._nightOverlay) {
-    this._nightOverlay.visible = enable;
+    this._nightOverlay.visible = enable && !hiddingFog;
     this._nightOverlay.move(bounds.x, bounds.y, bounds.width, bounds.height);
   }
 
   // === Flash
   if (this._lightningFlash) {
-    this._lightningFlash.visible = enable;
+    this._lightningFlash.visible = enable && !hiddingFog;
     this._lightningFlash.move(bounds.x, bounds.y, bounds.width, bounds.height);
   }
 
@@ -177,7 +189,7 @@ function updateVisionOverlay() {
   const config = fogConfigs[$gameMap.mapId()];
   if (!this._visionOverlay) return;
 
-  this._visionOverlay.visible = enable && config && config.restrictedVision;
+  this._visionOverlay.visible = enable && config && config.restrictedVision && !hiddingFog;
 
   if (!enable || !config || !config.restrictedVision) return;
 
