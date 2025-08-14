@@ -61,15 +61,37 @@
       this.updateCurrentBgm(bgm, pos);
   };
 
-  
-Game_Character.ROUTE_MOVE_DOWN         = 1;
-Game_Character.ROUTE_MOVE_LEFT         = 2;
-Game_Character.ROUTE_MOVE_RIGHT        = 3;
-Game_Character.ROUTE_MOVE_UP           = 4;
-Game_Character.ROUTE_MOVE_LOWER_L      = 5;
-Game_Character.ROUTE_MOVE_LOWER_R      = 6;
-Game_Character.ROUTE_MOVE_UPPER_L      = 7;
-Game_Character.ROUTE_MOVE_UPPER_R      = 8;
+
+  window.allEventTurnTo = function(targetX, targetY, ignoredNames = []) {
+    $gameMap.events().forEach(function(event) {
+      const eventName = event.event().name.toLowerCase();
+
+      // Ignore les événements dont le nom commence par "door"
+      if (eventName.startsWith("Door")) {
+        return;
+      }
+
+      if (ignoredNames.includes(eventName)) {
+        return;
+      } else {
+        const dx = targetX - event.x;
+        const dy = targetY - event.y;
+
+        let direction;
+        if (Math.abs(dx) > Math.abs(dy)) {
+          direction = dx > 0 ? 6 : 4; // Droite ou gauche
+        } else if (dy !== 0) {
+          direction = dy > 0 ? 2 : 8; // Bas ou haut
+        } else {
+          direction = event.direction(); // Pas de changement si même position
+        }
+
+        event.setDirection(direction);
+      }
+    });
+  };
+
+
 
   window.movePlayerTo = function(x, y, wait = false, increaseSpeed = 0) {
     if (!$gamePlayer) return;
