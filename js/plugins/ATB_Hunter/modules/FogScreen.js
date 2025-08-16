@@ -1,67 +1,84 @@
 
 const fogConfigs = {
-  1: { name: "Rain1", speedX: 0.2, speedY: -0.8, opacity: 160, restrictedVision: false, restrictedVisionOpacity: 0.93, visionRadius: 150, lightningActivated: true },
-  13: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 160, restrictedVision: true, restrictedVisionOpacity: 0.93, visionRadius: 150, lightningActivated: false },
-  18: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 230, restrictedVision: true, restrictedVisionOpacity: 0.96, visionRadius: 110, lightningActivated: false },
+  1: { name: "Rain1", speedX: 0.2, speedY: -0.8, opacity: 100, restrictedVision: false, restrictedVisionOpacity: 0.93, visionRadius: 150, lightningActivated: true },
+  13: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 100, restrictedVision: true, restrictedVisionOpacity: 0.93, visionRadius: 150, lightningActivated: false },
+  18: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 150, restrictedVision: true, restrictedVisionOpacity: 0.96, visionRadius: 110, lightningActivated: false },
   19: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 300, restrictedVision: true, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false },
-  24: { name: "Fog1", speedX: 1.2, speedY: -0.8, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: true },
-  33: { name: null, speedX: 0.7, speedY: -0.8, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  34: { name: null, speedX: 0.7, speedY: -0.8, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 170 },
-  35: { name: "Fog1", speedX: 0.7, speedY: -1.8, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  36: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  37: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  38: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  39: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  40: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  41: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  42: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  43: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  44: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  45: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  46: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  47: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  48: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  49: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  50: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  51: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  52: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  53: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  54: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  55: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  56: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  57: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  58: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  59: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  60: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  61: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  62: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  63: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  64: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  65: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  66: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  67: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  68: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  69: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  70: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  71: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  72: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  73: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  74: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  75: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  76: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  77: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  78: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  79: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  80: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  81: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  82: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  83: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  85: { name: "Fog1", speedX: 0.7, speedY: -0.8, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  87: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  88: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 90, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
-  120: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 300, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
-  122: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 300, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
+  24: { name: "Fog1", speedX: 1.2, speedY: -0.8, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: true },
+  33: { name: null, speedX: 0.7, speedY: -0.8, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  34: { name: null, speedX: 0.7, speedY: -0.8, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 170 },
+  35: { name: "Fog1", speedX: 0.7, speedY: -1.8, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  36: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  37: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  38: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  39: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  40: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  41: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  42: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  43: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  44: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  45: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  46: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  47: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  48: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  49: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  50: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  51: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  52: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  53: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  54: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  55: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  56: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  57: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  58: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  59: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  60: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  61: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  62: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  63: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  64: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  65: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  66: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  67: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  68: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  69: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  70: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  71: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  72: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  73: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  74: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  75: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  76: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  77: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  78: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  79: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  80: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  81: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  82: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  83: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  85: { name: "Fog1", speedX: 0.7, speedY: -0.8, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  87: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  88: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
+  120: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 200, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
+  122: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 200, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
+  126: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 200, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
 };
+
+window.putOpacityTo = function(delta, delay = 100){
+  step(1, delta, delay);
+}
+
+function step(i, max, delay){
+  if (i > max) return;             // fin
+  increaseOpacityFog(i);          // applique le delta d'opacité (absolu)
+  setTimeout(function(){ step(i + 1, max, delay); }, delay);
+}
+
+let increaseOpacity = 0;
+
+window.increaseOpacityFog = function(delta){
+  increaseOpacity = delta;
+}
 
 let hiddingFog = false;
 
@@ -162,6 +179,7 @@ function updateFogOverlay() {
   // === Fog
   if (this._fogOverlay) {
     this._fogOverlay.visible = enable && !hiddingFog;
+    this._fogOverlay.opacity = fogConfigs[$gameMap.mapId()].opacity + increaseOpacity || 128 + increaseOpacity;
     this._fogOverlay.move(bounds.x, bounds.y, bounds.width, bounds.height);
 
     if (enable && config.name) {
