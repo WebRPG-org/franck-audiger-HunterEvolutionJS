@@ -62,6 +62,7 @@ const fogConfigs = {
   120: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 200, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
   122: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 200, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
   126: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 200, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
+  91: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 230, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
 };
 
 window.putOpacityTo = function(delta, delay = 100){
