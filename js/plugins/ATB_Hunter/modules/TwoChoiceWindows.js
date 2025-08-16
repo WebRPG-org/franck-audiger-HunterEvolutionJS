@@ -54,14 +54,17 @@ Scene_TwoButtonChoice.prototype.createCommandWindow = function() {
 
 Scene_TwoButtonChoice.prototype.commandKurapikaLeolio = function() {
     // Handle Kurapika & Leolio choice
+    $gameVariables.setValue(47, 1); 
     this._commandWindow.close();
-    console.log("Kurapika & Leolio chosen");
+    this.popScene();
 };
 
 Scene_TwoButtonChoice.prototype.commandGonKillua = function() {
     // Handle Gon & Killua choice
+    $gameVariables.setValue(47, 2); 
     this._commandWindow.close();
-    console.log("Gon & Killua chosen");
+    this.popScene();
+    
 };
 
 // --------------------------------------------------------------------------
