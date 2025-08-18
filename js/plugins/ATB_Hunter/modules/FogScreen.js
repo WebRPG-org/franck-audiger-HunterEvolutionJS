@@ -3,7 +3,7 @@ const fogConfigs = {
   1: { name: "Rain1", speedX: 0.2, speedY: -0.8, opacity: 100, restrictedVision: false, restrictedVisionOpacity: 0.93, visionRadius: 150, lightningActivated: true },
   13: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 100, restrictedVision: true, restrictedVisionOpacity: 0.93, visionRadius: 150, lightningActivated: false },
   18: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 150, restrictedVision: true, restrictedVisionOpacity: 0.96, visionRadius: 110, lightningActivated: false },
-  19: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 300, restrictedVision: true, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false },
+  19: { name: "Fog1", speedX: 0.7, speedY: 0.5, opacity: 200, restrictedVision: true, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false },
   24: { name: "Fog1", speedX: 1.2, speedY: -0.8, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: true },
   33: { name: null, speedX: 0.7, speedY: -0.8, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 190 },
   34: { name: null, speedX: 0.7, speedY: -0.8, opacity: 60, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: true, nightOpacity: 170 },
@@ -63,6 +63,17 @@ const fogConfigs = {
   122: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 200, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
   126: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 200, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
   91: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 230, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
+  134: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 230, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 80, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
+  125: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 230, restrictedVision: true, restrictedVisionOpacity: 0.98, visionRadius: 180, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
+  128: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 230, restrictedVision: true, restrictedVisionOpacity: 0.98, visionRadius: 180, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
+  136: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 230, restrictedVision: true, restrictedVisionOpacity: 0.98, visionRadius: 180, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
+  137: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 230, restrictedVision: true, restrictedVisionOpacity: 0.98, visionRadius: 180, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
+  138: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 230, restrictedVision: true, restrictedVisionOpacity: 0.98, visionRadius: 180, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
+  135: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 230, restrictedVision: true, restrictedVisionOpacity: 0.98, visionRadius: 180, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
+  139: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 230, restrictedVision: true, restrictedVisionOpacity: 0.98, visionRadius: 180, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
+  140: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 230, restrictedVision: true, restrictedVisionOpacity: 0.98, visionRadius: 180, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
+  141: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 230, restrictedVision: true, restrictedVisionOpacity: 0.98, visionRadius: 180, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
+  142: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 230, restrictedVision: true, restrictedVisionOpacity: 0.98, visionRadius: 180, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
 };
 
 window.putOpacityTo = function(delta, delay = 100){
@@ -74,6 +85,7 @@ function step(i, max, delay){
   increaseOpacityFog(i);          // applique le delta d'opacité (absolu)
   setTimeout(function(){ step(i + 1, max, delay); }, delay);
 }
+
 
 let increaseOpacity = 0;
 
@@ -162,7 +174,6 @@ function createVisionOverlay() {
 
   const width = Graphics.width;
   const height = Graphics.height;
-
   this._visionBitmap = new Bitmap(width, height);
   this._visionOverlay = new Sprite(this._visionBitmap);
   this._spriteset.addChild(this._visionOverlay);

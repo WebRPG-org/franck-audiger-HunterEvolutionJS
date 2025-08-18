@@ -183,7 +183,7 @@
     SceneManager.run = function(sceneClass) {
         _SceneManager_run.call(this, sceneClass);
         if (Utils.isNwjs()) {
-            //Graphics._requestFullScreen();
+            Graphics._requestFullScreen();
         }
         adjustScreenSize();
     };

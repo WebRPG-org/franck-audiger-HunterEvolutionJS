@@ -466,3 +466,16 @@ window.stopPlayer = function () {
         $gamePlayer._locked = false;
     }, 2000);
 }
+
+window.slowPlayer = function () {
+    // 1) Empêche le joueur de bouger
+    $gamePlayer._moveSpeed = 2;        // "gèle" la vitesse
+
+    // 3) Joue une animation sur le joueur (exemple: ID 1)
+    $gamePlayer.requestAnimation(1);
+
+    // 4) Après 2 secondes, on redonne le contrôle
+    setTimeout(function () {
+        $gamePlayer._moveSpeed = 3;      // vitesse par défaut (modifie selon ton jeu)
+    }, 2000);
+}

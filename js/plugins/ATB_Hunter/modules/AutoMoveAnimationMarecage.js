@@ -3,6 +3,7 @@ const MOVE_DELAY = 1;
 const LOOKAHEAD = 20;
 
 const lastMove = {};
+let disableGon = false;
 
 function setLastMove(ch, move) {
     lastMove[timerIdFor(ch)] = move;
@@ -120,7 +121,8 @@ function preferRightTowardInitialX(ch) {
 // --- Décision d'un pas ---
 function decideAndMove(ch) {
     if (ch.isMoving()) return;
-
+    console.log(ch)
+    if(disableGon && ch._characterName === "$Gon2") return; // ne pas bouger Gon
     // Assure que l'ancrage est capturé pour ce perso
     initialXFor(ch);
 
@@ -206,4 +208,12 @@ window.disableAutoMoveAnimationMarecage = function () {
     autoMove = false;
     _timers = Object.create(null);
     clearAnchors(); // reset des ancres
+};
+
+window.autoMoveAnimationMarecageGonDisable = function () {
+    disableGon = true;
+};
+
+window.autoMoveAnimationMarecageGonEnable = function () {
+    disableGon = false;
 };

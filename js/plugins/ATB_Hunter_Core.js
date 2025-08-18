@@ -9,6 +9,7 @@
 (function() {
   const path = 'js/plugins/ATB_Hunter/modules/';
   const files = [
+    'Strawberry.js',
     'AutoMoveAnimationMarecage.js',
     'AutoMoveGonKillua.js',
     'ATB_GameBattler.js',
