@@ -121,7 +121,6 @@ function preferRightTowardInitialX(ch) {
 // --- Décision d'un pas ---
 function decideAndMove(ch) {
     if (ch.isMoving()) return;
-    console.log(ch)
     if(disableGon && ch._characterName === "$Gon2") return; // ne pas bouger Gon
     // Assure que l'ancrage est capturé pour ce perso
     initialXFor(ch);
