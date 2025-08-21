@@ -68,6 +68,9 @@ const fogConfigs = {
   128: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 230, restrictedVision: true, restrictedVisionOpacity: 0.98, visionRadius: 180, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
   136: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 130, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 180, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
   145: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 150, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 180, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
+  139: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 150, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 180, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
+  140: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 150, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 180, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
+  141: { name: "Fog1", speedX: 0.7, speedY: 0.7, opacity: 150, restrictedVision: false, restrictedVisionOpacity: 0.98, visionRadius: 180, lightningActivated: false, nightOverlay: false, nightOpacity: 190 },
 };
 
 const UPDATE_INTERVAL_FRAMES = 3;

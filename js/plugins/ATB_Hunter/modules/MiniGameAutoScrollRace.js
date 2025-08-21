@@ -1,5 +1,4 @@
 let canChangeSpeed = true;
-const ENDURANCE_VAR_ID = 100;
 const DELAY_INPUT_SPEED = 400;
 const MAX_ENDURANCE = 2000;
 const MAX_DISTANCE = 60;

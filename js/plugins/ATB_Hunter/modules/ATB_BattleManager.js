@@ -112,6 +112,8 @@ BattleManager.isBattleTest = function() {
 };
 
 BattleManager.setBattleTest = function(battleTest) {
+    hisokaBattle = true;
+    $gameVariables.setValue(42,1);
     this._battleTest = battleTest;
 };
 
@@ -255,6 +257,13 @@ BattleManager.getCurrentActionActor = function() {
 
 BattleManager.update = function() {
     if (!this.isBusy() && !this.updateEvent()) {
+        if($gameTroop._troopId == 11){
+            if(checkCherryAlone()){
+                if($gameTroop.members()[0] && $gameTroop.members()[0].traitObjects()[0] && $gameTroop.members()[0].traitObjects()[0].traits[2]){
+                    this._step = 'toClosed';
+                }
+            }
+        }
         this.updateAtbTick();
         switch (this._step) {
             case "init":
@@ -607,3 +616,29 @@ BattleManager.gainDropItems = function() {
         $gameParty.gainItem(item, 1);
     });
 };
+
+let bufferBattleBgm = null;
+let overrideBattleBgmName = null;
+
+window.overrideBattleBgm = function(bgm) {
+    bufferBattleBgm = $gameSystem.battleBgm();
+    $gameSystem.setBattleBgm(bgm);
+}
+
+window.resetBattleBgm = function() {
+    $gameSystem.setBattleBgm(bufferBattleBgm);
+};
+
+window.checkCherryAlone = function() {
+    var mainEnemy = $gameTroop.members()[0];
+    var othersDead = true;
+    console.log(mainEnemy)
+    for(var i = 1; i < $gameTroop.members().length; i++) {
+        var enemy = $gameTroop.members()[i];
+        if(enemy.isAlive()) {
+            othersDead = false;
+            break;
+        }
+    }
+    return othersDead
+}

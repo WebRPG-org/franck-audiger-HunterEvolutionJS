@@ -320,6 +320,15 @@ Window_Base.prototype.drawActorSimpleStatus = function(actor, x, y, width) {
     }
 };
 
+let hisokaBattle = false;
+
+window.startHisokaBattle = function() {
+    hisokaBattle = true;
+};
+
+window.stopHisokaBattle = function() {
+    hisokaBattle = false;
+};
 
 Window_ActorCommand.prototype.addSkillCommands = function() {
     var skillTypes = this._actor.addedSkillTypes();
@@ -331,6 +340,8 @@ Window_ActorCommand.prototype.addSkillCommands = function() {
         if(name === "Nen"){
             if ($gameVariables.value(37) === 1) {
                 this.addCommand(name, 'skill', true, stypeId);
+            } else if(hisokaBattle){
+                this.addCommand("???", 'skill', true, stypeId);
             }
         } else {
             this.addCommand(name, 'skill', true, stypeId);
@@ -338,6 +349,17 @@ Window_ActorCommand.prototype.addSkillCommands = function() {
     }, this);
 };
 
+Window_ActorCommand.prototype.addGuardCommand = function() {
+    if(hisokaBattle) return;
+    this.addCommand(TextManager.guard, 'guard', this._actor.canGuard());
+};
+
+
+
+Window_ActorCommand.prototype.addItemCommand = function() {
+    if(hisokaBattle) return;
+    this.addCommand(TextManager.item, 'item');
+};
 
 
 Window_SkillType.prototype.makeCommandList = function() {

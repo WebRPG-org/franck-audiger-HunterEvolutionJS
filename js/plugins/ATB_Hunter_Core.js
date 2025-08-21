@@ -38,10 +38,20 @@
   
   window.activeReplayBgm = function(){
     AudioManager._replayBgmActive = true;
+    if(AudioManager._bgmBuffer instanceof WebAudio){
+      AudioManager._bgmBuffer._sourceNode.loop = true;
+    } else if (AudioManager._bgmBuffer instanceof Html5Audio){
+      AudioManager._bgmBuffer._audioElement.loop = true;
+    }
   }
 
   window.deactiveReplayBgm = function(){
     AudioManager._replayBgmActive = false;
+    if(AudioManager._bgmBuffer instanceof WebAudio){
+      AudioManager._bgmBuffer._sourceNode.loop = false;
+    } else if (AudioManager._bgmBuffer instanceof Html5Audio){
+      AudioManager._bgmBuffer._audioElement.loop = false;
+    }
   }
 
   AudioManager.playBgm = function(bgm, pos) {
@@ -64,7 +74,6 @@
       }
       this.updateCurrentBgm(bgm, pos);
   };
-
 
   window.allEventTurnTo = function(targetX, targetY, ignoredNames = []) {
     $gameMap.events().forEach(function(event) {
