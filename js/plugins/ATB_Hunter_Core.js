@@ -39,18 +39,22 @@
   window.activeReplayBgm = function(){
     AudioManager._replayBgmActive = true;
     if(AudioManager._bgmBuffer instanceof WebAudio){
-      AudioManager._bgmBuffer._sourceNode.loop = true;
+      if(AudioManager._bgmBuffer._sourceNode)
+        AudioManager._bgmBuffer._sourceNode.loop = true;
     } else if (AudioManager._bgmBuffer instanceof Html5Audio){
-      AudioManager._bgmBuffer._audioElement.loop = true;
+      if(AudioManager._bgmBuffer._audioElement)
+        AudioManager._bgmBuffer._audioElement.loop = true;
     }
   }
 
   window.deactiveReplayBgm = function(){
     AudioManager._replayBgmActive = false;
     if(AudioManager._bgmBuffer instanceof WebAudio){
-      AudioManager._bgmBuffer._sourceNode.loop = false;
+      if(AudioManager._bgmBuffer._sourceNode)
+        AudioManager._bgmBuffer._sourceNode.loop = false;
     } else if (AudioManager._bgmBuffer instanceof Html5Audio){
-      AudioManager._bgmBuffer._audioElement.loop = false;
+      if(AudioManager._bgmBuffer._audioElement)
+        AudioManager._bgmBuffer._audioElement.loop = false;
     }
   }
 

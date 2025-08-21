@@ -330,6 +330,18 @@ window.stopHisokaBattle = function() {
     hisokaBattle = false;
 };
 
+
+Window_Base.prototype.drawActorHp = function(actor, x, y, width) {
+    width = width || 186;
+    var color1 = this.hpGaugeColor1();
+    var color2 = this.hpGaugeColor2();
+    this.drawGauge(x, y, width, actor.hpRate(), color1, color2);
+    this.changeTextColor(this.systemColor());
+    this.drawText(TextManager.hpA, x, y, 44);
+    this.drawCurrentAndMax(hisokaBattle ? "???" : actor.hp, hisokaBattle ? "???" : actor.mhp, x, y, width,
+                           this.hpColor(actor), this.normalColor());
+};
+
 Window_ActorCommand.prototype.addSkillCommands = function() {
     var skillTypes = this._actor.addedSkillTypes();
     skillTypes.sort(function(a, b) {
