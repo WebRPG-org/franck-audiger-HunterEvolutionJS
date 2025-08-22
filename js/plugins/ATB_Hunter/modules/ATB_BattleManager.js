@@ -112,7 +112,7 @@ BattleManager.isBattleTest = function() {
 };
 
 BattleManager.setBattleTest = function(battleTest) {
-    hisokaBattle = true;
+    //hisokaBattle = true;
     $gameVariables.setValue(42,1);
     this._battleTest = battleTest;
 };

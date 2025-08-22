@@ -1,490 +1,95 @@
-let canChangeSpeed = true;
-const DELAY_INPUT_SPEED = 400;
-const MAX_ENDURANCE = 2000;
-const MAX_DISTANCE = 60;
-const WARNING_DISTANCE = 30;
-const SPACE_WITH_SATOTSU = 2; // Espace minimum entre le joueur et Satotsu pour changer de vitesse
-const ASPIRATION_RANGE = 2;
-let playerBlinking = false;
-let counterEnableChangeSpeed = 0;
-let counterBlinkPlayer = 0;
-let blinkShown = false;
-let showAspiration = false;
-const MOVE_STRAIGHT = 0;
-const MOVE_UP = 1;
-const MOVE_DOWN = 2;
-let lastMove = MOVE_STRAIGHT;
-const LOAD_EVENT_VARIABLE_ID = 44;
-const RESET_SHIFT = 190;
-const MODE_DEBUG = false;
+// Refactored configuration for Auto Scroll Race Minigame
+var raceConfig = {
+  canChangeSpeed: true,
+  DELAY_INPUT_SPEED: 400,
+  MAX_ENDURANCE: 2000,
+  MAX_DISTANCE: 60,
+  WARNING_DISTANCE: 30,
+  SPACE_WITH_SATOTSU: 2,
+  ASPIRATION_RANGE: 2,
+  MOVE_STRAIGHT: 0,
+  MOVE_UP: 1,
+  MOVE_DOWN: 2,
+  LOAD_EVENT_VARIABLE_ID: 44,
+  RESET_SHIFT: 190,
+  MODE_DEBUG: false,
 
-const defaultMiniGameAutoScrollRaceConfigs = {
-  103 : {
-    messagesShown : {},
-    messagesConfig : {
+  defaultMiniGameAutoScrollRaceConfigs: {
+    103: {
+      messagesShown: {},
+      messagesConfig: {},
+      speedValues: {
+        1: +400,
+        2: +100,
+        3: +20,
+        4: -20,
+        5: -20,
+        6: -20
+      },
+      aspirationFactor: 0.4,
+      nextMapFunction: function () {
+        saveEvents();
+        $gameVariables.setValue(raceConfig.LOAD_EVENT_VARIABLE_ID, 1);
+        teleportPlayer(104);
+      },
+      satotsuSpeed: function () {
+        return 4;
+      },
+      animation: function () {
+        const satotsu = getSatotsuEvent();
+        if (!satotsu) return true;
+        return satotsu.x <= 30;
+      }
     },
-    speedValues : {
-      1: +400,   // 1/8
-      2: +100,   // 1/4
-      3: +20,   // 1/2
-      4: -20,     // x1
-      5: -20,    // x2
-      6: -20,    // x4
+    104: {
+      messagesShown: {},
+      messagesConfig: {},
+      speedValues: {
+        1: +400,
+        2: +100,
+        3: +20,
+        4: -20,
+        5: -20,
+        6: -20
+      },
+      aspirationFactor: 0.4,
+      nextMapFunction: function () {
+        $gameVariables.setValue(24, 1);
+        $gameScreen.startFadeOut(10);
+        setTimeout(() => {
+          teleportPlayer(106, 22, 8);
+        }, 1000);
+      },
+      satotsuSpeed: function () {
+        return 4;
+      },
+      animation: function () {
+        return false;
+      }
     },
-    aspirationFactor : 0.4,
-    nextMapFunction : function() {
-      saveEvents();
-      $gameVariables.setValue(LOAD_EVENT_VARIABLE_ID, 1);
-      teleportPlayer(104);
-    },
-    satotsuSpeed : function() {
-      return 4; 
-    },
-    animation : function(){
-      const satotsu = getSatotsuEvent();
-      if(!satotsu) return true;
-      return satotsu.x <= 30;
-    }
+
+    playerEndurance: 2000,
+    satotsu: null,
+    frameExausted: 150,
+    participants: {}
   },
-  104 : {
-    messagesShown : {},
-    messagesConfig : {
-    },
-    speedValues : {
-      1: +400,   // 1/8
-      2: +100,   // 1/4
-      3: +20,   // 1/2
-      4: -20,     // x1
-      5: -20,    // x2
-      6: -20,    // x4
-    },
-    aspirationFactor : 0.4,
-    nextMapFunction : function() {
-      $gameVariables.setValue(24, 1);
-      $gameScreen.startFadeOut(10);
-      setTimeout(() => {
-        teleportPlayer(106, 22, 8);
-      }, 1000);
-    },
-    satotsuSpeed : function() {
-      return 4; 
-    },
-    animation : function(){
-      return false;
-    }
-  },
-  playerEndurance : MAX_ENDURANCE,
-  satotsu : null,
-  frameExausted : 150,
-  participants : {
-    "Hanzo" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 0,
-      isRecuperating : false,
-      recupFactor: 1.5,
-      enduranceFactor: 0.5,
-      distanceWarning : 4,
-      counterAspiration : 0,
-      maxAspiration : 3,
-    },
-    "Bodoro" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 1,
-      isRecuperating : false,
-      recupFactor: 1.5,
-      enduranceFactor: 0.5,
-      distanceWarning : 9,
-      counterAspiration : 0,
-      maxAspiration : 3,
-    },
-    "Hisoka" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 2,
-      isRecuperating : false,
-      recupFactor: 1.5,
-      enduranceFactor: 0,
-      distanceWarning : 12,
-      counterAspiration : 0,
-      maxAspiration : 1,
-    },
-    "Sommy" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 2,
-      isRecuperating : false,
-      recupFactor: 1,
-      enduranceFactor: 1,
-      distanceWarning : 4,
-      counterAspiration : 0,
-      maxAspiration : 4,
-    },
-    "Ponzu" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 0,
-      isRecuperating : false,
-      recupFactor: 1.2,
-      enduranceFactor: 0.8,
-      distanceWarning : 12,
-      counterAspiration : 0,
-      maxAspiration : 4,
-    },
-    "Siper" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 0,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 0.7,
-      distanceWarning : 7,
-      counterAspiration : 0,
-      maxAspiration : 3,
-    },
-    "Shishito" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 1,
-      isRecuperating : false,
-      recupFactor: 1.5,
-      enduranceFactor: 1,
-      distanceWarning : 12,
-      counterAspiration : 0,
-      maxAspiration : 4,
-    },
-    "Kyu" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 0,
-      isRecuperating : false,
-      recupFactor: 1.2,
-      enduranceFactor: 0.5,
-      distanceWarning : 6,
-      counterAspiration : 0,
-      maxAspiration : 3,
-    },
-    "Ryu" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 2,
-      isRecuperating : false,
-      recupFactor: 1.5,
-      enduranceFactor: 0.5,
-      distanceWarning : 5,
-      counterAspiration : 0,
-      maxAspiration : 4,
-    },
-    "Kenmi" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 0,
-      isRecuperating : false,
-      recupFactor: 1.4,
-      enduranceFactor: 0.8,
-      distanceWarning : 3,
-      counterAspiration : 0,
-      maxAspiration : 5,
-    },
-    "Agon" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 1,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 1,
-      distanceWarning : 12,
-      counterAspiration : 0,
-      maxAspiration : 5,
-    },
-    "Goz" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 2,
-      isRecuperating : false,
-      recupFactor: 1.4,
-      enduranceFactor: 1,
-      distanceWarning : 13,
-      counterAspiration : 0,
-      maxAspiration : 5,
-    },
-    "Geretta" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 2,
-      isRecuperating : false,
-      recupFactor: 1.6,
-      enduranceFactor: 0.6,
-      distanceWarning : 7,
-      counterAspiration : 0,
-      maxAspiration : 3,
-    },
-    "Bourbon" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 2,
-      isRecuperating : false,
-      recupFactor: 1.4,
-      enduranceFactor: 0.4,
-      distanceWarning : 6,
-      counterAspiration : 0,
-      maxAspiration : 3,
-    },
-    "Tompa" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 0,
-      isRecuperating : false,
-      recupFactor: 1.2,
-      enduranceFactor: 1,
-      distanceWarning : 25,
-      counterAspiration : 0,
-      maxAspiration : 2,
-    },
-    "Cherry" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 1,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 1,
-      distanceWarning : 20,
-      counterAspiration : 0,
-      maxAspiration : 5,
-    },
-    "CherrySbire1" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 1,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 1,
-      distanceWarning : 20,
-      counterAspiration : 0,
-      maxAspiration : 5,
-    },
-    "CherrySbire2" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 1,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 1,
-      distanceWarning : 22,
-      counterAspiration : 0,
-      maxAspiration : 5,
-    },
-    "CherrySbire3" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 1,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 1,
-      distanceWarning : 22,
-      counterAspiration : 0,
-      maxAspiration : 5,
-    },
-    "CherrySbire4" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 1,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 1,
-      distanceWarning : 20,
-      counterAspiration : 0,
-      maxAspiration : 5,
-    },
-    "CherrySbire5" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 1,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 1,
-      distanceWarning : 22,
-      counterAspiration : 0,
-      maxAspiration : 5,
-    },
-    "Amory" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 0,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 0.7,
-      distanceWarning : 15,
-      counterAspiration : 0,
-      maxAspiration : 3,
-    },
-    "Imory" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 0,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 0.7,
-      distanceWarning : 16,
-      counterAspiration : 0,
-      maxAspiration : 3,
-    },
-    "Umory" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 0,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 0.7,
-      distanceWarning : 16,
-      counterAspiration : 0,
-      maxAspiration : 3,
-    },
-    "Killua skate" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 1,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 0,
-      distanceWarning : 14,
-      counterAspiration : 0,
-      maxAspiration : 1,
-    },
-    "Leolio" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 1,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 0.9,
-      distanceWarning : 18,
-      counterAspiration : 0,
-      maxAspiration : 7,
-    },
-    "Kurapika" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 1,
-      isRecuperating : false,
-      recupFactor: 1.3,
-      enduranceFactor: 0.9,
-      distanceWarning : 15,
-      counterAspiration : 0,
-      maxAspiration : 7,
-    },
-    "RandomCandidat2" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 0,
-      isRecuperating : false,
-      recupFactor: 1.5,
-      enduranceFactor: 0.7,
-      distanceWarning : 10,
-      counterAspiration : 0,
-      maxAspiration : 2,
-    },
-    "RandomCandidat1" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 2,
-      isRecuperating : false,
-      recupFactor: 1.2,
-      enduranceFactor: 0.2,
-      distanceWarning : 10,
-      counterAspiration : 0,
-      maxAspiration : 3,
-    },
-    "Pokkle" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 0,
-      isRecuperating : false,
-      recupFactor: 1.6,
-      enduranceFactor: 0.4,
-      distanceWarning : 12,
-      counterAspiration : 0,
-      maxAspiration : 2,
-    },
-    "Gitarakuru" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 2,
-      isRecuperating : false,
-      recupFactor: 1.5,
-      enduranceFactor: 0,
-      distanceWarning : 14,
-      counterAspiration : 0,
-      maxAspiration : 1,
-    },
-    "Todo" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 2,
-      isRecuperating : false,
-      recupFactor: 1.8,
-      enduranceFactor: 1,
-      distanceWarning : 18,
-      counterAspiration : 0,
-      maxAspiration : 1,
-    },
-    "RandomCandidat3" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 2,
-      isRecuperating : false,
-      recupFactor: 1.2,
-      enduranceFactor: 0.2,
-      distanceWarning : 22,
-      counterAspiration : 0,
-      maxAspiration : 3,
-    },
-    "RandomCandidat4" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 0,
-      isRecuperating : false,
-      recupFactor: 1.6,
-      enduranceFactor: 0.8,
-      distanceWarning : 26,
-      counterAspiration : 0,
-      maxAspiration : 3,
-    },
-    "RandomCandidat5" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 0,
-      isRecuperating : false,
-      recupFactor: 1,
-      enduranceFactor: 1,
-      distanceWarning : 21,
-      counterAspiration : 0,
-      maxAspiration : 3,
-    },
-    "RandomCandidat6" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 2,
-      isRecuperating : false,
-      recupFactor: 1,
-      enduranceFactor: 1,
-      distanceWarning : 20,
-      counterAspiration : 0,
-      maxAspiration : 3,
-    },
-    "Nicholas" : {
-      speed : 4,
-      endurance : MAX_ENDURANCE,
-      strategy : 0,
-      isRecuperating : false,
-      recupFactor: 0.8,
-      enduranceFactor: 1.2,
-      distanceWarning : 14,
-      counterAspiration : 0,
-      maxAspiration : 3,
-    },
-  }
+
+  miniGameAutoScrollRaceConfigs: {},
+
+  touchTop: false,
+  touchBottom: false,
+  touchRight: false,
+  touchLeft: false,
+
+  playerBlinking: false,
+  counterEnableChangeSpeed: 0,
+  counterBlinkPlayer: 0,
+  blinkShown: false,
+  showAspiration: false,
+  lastMove: 0,
+
+  miniGameAutoScrollRaceEnable: true,
+  resetDx: 0,
 };
 
 function restoreFunctions(source, target) {
@@ -501,37 +106,35 @@ function restoreFunctions(source, target) {
   });
 }
 
-let miniGameAutoScrollRaceConfigs = JsonEx.makeDeepCopy(defaultMiniGameAutoScrollRaceConfigs);
-restoreFunctions(defaultMiniGameAutoScrollRaceConfigs, miniGameAutoScrollRaceConfigs);
+raceConfig.miniGameAutoScrollRaceConfigs = JsonEx.makeDeepCopy(raceConfig.defaultMiniGameAutoScrollRaceConfigs);
+restoreFunctions(raceConfig.defaultMiniGameAutoScrollRaceConfigs, raceConfig.miniGameAutoScrollRaceConfigs);
 
 function isMiniGameAutoScrollRaceActive() {
   if(!$gameMap){
     return false;
   }
-  return miniGameAutoScrollRaceConfigs[$gameMap.mapId()];
+  return raceConfig.miniGameAutoScrollRaceConfigs[$gameMap.mapId()];
 }
-
-let miniGameAutoScrollRaceEnable = true;
 
 window.resetMiniGameAutoScrollRace = function() {
   // Réinitialise les données globales
-  miniGameAutoScrollRaceConfigs = JsonEx.makeDeepCopy(defaultMiniGameAutoScrollRaceConfigs);
-  restoreFunctions(defaultMiniGameAutoScrollRaceConfigs, miniGameAutoScrollRaceConfigs);
-  resetDx = 0;
-  showAspiration = false;
-  playerBlinking = false;
-  counterEnableChangeSpeed = 0;
-  counterBlinkPlayer = 0;
-  blinkShown = false;
+  raceConfig.miniGameAutoScrollRaceConfigs = JsonEx.makeDeepCopy(raceConfig.defaultMiniGameAutoScrollRaceConfigs);
+  restoreFunctions(raceConfig.defaultMiniGameAutoScrollRaceConfigs, raceConfig.miniGameAutoScrollRaceConfigs);
+  raceConfig.resetDx = 0;
+  raceConfig.showAspiration = false;
+  raceConfig.playerBlinking = false;
+  raceConfig.counterEnableChangeSpeed = 0;
+  raceConfig.counterBlinkPlayer = 0;
+  raceConfig.blinkShown = false;
   $gameTemp._satotsuWarningShown = false;
 };
 
 window.resetSatotsu = function() {
-  miniGameAutoScrollRaceConfigs.satotsu = null;
+  raceConfig.miniGameAutoScrollRaceConfigs.satotsu = null;
 }
 
 window.teleportPlayer = function (mapId, newX, newY){
-  let x = newX ? newX : $gamePlayer.x - RESET_SHIFT + resetDx;
+  let x = newX ? newX : $gamePlayer.x - raceConfig.RESET_SHIFT + raceConfig.resetDx;
   let y = newY ? newY : $gamePlayer.y;
   if(x < 0){
     x = 0;
@@ -545,42 +148,41 @@ window.teleportPlayer = function (mapId, newX, newY){
     console.warn("Teleportation échouée : la scène active n'est pas Scene_Map");
   }
 }
-let resetDx = 0;
 
 window.saveEvents = function () {
   if($gamePlayer.x < 30){
-    resetDx = 30 - $gamePlayer.x;
+    raceConfig.resetDx = 30 - $gamePlayer.x;
   }
   $gameMap.events().forEach(element => {
     const name = element.event().name;
 
     // Vérifie que la structure existe avant d'y accéder
-    if (miniGameAutoScrollRaceConfigs.participants &&
-        miniGameAutoScrollRaceConfigs.participants[name]) {
-      miniGameAutoScrollRaceConfigs.participants[name].event = element.event();
-      miniGameAutoScrollRaceConfigs.participants[name].x = element.x;
-      miniGameAutoScrollRaceConfigs.participants[name].y = element.y;
+    if (raceConfig.miniGameAutoScrollRaceConfigs.participants &&
+        raceConfig.miniGameAutoScrollRaceConfigs.participants[name]) {
+      raceConfig.miniGameAutoScrollRaceConfigs.participants[name].event = element.event();
+      raceConfig.miniGameAutoScrollRaceConfigs.participants[name].x = element.x;
+      raceConfig.miniGameAutoScrollRaceConfigs.participants[name].y = element.y;
     }
   });
   const tmpSatotsu = getSatotsuEvent();
-  miniGameAutoScrollRaceConfigs.satotsuEventSave = tmpSatotsu.event()
+  raceConfig.miniGameAutoScrollRaceConfigs.satotsuEventSave = tmpSatotsu.event()
   resetSatotsu();
-  miniGameAutoScrollRaceConfigs.satotsuX = tmpSatotsu.x;
-  miniGameAutoScrollRaceConfigs.satotsuY = tmpSatotsu.y;
+  raceConfig.miniGameAutoScrollRaceConfigs.satotsuX = tmpSatotsu.x;
+  raceConfig.miniGameAutoScrollRaceConfigs.satotsuY = tmpSatotsu.y;
 };
 
 window.loadEvents = function () {
-  const config = miniGameAutoScrollRaceConfigs.participants;
+  const config = raceConfig.miniGameAutoScrollRaceConfigs.participants;
   if (!config) return;
   Object.keys(config).forEach(eventName => {
     const data = config[eventName];
     if (!data.event || data.event == null) return;
 
-    restoreEvent(data.event, eventName, resetDx)
+    restoreEvent(data.event, eventName, raceConfig.resetDx)
   });
-  restoreEvent(miniGameAutoScrollRaceConfigs.satotsuEventSave, "Satotsu", resetDx)
-  //miniGameAutoScrollRaceConfigs.satotsu = $gameMap.events().find(e => e.event().name === "Satotsu");
-  resetDx = 0;
+  restoreEvent(raceConfig.miniGameAutoScrollRaceConfigs.satotsuEventSave, "Satotsu", raceConfig.resetDx)
+  //raceConfig.miniGameAutoScrollRaceConfigs.satotsu = $gameMap.events().find(e => e.event().name === "Satotsu");
+  raceConfig.resetDx = 0;
 };
 
 function restoreEvent(originalEvent, eventName, dx){
@@ -588,11 +190,11 @@ function restoreEvent(originalEvent, eventName, dx){
   const eventData = JsonEx.makeDeepCopy(originalEvent);
   // Appliquer le décalage X de -200, minimum 0
   if(eventName !== "Satotsu"){
-    eventData.x = Math.max(0, miniGameAutoScrollRaceConfigs.participants[eventName].x) - RESET_SHIFT + dx;
-    eventData.y = miniGameAutoScrollRaceConfigs.participants[eventName].y;
+    eventData.x = Math.max(0, raceConfig.miniGameAutoScrollRaceConfigs.participants[eventName].x) - raceConfig.RESET_SHIFT + dx;
+    eventData.y = raceConfig.miniGameAutoScrollRaceConfigs.participants[eventName].y;
   } else {
-    eventData.x = miniGameAutoScrollRaceConfigs.satotsuX - RESET_SHIFT + dx;
-    eventData.y = miniGameAutoScrollRaceConfigs.satotsuY;
+    eventData.x = raceConfig.miniGameAutoScrollRaceConfigs.satotsuX - raceConfig.RESET_SHIFT + dx;
+    eventData.y = raceConfig.miniGameAutoScrollRaceConfigs.satotsuY;
   }
 
   // Ajouter aux données de la carte
@@ -613,11 +215,11 @@ function restoreEvent(originalEvent, eventName, dx){
 }
 
 window.disableMiniGameAutoScrollRace = function() {
-  miniGameAutoScrollRaceEnable = false;  
+  raceConfig.miniGameAutoScrollRaceEnable = false;  
 }
 
 window.enableMiniGameAutoScrollRace = function() {
-  miniGameAutoScrollRaceEnable = true;  
+  raceConfig.miniGameAutoScrollRaceEnable = true;  
 };
 
 // === Affichage des cœurs & HUD===
@@ -645,10 +247,10 @@ Scene_Map.prototype.createEnduranceHUD = function() {
 };
 
 function getSatotsuEvent(){
-  if(!miniGameAutoScrollRaceConfigs.satotsu){
-    miniGameAutoScrollRaceConfigs.satotsu = $gameMap.events().find(e => e.event().name === "Satotsu");
+  if(!raceConfig.miniGameAutoScrollRaceConfigs.satotsu){
+    raceConfig.miniGameAutoScrollRaceConfigs.satotsu = $gameMap.events().find(e => e.event().name === "Satotsu");
   }
-  return miniGameAutoScrollRaceConfigs.satotsu;
+  return raceConfig.miniGameAutoScrollRaceConfigs.satotsu;
 }
 
 const _Scene_Map_update3 = Scene_Map.prototype.update;
@@ -673,14 +275,14 @@ Scene_Map.prototype.updateFollowerEvents = function() {
   const px = $gamePlayer.x;
   const py = $gamePlayer.y;
   $gameMap.events().forEach(event => {
-    if (miniGameAutoScrollRaceConfigs.participants[event.event().name]) {
+    if (raceConfig.miniGameAutoScrollRaceConfigs.participants[event.event().name]) {
       applyStrategy(event, px, py);
     } 
   });
 }
 
 function applyStrategy(event, px, py) {
-  const participant = miniGameAutoScrollRaceConfigs.participants[event.event().name];
+  const participant = raceConfig.miniGameAutoScrollRaceConfigs.participants[event.event().name];
   if (!participant) return;
 
   switch (participant.strategy) {
@@ -709,7 +311,7 @@ Game_Event.prototype.applyStrategy = function(participant, minThreshold, maxThre
   const dx = satotsu.x - this.x;
 
   // Ajuste la vitesse en fonction de l'endurance
-  if(participant.endurance <= minThreshold*MAX_ENDURANCE/100 && !participant.isRecuperating) {
+  if(participant.endurance <= minThreshold*raceConfig.MAX_ENDURANCE/100 && !participant.isRecuperating) {
     participant.speed = speedRecuperation;
     participant.isRecuperating = true;
   } else if(!participant.isRecuperating) {
@@ -717,23 +319,23 @@ Game_Event.prototype.applyStrategy = function(participant, minThreshold, maxThre
     if(participant.speed > 7){
       participant.speed = 7; // Limite la vitesse maximale
     }
-  } else if(participant.endurance > maxThreshold*MAX_ENDURANCE/100){
+  } else if(participant.endurance > maxThreshold*raceConfig.MAX_ENDURANCE/100){
     participant.isRecuperating = false;
   }
-  if((dx <= SPACE_WITH_SATOTSU) && (this.moveSpeed() > satotsu.moveSpeed())) {
+  if((dx <= raceConfig.SPACE_WITH_SATOTSU) && (this.moveSpeed() > satotsu.moveSpeed())) {
     this.setMoveSpeed(satotsu.moveSpeed());
   } else {
     this.setMoveSpeed(participant.speed);
   }
 
-  if (!this.isMoving() && this.canPass(this.x + 1, this.y) && dx > SPACE_WITH_SATOTSU && participant.counterAspiration <= participant.maxAspiration) {
+  if (!this.isMoving() && this.canPass(this.x + 1, this.y) && dx > raceConfig.SPACE_WITH_SATOTSU && participant.counterAspiration <= participant.maxAspiration) {
     this.moveStraight(6);
     this.updateEndurance();
-    if(py === this.y && this.x > px && this.x - px <= ASPIRATION_RANGE+1){
+    if(py === this.y && this.x > px && this.x - px <= raceConfig.ASPIRATION_RANGE+1){
       this.requestAnimation(127);
       participant.counterAspiration += 1;
     }
-  } else if (!this.isMoving() && dx > SPACE_WITH_SATOTSU){
+  } else if (!this.isMoving() && dx > raceConfig.SPACE_WITH_SATOTSU){
     const direction = Math.random();
     if(direction > 0.5){
       if(this.y > 1){
@@ -755,21 +357,21 @@ Game_Event.prototype.applyStrategy = function(participant, minThreshold, maxThre
 };
 
 Game_Event.prototype.getEndurance = function() {
-  return miniGameAutoScrollRaceConfigs.participants[this.event().name].endurance;
+  return raceConfig.miniGameAutoScrollRaceConfigs.participants[this.event().name].endurance;
 };
 
 Game_Event.prototype.setEndurance = function(val) {
-  miniGameAutoScrollRaceConfigs.participants[this.event().name].endurance = Math.max(0, Math.min(MAX_ENDURANCE, val));
+  raceConfig.miniGameAutoScrollRaceConfigs.participants[this.event().name].endurance = Math.max(0, Math.min(raceConfig.MAX_ENDURANCE, val));
 };
 
 Game_Event.prototype.updateEndurance = function() {
-  if(!miniGameAutoScrollRaceConfigs[$gameMap.mapId()].animation()){
+  if(!raceConfig.miniGameAutoScrollRaceConfigs[$gameMap.mapId()].animation()){
     const speed = this.realMoveSpeed();
-    let factor = miniGameAutoScrollRaceConfigs[$gameMap.mapId()].speedValues[speed] || 0;
+    let factor = raceConfig.miniGameAutoScrollRaceConfigs[$gameMap.mapId()].speedValues[speed] || 0;
     if(factor > 0){
-      factor = factor * miniGameAutoScrollRaceConfigs.participants[this.event().name].recupFactor;
+      factor = factor * raceConfig.miniGameAutoScrollRaceConfigs.participants[this.event().name].recupFactor;
     } else {
-      factor = factor * miniGameAutoScrollRaceConfigs.participants[this.event().name].enduranceFactor;
+      factor = factor * raceConfig.miniGameAutoScrollRaceConfigs.participants[this.event().name].enduranceFactor;
     }
     this.setEndurance(this.getEndurance() + factor);
   }
@@ -779,9 +381,9 @@ Scene_Map.prototype.updateSatotsuMovement = function() {
   const satotsu = getSatotsuEvent();
   if (satotsu && !satotsu.isMoving() && satotsu.canPass(satotsu.x + 1, satotsu.y)) {
     if(satotsu.x >= 230){
-      miniGameAutoScrollRaceConfigs[$gameMap.mapId()].nextMapFunction();
+      raceConfig.miniGameAutoScrollRaceConfigs[$gameMap.mapId()].nextMapFunction();
     } else {
-      const speed = miniGameAutoScrollRaceConfigs[$gameMap.mapId()].satotsuSpeed();
+      const speed = raceConfig.miniGameAutoScrollRaceConfigs[$gameMap.mapId()].satotsuSpeed();
       satotsu.setMoveSpeed(speed);
       satotsu.moveStraight(6);
     }
@@ -792,28 +394,28 @@ Scene_Map.prototype.updateSatotsuMovement = function() {
 
 
 Scene_Map.prototype.updateEnduranceHUD = function() {
-  if (!this._enduranceSprite || miniGameAutoScrollRaceConfigs[$gameMap.mapId()].animation()) return;
+  if (!this._enduranceSprite || raceConfig.miniGameAutoScrollRaceConfigs[$gameMap.mapId()].animation()) return;
   const bmp = this._enduranceSprite.bitmap;
   bmp.clear();
-  const val = $gameVariables.value(ENDURANCE_VAR_ID)*100/ MAX_ENDURANCE;
+  const val = $gameVariables.value(ENDURANCE_VAR_ID)*100/ raceConfig.MAX_ENDURANCE;
   const percent = val / 100;
   bmp.fillRect(0, 0, 200, 24, "#444");
-  bmp.fillRect(0, 0, 200 * percent, 24, showAspiration? "#1c1fd8ff" : "#2ecc71");
+  bmp.fillRect(0, 0, 200 * percent, 24, raceConfig.showAspiration? "#1c1fd8ff" : "#2ecc71");
   bmp.textColor = "white";
   bmp.drawText(`Endurance: ${val} Speed: ${$gamePlayer.moveSpeed()}`, 0, 0, 200, 24, 'center');
 };
 
 const _window_resetMessageToShow = window.resetMessageToShow;
 window.resetMessageToShow = function() {
-  if (miniGameAutoScrollRaceConfigs[$gameMap.mapId()]) {
-    miniGameAutoScrollRaceConfigs[$gameMap.mapId()].messagesShown = {};
+  if (raceConfig.miniGameAutoScrollRaceConfigs[$gameMap.mapId()]) {
+    raceConfig.miniGameAutoScrollRaceConfigs[$gameMap.mapId()].messagesShown = {};
   }
   _window_resetMessageToShow.call(this);
 }
 
 const _Game_Player_moveByInput2 = Game_Player.prototype.moveByInput;
 Game_Player.prototype.moveByInput = function() {
-  if (isMiniGameAutoScrollRaceActive() && miniGameAutoScrollRaceEnable) {
+  if (isMiniGameAutoScrollRaceActive() && raceConfig.miniGameAutoScrollRaceEnable) {
     // Bloque les contrôles standards pendant le mini-jeu
     return;
   }
@@ -825,15 +427,15 @@ Game_Player.prototype.isDashing = function() {
   if($gameVariables.value(46) === 1){
     return false;
   }
-  if (isMiniGameAutoScrollRaceActive() && miniGameAutoScrollRaceEnable) {
+  if (isMiniGameAutoScrollRaceActive() && raceConfig.miniGameAutoScrollRaceEnable) {
     return false; // Interdit la course
   }
   return _Game_Player_isDashing2.call(this);
 };
 
 function calculateDistanceWarningValue(distance) {
-  const minDist = WARNING_DISTANCE;
-  const maxDist = MAX_DISTANCE;
+  const minDist = raceConfig.WARNING_DISTANCE;
+  const maxDist = raceConfig.MAX_DISTANCE;
   const minValue = 1000;
   const maxValue = 500;
 
@@ -845,24 +447,19 @@ function calculateDistanceWarningValue(distance) {
   return Math.floor(minValue + (maxValue - minValue) * ratio);
 }
 
-let touchTop = false;
-let touchBottom = false;
-let touchRight = false;
-let touchLeft = false;
-
 // === Mise à jour à chaque frame ===
 const _Game_Player_update_MiniGame3 = Game_Player.prototype.update;
 Game_Player.prototype.update = function(sceneActive) {
   _Game_Player_update_MiniGame3.call(this, sceneActive);
 
-  if (isMiniGameAutoScrollRaceActive() && miniGameAutoScrollRaceEnable) {
+  if (isMiniGameAutoScrollRaceActive() && raceConfig.miniGameAutoScrollRaceEnable) {
     const satotsu = getSatotsuEvent();
     if(!satotsu) return;
     const dx = Math.abs(this.x - satotsu.x);
-    if (dx >= WARNING_DISTANCE && !$gameTemp._satotsuWarningShown) {
+    if (dx >= raceConfig.WARNING_DISTANCE && !$gameTemp._satotsuWarningShown) {
       $gameTemp._satotsuWarningShown = true;
       $gameScreen.startFlash([0, 0, 0, 255], 30); // Flash noir pendant 30 frames
-      if (dx > MAX_DISTANCE) {
+      if (dx > raceConfig.MAX_DISTANCE) {
         SceneManager._scene._callGameOver = true;
         return;
       }
@@ -871,7 +468,7 @@ Game_Player.prototype.update = function(sceneActive) {
       }, calculateDistanceWarningValue(dx)); // Réinitialise après 1 seconde
     }
 
-    const isAnimation = miniGameAutoScrollRaceConfigs[$gameMap.mapId()].animation();
+    const isAnimation = raceConfig.miniGameAutoScrollRaceConfigs[$gameMap.mapId()].animation();
 
     console.log("is triggered : " + TouchInput.isTriggered());
     if (TouchInput.isPressed()) {
@@ -881,108 +478,108 @@ Game_Player.prototype.update = function(sceneActive) {
 
       console.log("dx : " + dx + " dy : " + dy);
       if (Math.abs(dx) > Math.abs(dy)) {
-        if (dx < -10) touchLeft = true;
-        else if (dx > 10) touchRight = true;
+        if (dx < -10) raceConfig.touchLeft = true;
+        else if (dx > 10) raceConfig.touchRight = true;
       } else {
-        if (dy < -10) touchTop = true;
-        else if (dy > 10) touchBottom = true;
+        if (dy < -10) raceConfig.touchTop = true;
+        else if (dy > 10) raceConfig.touchBottom = true;
       }
     } 
 
     if(!isAnimation){
       const qPressed = Input.isPressed(Input.keyMapper[81]); // Q
       const dPressed = Input.isPressed(Input.keyMapper[68]); // D
-      if(canChangeSpeed && counterEnableChangeSpeed <= 0) {
+      if(raceConfig.canChangeSpeed && raceConfig.counterEnableChangeSpeed <= 0) {
         // === Gestion de la vitesse ===
-        if( qPressed || touchLeft) { // Touche Q
+        if( qPressed || raceConfig.touchLeft) { // Touche Q
           const current = this.moveSpeed();
           if (current > 1) {
             this.setMoveSpeed(current - 1);
-            canChangeSpeed = false;
+            raceConfig.canChangeSpeed = false;
             setTimeout(() => {
-              canChangeSpeed = true;
-            }, DELAY_INPUT_SPEED); // Réactive après 1 seconde
+              raceConfig.canChangeSpeed = true;
+            }, raceConfig.DELAY_INPUT_SPEED); // Réactive après 1 seconde
           }
-          touchLeft = false;
-        } else if (dPressed || touchRight) { // Touche D
+          raceConfig.touchLeft = false;
+        } else if (dPressed || raceConfig.touchRight) { // Touche D
           const current = this.moveSpeed();
           if (current < 6) {
             this.setMoveSpeed(current + 1);
-            canChangeSpeed = false;
+            raceConfig.canChangeSpeed = false;
             setTimeout(() => {
-              canChangeSpeed = true;
-            }, DELAY_INPUT_SPEED); // Réactive après 1 seconde
+               raceConfig.canChangeSpeed = true;
+            }, raceConfig.DELAY_INPUT_SPEED); // Réactive après 1 seconde
           }
-          touchRight = false;
+          raceConfig.touchRight = false;
         }
       }
     } else {
       this.setMoveSpeed(satotsu.moveSpeed());
     }
     
-    if((satotsu._x - this._x < SPACE_WITH_SATOTSU) && (this.moveSpeed() > satotsu.moveSpeed())) {
+    if((satotsu._x - this._x < raceConfig.SPACE_WITH_SATOTSU) && (this.moveSpeed() > satotsu.moveSpeed())) {
       this.setMoveSpeed(satotsu.moveSpeed());
     } 
     if (this.canMove() && !this.isMoving()) {
       const canPassTop = this.canPass(this.x + 1, this.y - 1);
       const canPassBottom = this.canPass(this.x + 1, this.y + 1);
       const canPassStraight = this.canPass(this.x + 1, this.y);
-      if(this.getEndurance() > 0 && counterEnableChangeSpeed <= 0) {
+      if(this.getEndurance() > 0 && raceConfig.counterEnableChangeSpeed <= 0) {
         
         const zPressed = Input.isPressed(Input.keyMapper[90]); // Z
         const sPressed = Input.isPressed(Input.keyMapper[83]); // S
 
-        playerBlinking=false;
+        raceConfig.playerBlinking=false;
         if(!isAnimation){
-          if (zPressed || touchTop) { // Touche Z
+          if (zPressed || raceConfig.touchTop) { // Touche Z
             this.moveDiagonally(6, 8); // Droite-Haut
-            lastMove = MOVE_UP;
-            touchTop = false;
-          } else if (sPressed || touchBottom) { // Touche S
+            raceConfig.lastMove = raceConfig.MOVE_UP;
+            raceConfig.touchTop = false;
+          } else if (sPressed || raceConfig.touchBottom) { // Touche S
             this.moveDiagonally(6, 2); // Droite-Bas
-            lastMove = MOVE_DOWN;
-            touchBottom = false;
+            raceConfig.lastMove = raceConfig.MOVE_DOWN;
+            raceConfig.touchBottom = false;
           } else {
             if(canPassStraight){
               this.moveStraight(6); // Avance droite
-              lastMove = MOVE_STRAIGHT;
+              raceConfig.lastMove = raceConfig.MOVE_STRAIGHT;
             } else {
               const direction = Math.random();
               if(direction > 0.5){
                 if(this.y > 1){
                   this.moveDiagonally(6, 8)
-                  lastMove = MOVE_UP;
+                  raceConfig.lastMove = raceConfig.MOVE_UP;
                 } else {
                   this.moveDiagonally(6, 2)
-                  lastMove = MOVE_DOWN;
+                  raceConfig.lastMove = raceConfig.MOVE_DOWN;
                 }
               } else {
                 if(this.y < $gameMap.height() - 1){
                   this.moveDiagonally(6, 2)
-                  lastMove = MOVE_DOWN;
+                  raceConfig.lastMove = raceConfig.MOVE_DOWN;
                 } else {
                   this.moveDiagonally(6, 8)
-                  lastMove = MOVE_UP;
+                  raceConfig.lastMove = raceConfig.MOVE_UP;
                 }
               }
             }
           }
         } else {
           this.moveStraight(6); // Avance droite
-          lastMove = MOVE_STRAIGHT;
+          raceConfig.lastMove = raceConfig.MOVE_STRAIGHT;
         }
 
         
       } else if(this.getEndurance() <= 0){
         this.setMoveSpeed(1);
         this.setEndurance(1);
-        counterEnableChangeSpeed = miniGameAutoScrollRaceConfigs.frameExausted || 0;
-        playerBlinking=true;
+        raceConfig.counterEnableChangeSpeed = raceConfig.miniGameAutoScrollRaceConfigs.frameExausted || 0;
+        raceConfig.playerBlinking=true;
       } 
-      if(!playerBlinking){
-        if((lastMove === MOVE_STRAIGHT && canPassStraight) 
-          || (lastMove === MOVE_UP && canPassTop)
-          || (lastMove === MOVE_DOWN && canPassBottom)) {
+      if(!raceConfig.playerBlinking){
+        if((raceConfig.lastMove === raceConfig.MOVE_STRAIGHT && canPassStraight) 
+          || (raceConfig.lastMove === raceConfig.MOVE_UP && canPassTop)
+          || (raceConfig.lastMove === raceConfig.MOVE_DOWN && canPassBottom)) {
           this.updateEndurancePursuit();
         }
       }
@@ -990,24 +587,24 @@ Game_Player.prototype.update = function(sceneActive) {
     
     const spriteSet = SceneManager._scene._spriteset;
     const playerSprite = spriteSet._characterSprites.find(sprite => sprite._character === $gamePlayer);
-    if(playerBlinking && counterBlinkPlayer <= 0){
-      const ratio = 1-(counterEnableChangeSpeed/miniGameAutoScrollRaceConfigs.frameExausted);
-      counterBlinkPlayer = 10+ratio*20;
+    if(raceConfig.playerBlinking && raceConfig.counterBlinkPlayer <= 0){
+      const ratio = 1-(raceConfig.counterEnableChangeSpeed/raceConfig.miniGameAutoScrollRaceConfigs.frameExausted);
+      raceConfig.counterBlinkPlayer = 10+ratio*20;
       playerSprite.setBlendColor([255, 255, 255, 128]);
-      if(blinkShown){
-        blinkShown = false;
+      if(raceConfig.blinkShown){
+        raceConfig.blinkShown = false;
         playerSprite.setBlendColor([0, 0, 0, 0]);
       } else {
-        blinkShown = true;
+        raceConfig.blinkShown = true;
         playerSprite.setBlendColor([255, 255, 255, 128]);
       }
-    } else if (counterBlinkPlayer <= 0) {
+    } else if (raceConfig.counterBlinkPlayer <= 0) {
       playerSprite.setBlendColor([0, 0, 0, 0]);
     }
 
-    counterEnableChangeSpeed--;
-    counterBlinkPlayer--;
-    checkMessagesToShow(this._x, miniGameAutoScrollRaceConfigs[$gameMap.mapId()]);
+    raceConfig.counterEnableChangeSpeed--;
+    raceConfig.counterBlinkPlayer--;
+    checkMessagesToShow(this._x, raceConfig.miniGameAutoScrollRaceConfigs[$gameMap.mapId()]);
   }
 };
 
@@ -1016,21 +613,21 @@ Game_Player.prototype.getEndurance = function() {
 };
 
 Game_Player.prototype.setEndurance = function(val) {
-  $gameVariables.setValue(ENDURANCE_VAR_ID, Math.max(0, Math.min(MAX_ENDURANCE, val)));
+  $gameVariables.setValue(ENDURANCE_VAR_ID, Math.max(0, Math.min(raceConfig.MAX_ENDURANCE, val)));
 };
 
 
 Game_Player.prototype.updateEndurancePursuit = function() {
-  if(!miniGameAutoScrollRaceConfigs[$gameMap.mapId()].animation()){
+  if(!raceConfig.miniGameAutoScrollRaceConfigs[$gameMap.mapId()].animation()){
     const speed = this.realMoveSpeed();
-    const baseFactor = miniGameAutoScrollRaceConfigs[$gameMap.mapId()].speedValues[speed] || 0;
+    const baseFactor = raceConfig.miniGameAutoScrollRaceConfigs[$gameMap.mapId()].speedValues[speed] || 0;
     let finalFactor = baseFactor;
 
     // Vérifie l'aspiration
     if (isPlayerInAspirationZone()) {
       this.requestAnimation(126);
-      if (baseFactor < 0) finalFactor = baseFactor * (1 - miniGameAutoScrollRaceConfigs[$gameMap.mapId()].aspirationFactor);
-      else if (baseFactor > 0) finalFactor = baseFactor * (1 + miniGameAutoScrollRaceConfigs[$gameMap.mapId()].aspirationFactor);
+      if (baseFactor < 0) finalFactor = baseFactor * (1 - raceConfig.miniGameAutoScrollRaceConfigs[$gameMap.mapId()].aspirationFactor);
+      else if (baseFactor > 0) finalFactor = baseFactor * (1 + raceConfig.miniGameAutoScrollRaceConfigs[$gameMap.mapId()].aspirationFactor);
     }
     const current = this.getEndurance();
     this.setEndurance(current + finalFactor);
@@ -1042,17 +639,17 @@ function isPlayerInAspirationZone() {
   const px = $gamePlayer.x;
   const py = $gamePlayer.y;
   for (let event of $gameMap.events()) {
-    const participant = miniGameAutoScrollRaceConfigs.participants[event.event().name];
+    const participant = raceConfig.miniGameAutoScrollRaceConfigs.participants[event.event().name];
     if (participant){
       if(event.y == py) {
-        if (event.x > px && event.x - px <= ASPIRATION_RANGE){
-          showAspiration = true;
+        if (event.x > px && event.x - px <= raceConfig.ASPIRATION_RANGE){
+          raceConfig.showAspiration = true;
           return true;
         }
       }
     }
   }
-  showAspiration = false;
+  raceConfig.showAspiration = false;
   return false;
 }
 // === LISTE DES COMMANDES DU MINI-JEU ===
@@ -1151,8 +748,9 @@ window.showMinigameInputList = function() {
   });
 };
 
+console.log("End load Minigame Auto Scroll Race")
 
-if(MODE_DEBUG) {
+if(raceConfig.MODE_DEBUG) {
   let enduranceBarsReady = false;
 
   const _Spriteset_Map_createCharacters = Spriteset_Map.prototype.createCharacters;
@@ -1170,7 +768,7 @@ if(MODE_DEBUG) {
       const name = char.event().name;
       if (name === "Satotsu" || name === "Evnt") continue;
 
-      if (!miniGameAutoScrollRaceConfigs.participants[name]) continue;
+      if (!raceConfig.miniGameAutoScrollRaceConfigs.participants[name]) continue;
 
       const bar = new Sprite(new Bitmap(40, 6));
       bar.anchor.x = 0.5;
@@ -1198,13 +796,13 @@ if(MODE_DEBUG) {
       const bar = this._enduranceBars[char.eventId()];
       if (!bar) continue;
 
-      const participant = miniGameAutoScrollRaceConfigs.participants[char.event().name];
+      const participant = raceConfig.miniGameAutoScrollRaceConfigs.participants[char.event().name];
       if (!participant) continue;
 
       const bmp = bar.bitmap;
       bmp.clear();
 
-      const percent = participant.endurance / MAX_ENDURANCE;
+      const percent = participant.endurance / raceConfig.MAX_ENDURANCE;
       const w = 40;
       const h = 6;
       const filled = Math.floor(w * percent);

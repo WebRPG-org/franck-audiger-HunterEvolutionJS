@@ -27,6 +27,25 @@
     'FogScreen.js'
   ];
 
+  
+  let isDisableDashing = false;
+
+
+  window.disableDashing = function() {
+    isDisableDashing = true;
+  };
+
+  window.enableDashing = function() {
+    isDisableDashing = false;
+  };
+
+  const _Game_Player_isDashing_init = Game_Player.prototype.isDashing;
+  // Empêche le dash quand endurance == 0 ou cooldown actif (pendant le mini-jeu)
+  Game_Player.prototype.isDashing = function () {
+      if (isDisableDashing) return false;
+      return _Game_Player_isDashing_init.call(this);
+  };
+
   files.forEach(function(file) {
     const script = document.createElement('script');
     script.src = path + file;
@@ -109,7 +128,6 @@
   };
 
 
-
   window.movePlayerTo = function(x, y, wait = false, increaseSpeed = 0) {
     if (!$gamePlayer) return;
 
@@ -183,7 +201,6 @@
     this.forceMoveRoute(route);
     this._moveRouteForAutoMove = null;
   };
-
 
 
 })();

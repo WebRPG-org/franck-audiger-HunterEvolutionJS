@@ -720,12 +720,3 @@ function spawnRandomWaveEvent(playerX, playerY) {
     scene._spriteset._characterSprites.push(sprite);
   }
 }
-
-
-window.disableDashing = function() {
-  $gameVariables.setValue(46, 1); // Désactive le dash
-}
-
-window.enableDashing = function() {
-  $gameVariables.setValue(46, 0); // Réactive le dash
-}
