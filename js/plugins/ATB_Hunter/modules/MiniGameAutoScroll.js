@@ -658,6 +658,15 @@ Game_Player.prototype.update = function(sceneActive) {
     }
 
     checkMessagesToShow(this._y, miniGameAutoScrollConfigs[$gameMap.mapId()]);
+    
+    // Caméra centrée sur le joueur
+    const realCenterX = $gamePlayer._realX + $gamePlayer._directionOffsetX / $gameMap.tileWidth();
+    const realCenterY = $gamePlayer._realY;
+
+    const displayX = realCenterX - ($gameMap.screenTileX() / 2);
+    const displayY = realCenterY - ($gameMap.screenTileY() / 2);
+
+    $gameMap.setDisplayPos(displayX, displayY);
   }
 
   Number.prototype.clamp = function(min, max) {

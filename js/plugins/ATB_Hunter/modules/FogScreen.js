@@ -108,6 +108,7 @@ window.increaseOpacityFog = function (delta) {
 let hiddingFog = false;
 
 let lastDisplayX = 0; // Variable pour suivre la dernière position d'affichage
+let lastDisplayY = 0;
 let counterDelayThunder = -1;
 
 // === FLASH ORAGE — Variables globales ===
@@ -222,6 +223,17 @@ function updateFogOverlay() {
     if (enable && config.name) {
       this._fogOverlay.origin.x += this._fogOverlay.fogSpeedX * UPDATE_INTERVAL_FRAMES;
       this._fogOverlay.origin.y += this._fogOverlay.fogSpeedY * UPDATE_INTERVAL_FRAMES;
+      
+      const dx = $gameMap._displayX - lastDisplayX;
+      const dy = $gameMap._displayY - lastDisplayY;
+
+      if (this._fogOverlay) {
+        this._fogOverlay.origin.x += dx * $gameMap.tileWidth();
+        this._fogOverlay.origin.y += dy * $gameMap.tileHeight();
+      }
+
+      lastDisplayX = $gameMap._displayX;
+      lastDisplayY = $gameMap._displayY;
     }
   }
 

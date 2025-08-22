@@ -7,6 +7,19 @@ include 'header.php';
   <h1><?= $title ?></h1>
   <div class="container">
     <section class="release">
+      <h2>Version 0.5.1.0 : <?= t("Phase 1 Exam Hunter", "Phase 1 Exam Hunter") ?></h2>
+      <ul>
+        <li><?= t("Phase 1 Exam Hunter fini.", "Phase 1 Exam Hunter finished.") ?></li>
+        <li><?= t("Mini-jeu Marécage, avec popup Fraisosaure", "Mini-game Swamp, with Strawsaurus popup") ?></li>
+        <li><?= t("Mini-jeu poursuite Satotsu", "Mini-game Pursuit Satotsu") ?></li>
+        <li><?= t("Scene combat Hisoka et Cherry (Avec combat bonus si poursuite Satotsu ok)", "Scene combat Hisoka et Cherry (With bonus fight if Satotsu pursuit ok)") ?></li>
+        <li><?= t("Scene combat Hisoka et Gon Leolio", "Scene combat Hisoka et Gon Leolio") ?></li>
+        <li><?= t("Refactor du dash, fix bug pendant scene cinématique", "Refactor dash, fix bug during cinematic scene") ?></li>
+        <li><?= t("Performance and refactor of fogs", "Performance and refactor of fogs") ?></li>
+        <li><?= t("Retour au sauvegarde classique", "Return to classic save") ?></li>
+      </ul>
+    </section>
+    <section class="release">
       <h2>Version 0.5.0.0 : <?= t("Debut Phase 1 Exam Hunter", "Starting Phase 1 Exam Hunter") ?></h2>
       <ul>
         <li><?= t("Ajout des scenes d'introduction : Tompa, Hisoka, Killua, Phase 1", "Adding introduction scenes: Tompa, Hisoka, Killua, Phase 1") ?></li>
