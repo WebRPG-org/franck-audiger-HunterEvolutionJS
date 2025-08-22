@@ -35,11 +35,6 @@
     }
   });
 
-  const _Game_Player_isDashing = Game_Player.prototype.isDashing;
-  Game_Player.prototype.isDashing = function() {
-    return this._dashing || Input.isPressed('shift') || capsLockActive;
-  };
-
   Input.update = function() {
     alias_update.call(this);
   };

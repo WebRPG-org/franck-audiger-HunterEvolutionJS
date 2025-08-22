@@ -101,14 +101,6 @@ Game_Player.prototype.moveByInput = function() {
   _Game_Player_moveByInput.call(this);
 };
 
-const _Game_Player_isDashing = Game_Player.prototype.isDashing;
-Game_Player.prototype.isDashing = function() {
-  if (isMiniGameAutoScrollPursuitActive() && miniGameAutoScrollPursuitEnable) {
-    return false; // Interdit la course
-  }
-  return _Game_Player_isDashing.call(this);
-};
-
 // === Mise à jour à chaque frame ===
 const _Game_Player_update_MiniGame2 = Game_Player.prototype.update;
 Game_Player.prototype.update = function(sceneActive) {

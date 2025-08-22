@@ -422,17 +422,6 @@ Game_Player.prototype.moveByInput = function() {
   _Game_Player_moveByInput2.call(this);
 };
 
-const _Game_Player_isDashing2 = Game_Player.prototype.isDashing;
-Game_Player.prototype.isDashing = function() {
-  if($gameVariables.value(46) === 1){
-    return false;
-  }
-  if (isMiniGameAutoScrollRaceActive() && raceConfig.miniGameAutoScrollRaceEnable) {
-    return false; // Interdit la course
-  }
-  return _Game_Player_isDashing2.call(this);
-};
-
 function calculateDistanceWarningValue(distance) {
   const minDist = raceConfig.WARNING_DISTANCE;
   const maxDist = raceConfig.MAX_DISTANCE;
