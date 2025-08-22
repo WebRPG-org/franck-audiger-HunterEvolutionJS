@@ -152,9 +152,9 @@ jobs:
           !define INSTALL_DIR "$PROGRAMFILES\HunterEvolution"
           !define STARTMENU_FOLDER "HunterEvolution"
           !define PAYLOAD_DIR "${APP_DIR}"
-          !define OUT_EXE "${INSTALLER_DIR}/HunterEvolution-${TAG_NAME}.exe" ; <-- utiliser / (chemin Linux hôte)
+          !define OUT_EXE "${INSTALLER_DIR}/HunterEvolution-${TAG_NAME}.exe"
 
-          ; --- Emplacement des sauvegardes (principal + legacy pour migration) ---
+          ; --- Emplacement des sauvegardes ---
           !define SAVE_DIR "$APPDATA\HunterEvolution\save"
           !define LEGACY_SAVE_DIR "$INSTDIR\www\save"
 
@@ -181,10 +181,11 @@ jobs:
           !insertmacro MUI_LANGUAGE "French"
 
           ;-------------------------
-          ; Détection mise à niveau
+          ; Init
           ;-------------------------
           Function .onInit
             StrCpy $IsUpgrade "0"
+            StrCpy $KeepSaves "0"
           FunctionEnd
 
           ;------------------------------------------
@@ -192,18 +193,20 @@ jobs:
           ;------------------------------------------
           Function PageKeepSavesCreate
             StrCpy $IsUpgrade "0"
+
+            ; Si le dossier d’installation contient déjà des fichiers, on suppose upgrade
             ${If} ${FileExists} "$INSTDIR\*.*"
               StrCpy $IsUpgrade "1"
             ${EndIf}
 
+            ; Montrer la page seulement si upgrade + saves existantes
             ${If} $IsUpgrade == "1"
               ${If} ${FileExists} "${SAVE_DIR}\*.*"
                 StrCpy $KeepSaves "1"
               ${ElseIf} ${FileExists} "${LEGACY_SAVE_DIR}\*.*"
                 StrCpy $KeepSaves "1"
               ${Else}
-                ; pas de sauvegarde -> pas de page
-                Abort
+                Abort ; pas de sauvegarde -> pas de page
               ${EndIf}
 
               nsDialogs::Create 1018
@@ -223,16 +226,16 @@ jobs:
               nsDialogs::Show
               ${NSD_GetState} $2 $KeepSaves
             ${Else}
-              Abort
+              Abort ; fresh install -> pas de page
             ${EndIf}
           FunctionEnd
 
           Function PageKeepSavesLeave
-            ; rien à faire : $KeepSaves est déjà positionné
+            ; $KeepSaves est déjà défini
           FunctionEnd
 
           ;-------------------------
-          ; Section d'installation
+          ; Section d’installation
           ;-------------------------
           Section "Installer"
             SetOutPath "$INSTDIR"
@@ -252,10 +255,10 @@ jobs:
               ${EndIf}
             ${EndIf}
 
-            ; 2) Copie du payload (mise à niveau in-place)
+            ; 2) Copie du payload
             File /r "${PAYLOAD_DIR}\*.*"
 
-            ; 3) Cible des raccourcis : 1) Game.exe 2) premier .exe 3) index.html
+            ; 3) Choix de la cible pour les raccourcis
             StrCpy $0 "$INSTDIR\www\index.html"
             ${If} ${FileExists} "$INSTDIR\Game.exe"
               StrCpy $0 "$INSTDIR\Game.exe"
@@ -266,12 +269,12 @@ jobs:
               FindClose $1
             ${EndIf}
 
-            ; 4) Raccourcis (Bureau + Menu Démarrer)
+            ; 4) Raccourcis
             CreateShortCut "$DESKTOP\HunterEvolution.lnk" "$0" "" "$INSTDIR\www\icon\icon.ico" 0
             CreateDirectory "$SMPROGRAMS\${STARTMENU_FOLDER}"
             CreateShortCut "$SMPROGRAMS\${STARTMENU_FOLDER}\HunterEvolution.lnk" "$0" "" "$INSTDIR\www\icon\icon.ico" 0
 
-            ; 5) Restauration des sauvegardes vers l’emplacement officiel
+            ; 5) Restauration des sauvegardes
             ${If} $KeepSaves == "1"
               CreateDirectory "${SAVE_DIR}"
               ${If} ${FileExists} "$SaveBackupDir\official\*.*"
