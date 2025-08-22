@@ -17,6 +17,7 @@ include 'header.php';
         <li><?= t("Refactor du dash, fix bug pendant scene cinématique", "Refactor dash, fix bug during cinematic scene") ?></li>
         <li><?= t("Performance and refactor of fogs", "Performance and refactor of fogs") ?></li>
         <li><?= t("Retour au sauvegarde classique", "Return to classic save") ?></li>
+        <li><?= t("Installeur propose conservation des sauvegardes", "Installer offers save preservation") ?></li>
       </ul>
     </section>
     <section class="release">
