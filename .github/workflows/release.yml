@@ -152,7 +152,7 @@ jobs:
           !define INSTALL_DIR "$PROGRAMFILES\HunterEvolution"
           !define STARTMENU_FOLDER "HunterEvolution"
           !define PAYLOAD_DIR "${APP_DIR}"
-          !define OUT_EXE "${INSTALLER_DIR}\HunterEvolution-${TAG_NAME}.exe"
+          !define OUT_EXE "${INSTALLER_DIR}/HunterEvolution-${TAG_NAME}.exe" ; <-- utiliser / (chemin Linux hôte)
 
           ; --- Emplacement des sauvegardes (principal + legacy pour migration) ---
           !define SAVE_DIR "$APPDATA\HunterEvolution\save"
@@ -185,26 +185,24 @@ jobs:
           ;-------------------------
           Function .onInit
             StrCpy $IsUpgrade "0"
-            ; NSIS définit $INSTDIR après choix, mais on peut déjà tester l'install dans Program Files par défaut.
-            ; On finalisera la détection dans PageKeepSavesCreate (après choix du dossier).
           FunctionEnd
 
           ;------------------------------------------
           ; Page custom : Conserver les sauvegardes ?
           ;------------------------------------------
           Function PageKeepSavesCreate
-            ; Vérifie s'il s'agit d'une upgrade une fois $INSTDIR connu
             StrCpy $IsUpgrade "0"
             ${If} ${FileExists} "$INSTDIR\*.*"
               StrCpy $IsUpgrade "1"
             ${EndIf}
 
-            ; On montre la page uniquement si upgrade ET s'il existe des save (emplacement officiel ou legacy)
             ${If} $IsUpgrade == "1"
-              ${IfThen} ${FileExists} "${SAVE_DIR}\*.*" ${|} StrCpy $KeepSaves "1" ${|} ; pré-coche si save existantes
-              ${ElseIfThen} ${FileExists} "${LEGACY_SAVE_DIR}\*.*" ${|} StrCpy $KeepSaves "1" ${|} 
+              ${If} ${FileExists} "${SAVE_DIR}\*.*"
+                StrCpy $KeepSaves "1"
+              ${ElseIf} ${FileExists} "${LEGACY_SAVE_DIR}\*.*"
+                StrCpy $KeepSaves "1"
               ${Else}
-                ; pas de save -> pas de page
+                ; pas de sauvegarde -> pas de page
                 Abort
               ${EndIf}
 
@@ -223,16 +221,14 @@ jobs:
               ${EndIf}
 
               nsDialogs::Show
-              ; Sauve l'état de la checkbox
               ${NSD_GetState} $2 $KeepSaves
             ${Else}
-              ; fresh install -> pas de page
               Abort
             ${EndIf}
           FunctionEnd
 
           Function PageKeepSavesLeave
-            ; rien à faire ici, $KeepSaves est déjà positionné
+            ; rien à faire : $KeepSaves est déjà positionné
           FunctionEnd
 
           ;-------------------------
@@ -246,12 +242,10 @@ jobs:
             ${If} $KeepSaves == "1"
               RMDir /r "$SaveBackupDir"
               CreateDirectory "$SaveBackupDir"
-              ; Copie depuis SAVE_DIR officiel
               ${If} ${FileExists} "${SAVE_DIR}\*.*"
                 CreateDirectory "$SaveBackupDir\official"
                 CopyFiles /SILENT "${SAVE_DIR}\*.*" "$SaveBackupDir\official\"
               ${EndIf}
-              ; Copie depuis legacy (dans INSTDIR) si présent
               ${If} ${FileExists} "${LEGACY_SAVE_DIR}\*.*"
                 CreateDirectory "$SaveBackupDir\legacy"
                 CopyFiles /SILENT "${LEGACY_SAVE_DIR}\*.*" "$SaveBackupDir\legacy\"
@@ -261,14 +255,16 @@ jobs:
             ; 2) Copie du payload (mise à niveau in-place)
             File /r "${PAYLOAD_DIR}\*.*"
 
-            ; 3) Raccourci: cible 1) Game.exe 2) premier .exe 3) index.html
-            StrCpy $0 ""
-            IfFileExists "$INSTDIR\Game.exe" 0 +2
+            ; 3) Cible des raccourcis : 1) Game.exe 2) premier .exe 3) index.html
+            StrCpy $0 "$INSTDIR\www\index.html"
+            ${If} ${FileExists} "$INSTDIR\Game.exe"
               StrCpy $0 "$INSTDIR\Game.exe"
-            IfFileExists "$0" 0 +3
+            ${Else}
               FindFirst $1 $2 "$INSTDIR\*.exe"
-              StrCmp $2 "" 0 +2
-              StrCpy $0 "$INSTDIR\www\index.html"
+              StrCmp $2 "" +3 0
+                StrCpy $0 "$INSTDIR\$2"
+              FindClose $1
+            ${EndIf}
 
             ; 4) Raccourcis (Bureau + Menu Démarrer)
             CreateShortCut "$DESKTOP\HunterEvolution.lnk" "$0" "" "$INSTDIR\www\icon\icon.ico" 0
@@ -296,19 +292,18 @@ jobs:
           ; Section de désinstallation
           ;-------------------------
           Section "Uninstall"
-            ; Raccourcis
             Delete "$DESKTOP\HunterEvolution.lnk"
             Delete "$SMPROGRAMS\${STARTMENU_FOLDER}\HunterEvolution.lnk"
             Delete "$SMPROGRAMS\${STARTMENU_FOLDER}\Désinstaller HunterEvolution.lnk"
             RMDir  "$SMPROGRAMS\${STARTMENU_FOLDER}"
 
             ; Ne PAS supprimer les sauvegardes utilisateur
-            ; RMDir /r "${SAVE_DIR}"   ; <-- volontairement non exécuté
+            ; RMDir /r "${SAVE_DIR}"
 
-            ; Dossier d’installation
             RMDir /r "$INSTDIR"
           SectionEnd
           NSIS
+
 
           echo "⚙️  Compilation NSIS…"
           makensis \
