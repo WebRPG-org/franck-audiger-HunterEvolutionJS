@@ -40,6 +40,14 @@ function initTimeStrawberry() {
 
 const STRAWBERRY_APPARITION_TIME = 350;
 
+
+Game_Event.prototype.isNearThePlayerEuclidian = function(range = 20) {
+  var sx = Math.abs(this.deltaXFrom($gamePlayer.x));
+  var sy = Math.abs(this.deltaYFrom($gamePlayer.y));
+  var distance = Math.sqrt(sx * sx + sy * sy);
+  return distance < range;
+};
+
 var _Scene_Map_update4 = Scene_Map.prototype.update;
 Scene_Map.prototype.update = function () {
     _Scene_Map_update4.call(this);
@@ -48,7 +56,7 @@ Scene_Map.prototype.update = function () {
     $gameMap.events().forEach(ev => {
         const name = $dataMap.events[ev.eventId()].name;
         if (name === "Strawberry") {
-            if(ev.isNearThePlayer()){
+            if(ev.isNearThePlayerEuclidian(10)){
                 if(kurapikaLeolioStrawberry[ev.eventId()] < -1 ) {
                     kurapikaLeolioStrawberry[ev.eventId()]++;
                 } else if(kurapikaLeolioStrawberry[ev.eventId()] > 1) {

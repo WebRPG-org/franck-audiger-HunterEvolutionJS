@@ -1,3 +1,9 @@
+const fogImageCache = {
+  fogs: {},
+  vision: {},
+  night : null,
+  light : null
+};
 
 const fogConfigs = {
   1: { name: "Rain1", speedX: 0.2, speedY: -0.8, opacity: 100, restrictedVision: false, restrictedVisionOpacity: 0.93, visionRadius: 150, lightningActivated: true },
@@ -126,6 +132,7 @@ window.switchWeather = function () {
 
 // --- Construction overlays (facteurs communs Map/Battle) ---
 function createFogOverlay() {
+  console.log("createFogOverlay");
   var config = fogConfigs[$gameMap.mapId()];
   if (!config) return;
 
@@ -136,14 +143,18 @@ function createFogOverlay() {
 
   // === Overlay nuit
   if (config.nightOverlay) {
-    const bitmap = new Bitmap(bounds.width, bounds.height);
-    bitmap.fillAll('black');
-    const sprite = new Sprite(bitmap);
-    sprite.opacity = config.nightOpacity;
-    sprite.x = bounds.x;
-    sprite.y = bounds.y;
-    this._nightOverlay = sprite;
-    this._spriteset.addChild(this._nightOverlay); // ⬅️ ICI
+    if(!this._nightOverlay){
+      if(!fogImageCache.night){
+        const bitmap = new Bitmap(bounds.width, bounds.height);
+        bitmap.fillAll('black');
+        fogImageCache.night = new Sprite(bitmap);
+      }
+      fogImageCache.night.opacity = config.nightOpacity;
+      fogImageCache.night.x = bounds.x;
+      fogImageCache.night.y = bounds.y;
+      this._nightOverlay = fogImageCache.night;
+      this._spriteset.addChild(this._nightOverlay); // ⬅️ ICI
+    }
   } else if (this._nightOverlay) {
     this._spriteset.removeChild(this._nightOverlay);
     this._nightOverlay = null;
@@ -151,13 +162,20 @@ function createFogOverlay() {
 
   // === Fog animé
   if (config.name) {
-    const bitmap = ImageManager.loadPicture(config.name);
-    this._fogOverlay = new TilingSprite(bitmap);
-    this._fogOverlay.move(bounds.x, bounds.y, bounds.width, bounds.height);
-    this._fogOverlay.opacity = config.opacity || 128;
-    this._fogOverlay.fogSpeedX = config.speedX || 0;
-    this._fogOverlay.fogSpeedY = config.speedY || 0;
-    this._spriteset.addChild(this._fogOverlay);    // ⬅️ ICI
+    if(!this._fogOverlay){
+      if(!fogImageCache.fogs[config.name]){
+        fogImageCache.fogs[config.name] = new TilingSprite(ImageManager.loadPicture(config.name));
+      }
+      this._fogOverlay = fogImageCache.fogs[config.name];
+      this._fogOverlay.move(bounds.x, bounds.y, bounds.width, bounds.height);
+      this._fogOverlay.opacity = config.opacity || 128;
+      this._fogOverlay.fogSpeedX = config.speedX || 0;
+      this._fogOverlay.fogSpeedY = config.speedY || 0;
+      console.log("add fog overlay");
+      
+      this._spriteset.removeChild(this._fogOverlay);
+      this._spriteset.addChild(this._fogOverlay);    // ⬅️ ICI
+    }
   } else if (this._fogOverlay) {
     this._spriteset.removeChild(this._fogOverlay);
     this._fogOverlay = null;
@@ -165,31 +183,21 @@ function createFogOverlay() {
 
   // Lightning flash (Map uniquement, comme ton script original)
   if (this instanceof Scene_Map) {
-    var fb = new Bitmap(bounds.width, bounds.height);
-    fb.fillAll('white');
-    var fs = new Sprite(fb);
-    fs.opacity = 0;
-    fs.x = bounds.x; fs.y = bounds.y;
-    this._lightningFlash = fs;
-    this._spriteset.addChild(this._lightningFlash);
+    if(!this._lightningFlash){
+      if(!fogImageCache.light){
+        const bitmap = new Bitmap(bounds.width, bounds.height);
+        bitmap.fillAll('white');
+        fogImageCache.light = new Sprite(bitmap);
+      }
+      var fs = fogImageCache.light;
+      fs.opacity = 0;
+      fs.x = bounds.x; fs.y = bounds.y;
+      this._lightningFlash = fs;
+      this._spriteset.addChild(this._lightningFlash);
+    }
   }
 }
 
-
-function createVisionOverlay() {
-  const config = fogConfigs[$gameMap.mapId()];
-  if (!config || !config.restrictedVision) return;
-
-  if (this._visionOverlay) {
-    this._spriteset.removeChild(this._visionOverlay);
-    this._visionOverlay = null;
-  }
-  const width = Graphics.width;
-  const height = Graphics.height;
-  this._visionBitmap = new Bitmap(width, height);
-  this._visionOverlay = new Sprite(this._visionBitmap);
-  this._spriteset.addChild(this._visionOverlay);
-}
 
 function updateFogOverlay() {
   // Throttle global
@@ -233,37 +241,152 @@ function updateFogOverlay() {
 
 }
 
+// ====== CACHES & HELPERS VISION ======
+function clamp01(v){ return v < 0 ? 0 : (v > 1 ? 1 : v); }
+function clamp255(v){ return v < 0 ? 0 : (v > 255 ? 255 : (v|0)); }
+
+function getVisionMaskKey(radius, feather){ return radius + "x" + feather; }
+
+function getCachedRadialMaskBitmap(radius, feather){
+  // feather = largeur du flou/dégradé (px) autour du rayon
+  radius  = Math.max(1, radius|0);
+  feather = Math.max(1, feather|0);
+  const key = getVisionMaskKey(radius, feather);
+  fogImageCache.vision = fogImageCache.vision || {};
+  if (fogImageCache.vision[key]) return fogImageCache.vision[key];
+
+  // On génère UNE FOIS un bitmap serré (diamètre + feather * 2)
+  const size = (radius + feather) * 2;
+  const bmp  = new Bitmap(size, size);
+  const ctx  = bmp._context;
+  const cx   = size / 2;
+  const cy   = size / 2;
+
+  // Dégradé alpha du centre (opaque) vers l'extérieur (transparent)
+  // On veut un trou : on utilisera 'destination-out' plus tard, donc ici
+  // on dessine un DISQUE blanc (alpha 1) au centre qui FADE vers 0.
+  const grad = ctx.createRadialGradient(cx, cy, Math.max(1, radius - 1), cx, cy, radius + feather);
+  grad.addColorStop(0,   'rgba(255,255,255,1)');
+  grad.addColorStop(1.0, 'rgba(255,255,255,0)');
+
+  ctx.clearRect(0,0,size,size);
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius + feather, 0, Math.PI * 2);
+  ctx.fill();
+
+  bmp._setDirty();
+  fogImageCache.vision[key] = bmp;
+  return bmp;
+}
+
+// ====== VISION OVERLAY (création optimisée) ======
+function createVisionOverlay() {
+  const config = fogConfigs[$gameMap.mapId()];
+  // Rien à faire si vision non restreinte
+  if (!config || !config.restrictedVision) {
+    if (this._visionOverlay) {
+      this._spriteset.removeChild(this._visionOverlay);
+      this._visionOverlay = null;
+    }
+    this._visionBitmap = null;
+    this._visionMaskBmp = null;
+    return;
+  }
+
+  const w = Graphics.width;
+  const h = Graphics.height;
+
+  if (!this._visionOverlay) {
+    // Bitmap écran qui contiendra le voile noir avec trou
+    this._visionBitmap  = new Bitmap(w, h);
+    this._visionOverlay = new Sprite(this._visionBitmap);
+    // On place ce sprite tout en haut de la pile de la map
+    this._spriteset.addChild(this._visionOverlay);
+
+    // Mémo pour dirty-check
+    this._visionLast = { x: -9999, y: -9999, radius: 0, feather: 0, opacity: -1, w: 0, h: 0 };
+  } else {
+    // Resize seulement si nécessaire
+    if (this._visionBitmap.width !== w || this._visionBitmap.height !== h) {
+      this._visionBitmap = new Bitmap(w, h);
+      this._visionOverlay.bitmap = this._visionBitmap;
+      this._visionLast.w = 0; // force redraw
+    }
+  }
+
+  // Mise en cache d’un masque radial : rayon + feather (bord doux)
+  const radius  = (config.visionRadius != null ? config.visionRadius : 120)|0;
+  const feather = 90; // largeur de dégradé (tu peux mettre param plugin)
+  this._visionMaskBmp = getCachedRadialMaskBitmap(radius, feather);
+
+  // Visible state
+  this._visionOverlay.visible = !!(enable && !hiddingFog);
+}
+
+// ====== VISION OVERLAY (update optimisée) ======
 function updateVisionOverlay() {
   const config = fogConfigs[$gameMap.mapId()];
   if (!this._visionOverlay) return;
 
-  this._visionOverlay.visible = enable && config && config.restrictedVision && !hiddingFog;
+  const visible = !!(enable && config && config.restrictedVision && !hiddingFog);
+  if (this._visionOverlay.visible !== visible) this._visionOverlay.visible = visible;
+  if (!visible) return;
 
-  if (!enable || !config || !config.restrictedVision) return;
-
-  const bitmap = this._visionBitmap;
-  bitmap.clear();
+  const bmp = this._visionBitmap;
+  if (!bmp) return;
 
   let px, py;
   if (this instanceof Scene_Battle) {
-    px = Graphics.width / 2;
-    py = Graphics.height / 2;
+    px = (Graphics.width  / 2)|0;
+    py = (Graphics.height / 2)|0;
   } else {
-    px = $gamePlayer.screenX();
-    py = $gamePlayer.screenY() - 16;
+    px = ($gamePlayer.screenX()|0);
+    py = (($gamePlayer.screenY() - 16)|0);
   }
 
-  const radius = config.visionRadius || 30;
-  const gradientRadius = radius + 90;
+  const radius   = (config.visionRadius != null ? config.visionRadius : 120)|0;
+  const feather  = 90;
+  const opacity0 = clamp01(config.restrictedVisionOpacity != null ? config.restrictedVisionOpacity : 0.95);
+  const alpha255 = clamp255(Math.round(opacity0 * 255));
 
-  const ctx = bitmap._context;
-  const grad = ctx.createRadialGradient(px, py, radius, px, py, gradientRadius);
-  grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-  grad.addColorStop(1, 'rgba(0, 0, 0, ' + config.restrictedVisionOpacity + ')');
+  // Dirty-check : on redessine uniquement si qqch a changé (position, radius, opacity, taille)
+  const L = this._visionLast || {};
+  if (L.x === px && L.y === py && L.radius === radius && L.feather === feather &&
+      L.opacity === alpha255 && L.w === bmp.width && L.h === bmp.height) {
+    return; // rien à faire cette frame
+  }
 
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, bitmap.width, bitmap.height);
-  bitmap._setDirty();
+  // Récup masque pré-calculé (si radius a changé)
+  if (!this._visionMaskBmp || L.radius !== radius || L.feather !== feather) {
+    this._visionMaskBmp = getCachedRadialMaskBitmap(radius, feather);
+  }
+
+  const ctx = bmp._context;
+  // 1) couche noire semi-opaque
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.clearRect(0, 0, bmp.width, bmp.height);
+  ctx.fillStyle = 'rgba(0,0,0,' + opacity0 + ')';
+  ctx.fillRect(0, 0, bmp.width, bmp.height);
+
+  // 2) « percer » le trou avec le masque radial (destination-out)
+  ctx.globalCompositeOperation = 'destination-out';
+  const mx = px - this._visionMaskBmp.width  / 2;
+  const my = py - this._visionMaskBmp.height / 2;
+  // drawImage le bitmap déjà prêt (aucun calcul de gradient ici)
+  ctx.drawImage(this._visionMaskBmp._canvas, mx|0, my|0);
+
+  // 3) reset comp-op et flag dirty
+  ctx.globalCompositeOperation = 'source-over';
+  bmp._setDirty();
+
+  // Mémo
+  this._visionLast = {
+    x: px, y: py,
+    radius: radius, feather: feather,
+    opacity: alpha255,
+    w: bmp.width, h: bmp.height
+  };
 }
 
 // === MAP SETUP ===
