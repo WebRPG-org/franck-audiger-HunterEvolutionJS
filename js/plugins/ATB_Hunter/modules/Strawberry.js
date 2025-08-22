@@ -56,7 +56,7 @@ Scene_Map.prototype.update = function () {
     $gameMap.events().forEach(ev => {
         const name = $dataMap.events[ev.eventId()].name;
         if (name === "Strawberry") {
-            if(ev.isNearThePlayerEuclidian(10)){
+            if(ev.isNearThePlayerEuclidian(15)){
                 if(kurapikaLeolioStrawberry[ev.eventId()] < -1 ) {
                     kurapikaLeolioStrawberry[ev.eventId()]++;
                 } else if(kurapikaLeolioStrawberry[ev.eventId()] > 1) {
