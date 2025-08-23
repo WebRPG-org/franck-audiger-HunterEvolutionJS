@@ -34,6 +34,15 @@
     document.body.appendChild(script);
   });
 
+  window.checkDebugMode = function() {
+    var fs = require('fs');
+
+    const files = fs.readdirSync(".");
+    console.log(files);
+    $gameVariables.setValue(46, files.includes("debug.ini") ? 1 : 0);
+    console.log("Debug mode: " + ($gameVariables.value(46) ? "ON" : "OFF"));
+  }
+
   AudioManager._replayBgmActive        = true;
   
   window.activeReplayBgm = function(){
