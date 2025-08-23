@@ -172,7 +172,6 @@ jobs:
           OutFile "${OUT_EXE}"
           InstallDir "${INSTALL_DIR}"
           RequestExecutionLevel admin
-          SetShellVarContext all
 
           !define MUI_ABORTWARNING
           !define MUI_ICON "${ICO_PATH}"
@@ -188,16 +187,25 @@ jobs:
           !define MUI_FINISHPAGE_RUN_TEXT "Démarrer l'application"
           !define MUI_FINISHPAGE_RUN_FUNCTION LaunchApp
           !insertmacro MUI_PAGE_FINISH
+
           !insertmacro MUI_UNPAGE_CONFIRM
           !insertmacro MUI_UNPAGE_INSTFILES
           !insertmacro MUI_LANGUAGE "French"
 
           ;-------------------------
-          ; Init
+          ; Init (install)
           ;-------------------------
           Function .onInit
+            SetShellVarContext all
             StrCpy $IsUpgrade "0"
             StrCpy $KeepSaves "0"
+          FunctionEnd
+
+          ;-------------------------
+          ; Init (uninstall)
+          ;-------------------------
+          Function un.onInit
+            SetShellVarContext all
           FunctionEnd
 
           ;------------------------------------------
