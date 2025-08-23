@@ -45,7 +45,7 @@
       // --- Cas Web (navigateur) ---
       else {
         // On teste via une requête HTTP si le fichier est servi par le serveur
-        const response = await fetch("debug.ini", { method: "HEAD" });
+        const response = await fetch("/game-dev/debug.ini", { method: "HEAD" });
         $gameVariables.setValue(46, response.ok ? 1 : 0);
       }
     } catch (err) {
