@@ -15,10 +15,10 @@ jobs:
       BUILD_ROOT: /var/www/workspace/buildDesktop
       APP_DIR: /var/www/workspace/buildDesktop/Hunter            # dossier du build desktop
       APP_PAYLOAD: /var/www/workspace/buildDesktop/Hunter        # ce qu'on installe
-      INSTALLER_DIR: /var/www/desktop                        # où déposer l'EXE final
+      INSTALLER_DIR: /var/www/desktop                            # où déposer l'EXE final
       # --- Android ---
       ANDROID_ROOT: /var/www/workspace/buildAndroid
-      ANDROID_APP: /var/www/workspace/buildAndroid/Hunter            # projet Cordova
+      ANDROID_APP: /var/www/workspace/buildAndroid/Hunter        # projet Cordova
       ANDROID_SDK_ROOT: /opt/hunter/android-sdk
       ANDROID_BUILD_TOOLS: 34.0.0
       ANDROID_PLATFORM: android-34
@@ -88,7 +88,7 @@ jobs:
           echo "🗂️  Fichiers site -> ${DEST_WEB}"
           mkdir -p "${DEST_WEB}/desktop"
           cp -v ./site/desktop/index.php   "${DEST_WEB}/desktop/index.php"
-          cp -v ./site/desktop/install.php   "${DEST_WEB}/desktop/install.php"
+          cp -v ./site/desktop/install.php "${DEST_WEB}/desktop/install.php"
           cp -v ./site/desktop/img/*.png   "${DEST_WEB}/desktop/img/"
           cp -v ./site/bug-reports.php     "${DEST_WEB}/bug-reports.php"
           cp -v ./site/favicon.ico         "${DEST_WEB}/favicon.ico"
@@ -143,6 +143,7 @@ jobs:
           echo "📝 Génération du script NSIS…"
           NSI="${BUILD_ROOT}/HunterInstaller.nsi"
           cat > "${NSI}" <<'NSIS'
+          Unicode true
           !include "MUI2.nsh"
           !include "FileFunc.nsh"
           !include "nsDialogs.nsh"
@@ -163,11 +164,15 @@ jobs:
           Var KeepSaves
           Var IsUpgrade
           Var SaveBackupDir
+          Var StartTarget
+          Var hDlg
+          Var chkKeep
 
           Name "${APP_NAME} ${APP_VERSION}"
           OutFile "${OUT_EXE}"
           InstallDir "${INSTALL_DIR}"
           RequestExecutionLevel admin
+          SetShellVarContext all
 
           !define MUI_ABORTWARNING
           !define MUI_ICON "${ICO_PATH}"
@@ -217,21 +222,21 @@ jobs:
               ${EndIf}
 
               nsDialogs::Create 1018
-              Pop $0
-              ${If} $0 == error
+              Pop $hDlg
+              ${If} $hDlg == error
                 Abort
               ${EndIf}
 
               ${NSD_CreateLabel} 0 0 100% 24u "Installation existante détectée.$\r$\nSouhaitez-vous conserver vos sauvegardes ?"
-              Pop $1
+              Pop $0
               ${NSD_CreateCheckbox} 0 28u 100% 12u "Conserver mes sauvegardes"
-              Pop $2
+              Pop $chkKeep
               ${If} $KeepSaves == "1"
-                ${NSD_Check} $2
+                ${NSD_Check} $chkKeep
               ${EndIf}
 
               nsDialogs::Show
-              ${NSD_GetState} $2 $KeepSaves
+              ${NSD_GetState} $chkKeep $KeepSaves
             ${Else}
               Abort ; fresh install -> pas de page
             ${EndIf}
@@ -246,6 +251,9 @@ jobs:
           ;-------------------------
           Section "Installer"
             SetOutPath "$INSTDIR"
+
+            ; 0) Dossier Start Menu
+            CreateDirectory "$SMPROGRAMS\${STARTMENU_FOLDER}"
 
             ; 1) Backup des sauvegardes si demandé
             StrCpy $SaveBackupDir "$TEMP\he_save_backup"
@@ -262,24 +270,28 @@ jobs:
               ${EndIf}
             ${EndIf}
 
-            ; 2) Copie du payload
-            File /r "${PAYLOAD_DIR}\*.*"
+            ; 2) Copie du payload (compile time sur runner Linux => slashs)
+            File /r "${PAYLOAD_DIR}/*.*"
 
             ; 3) Choix de la cible pour les raccourcis
-            StrCpy $0 "$INSTDIR\www\index.html"
+            StrCpy $StartTarget "$INSTDIR\www\index.html"
             ${If} ${FileExists} "$INSTDIR\Game.exe"
-              StrCpy $0 "$INSTDIR\Game.exe"
+              StrCpy $StartTarget "$INSTDIR\Game.exe"
             ${Else}
               FindFirst $1 $2 "$INSTDIR\*.exe"
               StrCmp $2 "" +3 0
-                StrCpy $0 "$INSTDIR\$2"
+                StrCpy $StartTarget "$INSTDIR\$2"
               FindClose $1
             ${EndIf}
 
-            ; 4) Raccourcis
-            CreateShortCut "$DESKTOP\HunterEvolution.lnk" "$0" "" "$INSTDIR\www\icon\icon.ico" 0
-            CreateDirectory "$SMPROGRAMS\${STARTMENU_FOLDER}"
-            CreateShortCut "$SMPROGRAMS\${STARTMENU_FOLDER}\HunterEvolution.lnk" "$0" "" "$INSTDIR\www\icon\icon.ico" 0
+            ; 4) Raccourcis (icône si présente)
+            ${If} ${FileExists} "$INSTDIR\www\icon\icon.ico"
+              CreateShortCut "$DESKTOP\HunterEvolution.lnk" "$StartTarget" "" "$INSTDIR\www\icon\icon.ico" 0
+              CreateShortCut "$SMPROGRAMS\${STARTMENU_FOLDER}\HunterEvolution.lnk" "$StartTarget" "" "$INSTDIR\www\icon\icon.ico" 0
+            ${Else}
+              CreateShortCut "$DESKTOP\HunterEvolution.lnk" "$StartTarget"
+              CreateShortCut "$SMPROGRAMS\${STARTMENU_FOLDER}\HunterEvolution.lnk" "$StartTarget"
+            ${EndIf}
 
             ; 5) Restauration des sauvegardes
             ${If} $KeepSaves == "1"
@@ -303,17 +315,17 @@ jobs:
           ;-------------------------
           Function LaunchApp
             ; Par défaut, pointons vers Game.exe s’il existe
-            StrCpy $0 "$INSTDIR\www\index.html"
+            StrCpy $StartTarget "$INSTDIR\www\index.html"
             ${If} ${FileExists} "$INSTDIR\Game.exe"
-              StrCpy $0 "$INSTDIR\Game.exe"
+              StrCpy $StartTarget "$INSTDIR\Game.exe"
             ${Else}
               FindFirst $1 $2 "$INSTDIR\*.exe"
               StrCmp $2 "" +3 0
-                StrCpy $0 "$INSTDIR\$2"
+                StrCpy $StartTarget "$INSTDIR\$2"
               FindClose $1
             ${EndIf}
 
-            Exec "$0"
+            ExecShell "open" "$StartTarget"
           FunctionEnd
 
           ;-------------------------
@@ -332,7 +344,6 @@ jobs:
           SectionEnd
           NSIS
 
-
           echo "⚙️  Compilation NSIS…"
           makensis \
             -DAPP_DIR="${APP_DIR}" \
@@ -342,4 +353,3 @@ jobs:
             "${NSI}"
 
           echo "✅ Installateur généré: ${INSTALLER_DIR}/HunterEvolution-${TAG_NAME}.exe"
-
