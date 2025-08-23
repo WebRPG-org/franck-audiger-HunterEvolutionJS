@@ -142,19 +142,24 @@ function createFogOverlay() {
     ? { x: 0, y: 0, width: Graphics.boxWidth, height: Graphics.boxHeight }
     : getVisibleMapBounds();
 
-  // === Overlay nuit
+    // === Overlay nuit
   if (config.nightOverlay) {
-    if(!this._nightOverlay){
-      if(!fogImageCache.night){
-        const bitmap = new Bitmap(bounds.width, bounds.height);
-        bitmap.fillAll('black');
-        fogImageCache.night = new Sprite(bitmap);
-      }
-      fogImageCache.night.opacity = config.nightOpacity;
-      fogImageCache.night.x = bounds.x;
-      fogImageCache.night.y = bounds.y;
+    const width = bounds.width;
+    const height = bounds.height;
+
+    if (!fogImageCache.night || fogImageCache.night.bitmap.width !== width || fogImageCache.night.bitmap.height !== height) {
+      const bitmap = new Bitmap(width+1, height);
+      bitmap.fillAll('black');
+      fogImageCache.night = new Sprite(bitmap);
+    }
+
+    fogImageCache.night.opacity = config.nightOpacity;
+    fogImageCache.night.x = bounds.x;
+    fogImageCache.night.y = bounds.y;
+
+    if (!this._nightOverlay) {
       this._nightOverlay = fogImageCache.night;
-      this._spriteset.addChild(this._nightOverlay); // ⬅️ ICI
+      this._spriteset.addChild(this._nightOverlay);
     }
   } else if (this._nightOverlay) {
     this._spriteset.removeChild(this._nightOverlay);
@@ -168,7 +173,7 @@ function createFogOverlay() {
         fogImageCache.fogs[config.name] = new TilingSprite(ImageManager.loadPicture(config.name));
       }
       this._fogOverlay = fogImageCache.fogs[config.name];
-      this._fogOverlay.move(bounds.x, bounds.y, bounds.width, bounds.height);
+      this._fogOverlay.move(bounds.x, bounds.y, bounds.width+1, bounds.height);
       this._fogOverlay.opacity = config.opacity || 128;
       this._fogOverlay.fogSpeedX = config.speedX || 0;
       this._fogOverlay.fogSpeedY = config.speedY || 0;
@@ -182,17 +187,23 @@ function createFogOverlay() {
     this._fogOverlay = null;
   }
 
-  // Lightning flash (Map uniquement, comme ton script original)
+  // === Flash orage
   if (this instanceof Scene_Map) {
-    if(!this._lightningFlash){
-      if(!fogImageCache.light){
-        const bitmap = new Bitmap(bounds.width, bounds.height);
-        bitmap.fillAll('white');
-        fogImageCache.light = new Sprite(bitmap);
-      }
-      var fs = fogImageCache.light;
-      fs.opacity = 0;
-      fs.x = bounds.x; fs.y = bounds.y;
+    const width = bounds.width;
+    const height = bounds.height;
+
+    if (!fogImageCache.light || fogImageCache.light.bitmap.width !== width || fogImageCache.light.bitmap.height !== height) {
+      const bitmap = new Bitmap(width+1, height);
+      bitmap.fillAll('white');
+      fogImageCache.light = new Sprite(bitmap);
+    }
+
+    var fs = fogImageCache.light;
+    fs.opacity = 0;
+    fs.x = bounds.x;
+    fs.y = bounds.y;
+
+    if (!this._lightningFlash) {
       this._lightningFlash = fs;
       this._spriteset.addChild(this._lightningFlash);
     }
@@ -218,7 +229,7 @@ function updateFogOverlay() {
   if (this._fogOverlay) {
     this._fogOverlay.visible = enable && !hiddingFog;
     this._fogOverlay.opacity = fogConfigs[$gameMap.mapId()].opacity + increaseOpacity || 128 + increaseOpacity;
-    this._fogOverlay.move(bounds.x, bounds.y, bounds.width, bounds.height);
+    this._fogOverlay.move(bounds.x, bounds.y, bounds.width+1, bounds.height);
 
     if (enable && config.name) {
       this._fogOverlay.origin.x += this._fogOverlay.fogSpeedX * UPDATE_INTERVAL_FRAMES;
@@ -240,13 +251,13 @@ function updateFogOverlay() {
   // === Overlay nuit
   if (this._nightOverlay) {
     this._nightOverlay.visible = enable && !hiddingFog;
-    this._nightOverlay.move(bounds.x, bounds.y, bounds.width, bounds.height);
+    this._nightOverlay.move(bounds.x, bounds.y, bounds.width+1, bounds.height);
   }
 
   // === Flash
   if (this._lightningFlash) {
     this._lightningFlash.visible = enable && !hiddingFog;
-    this._lightningFlash.move(bounds.x, bounds.y, bounds.width, bounds.height);
+    this._lightningFlash.move(bounds.x, bounds.y, bounds.width+1, bounds.height);
   }
 
   lastDisplayX = $gameMap._displayX;
@@ -309,22 +320,17 @@ function createVisionOverlay() {
   const w = Graphics.width;
   const h = Graphics.height;
 
-  if (!this._visionOverlay) {
-    // Bitmap écran qui contiendra le voile noir avec trou
-    this._visionBitmap  = new Bitmap(w, h);
-    this._visionOverlay = new Sprite(this._visionBitmap);
-    // On place ce sprite tout en haut de la pile de la map
-    this._spriteset.addChild(this._visionOverlay);
+  if (!this._visionOverlay || !this._visionBitmap || this._visionBitmap.width !== w || this._visionBitmap.height !== h) {
+    this._visionBitmap = new Bitmap(w+1, h);
 
-    // Mémo pour dirty-check
-    this._visionLast = { x: -9999, y: -9999, radius: 0, feather: 0, opacity: -1, w: 0, h: 0 };
-  } else {
-    // Resize seulement si nécessaire
-    if (this._visionBitmap.width !== w || this._visionBitmap.height !== h) {
-      this._visionBitmap = new Bitmap(w, h);
+    if (!this._visionOverlay) {
+      this._visionOverlay = new Sprite(this._visionBitmap);
+      this._spriteset.addChild(this._visionOverlay);
+    } else {
       this._visionOverlay.bitmap = this._visionBitmap;
-      this._visionLast.w = 0; // force redraw
     }
+
+    this._visionLast = { x: -9999, y: -9999, radius: 0, feather: 0, opacity: -1, w: 0, h: 0 };
   }
 
   // Mise en cache d’un masque radial : rayon + feather (bord doux)

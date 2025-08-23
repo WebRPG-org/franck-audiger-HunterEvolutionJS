@@ -103,12 +103,7 @@
     $gameMap.events().forEach(function(event) {
       const eventName = event.event().name.toLowerCase();
 
-      // Ignore les événements dont le nom commence par "door"
-      if (eventName.startsWith("Door")) {
-        return;
-      }
-
-      if (ignoredNames.includes(eventName)) {
+      if (ignoredNames.map(name => name.toLowerCase()).includes(eventName)) {
         return;
       } else {
         const dx = targetX - event.x;
