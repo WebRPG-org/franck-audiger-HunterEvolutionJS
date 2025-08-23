@@ -11,13 +11,14 @@ include 'header.php';
       <ul>
         <li><?= t("Changer la musique à Loden.", "Change musics at Loden.") ?></li>
         <li><?= t("Fix tuile bug, Loden.", "Fix tile bug, Loden.") ?></li>
-        <li><?= t("Animation carte plus visible.", "Make card animation more visible.") ?></li>
+        <li><?= t("Animation Hisoka plus visible.", "Make Hisoka animation more visible.") ?></li>
         <li><?= t("Amélioration textes.", "Text improvements.") ?></li>
+        <li><?= t("Amélioration transitions.", "Transition improvements.") ?></li>
         <li><?= t("Fixe icone pour la version Desktop.", "Fix Icon for desktop version.") ?></li>
         <li><?= t("Installateur proposer ouverture du jeu.", "Installer offers game launch.") ?></li>
       </ul>
     </section>
-    <section class="release">Misc after release and test fixes : Change musics, improve transition, tiles, animations, text, fix Icon for desktop version
+    <section class="release">
       <h2>Version 0.5.1.0 : <?= t("Phase 1 Exam Hunter", "Phase 1 Exam Hunter") ?></h2>
       <ul>
         <li><?= t("Phase 1 Exam Hunter fini.", "Phase 1 Exam Hunter finished.") ?></li>
@@ -119,14 +120,6 @@ include 'header.php';
       </ul>
     </section>
   </div>
-  <div class="disclaimer">
-  <h2><?= t('Mention légale', 'Legal Notice') ?></h2>
-    <p>
-      <?= t(
-        "Ce site et ce jeu sont des projets de fans sans but lucratif. Aucun contenu n'est utilisé à des fins commerciales. Hunter x Hunter Evolution n'est pas affilié à Yoshihiro Togashi, Shueisha, Madhouse, ou toute autre entité officielle liée à Hunter x Hunter. Sur simple demande des ayants droit, tout contenu sera retiré immédiatement.",
-        "This site and game are non-commercial fan projects. No content is used for profit. Hunter x Hunter Evolution is not affiliated with Yoshihiro Togashi, Shueisha, Madhouse, or any official Hunter x Hunter entity. Upon request from rights holders, any content will be removed immediately."
-      ) ?>
-    </p>
-  </div>
+  <?php include 'disclaimer.php'; ?>
 </body>
 </html>

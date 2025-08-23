@@ -56,14 +56,6 @@ include 'header.php';
     <button type="submit" class="btn btn-green"><?= t('Envoyer','Send') ?></button>
   </form>
 </div>
-  <div class="disclaimer">
-  <h2><?= t('Mention légale', 'Legal Notice') ?></h2>
-    <p>
-      <?= t(
-        "Ce site et ce jeu sont des projets de fans sans but lucratif. Aucun contenu n'est utilisé à des fins commerciales. Hunter x Hunter Evolution n'est pas affilié à Yoshihiro Togashi, Shueisha, Madhouse, ou toute autre entité officielle liée à Hunter x Hunter. Sur simple demande des ayants droit, tout contenu sera retiré immédiatement.",
-        "This site and game are non-commercial fan projects. No content is used for profit. Hunter x Hunter Evolution is not affiliated with Yoshihiro Togashi, Shueisha, Madhouse, or any official Hunter x Hunter entity. Upon request from rights holders, any content will be removed immediately."
-      ) ?>
-    </p>
-  </div>
+  <?php include 'disclaimer.php'; ?>
 </body>
 </html>

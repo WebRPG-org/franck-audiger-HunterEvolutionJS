@@ -25,6 +25,16 @@ jobs:
       ANDROID_OUT_DIR: /var/www/android
 
     steps:
+      - name: Vérifier format du tag
+        id: tagcheck
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          if [[ "$TAG" =~ ^V[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "valid=true" >> $GITHUB_OUTPUT
+          else
+            echo "valid=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Prepare (cloner le tag et copier workspace)
         env:
           TAG_NAME: ${{ github.ref_name }}
@@ -47,7 +57,8 @@ jobs:
 
           cd ..
 
-      - name: Release (copie vers /var/www)
+      - name: Release Game (copie vers /var/www)
+        if: steps.tagcheck.outputs.valid == 'true'
         run: |
           set -euo pipefail
 
@@ -85,6 +96,17 @@ jobs:
           cp -vr ./movies/* "${PAYLOAD_WWW}/movies/"
           cp -vr ./js/*     "${PAYLOAD_WWW}/js/"
 
+          cd ..
+
+      - name: Release Site (copie vers /var/www)
+        run: |
+          set -euo pipefail
+
+          DEST_GAME="${DEST_WEB}/game"
+
+          [ -d "./tmpRelease" ] || { echo "❌ tmpRelease absent"; exit 1; }
+          cd ./tmpRelease
+          
           echo "🗂️  Fichiers site -> ${DEST_WEB}"
           mkdir -p "${DEST_WEB}/desktop"
           cp -v ./site/desktop/index.php   "${DEST_WEB}/desktop/index.php"
@@ -108,10 +130,13 @@ jobs:
           cp -v ./site/header.php          "${DEST_WEB}/header.php"
           cp -v ./site/release-note.php    "${DEST_WEB}/release-note.php"
           cp -v ./site/style.css           "${DEST_WEB}/style.css"
+          cp -v ./site/disclaimer.php      "${DEST_WEB}/disclaimer.php"
 
           cd ..
 
+
       - name: Générer l’installateur Windows (NSIS) + icône cohérente
+        if: steps.tagcheck.outputs.valid == 'true'
         env:
           TAG_NAME: ${{ github.ref_name }}
         run: |
