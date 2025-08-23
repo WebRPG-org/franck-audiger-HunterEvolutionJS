@@ -7,6 +7,17 @@ include 'header.php';
   <h1><?= $title ?></h1>
   <div class="container">
     <section class="release">
+      <h2>Version 0.5.1.1 : <?= t("Fix divers post release et test", "Misc after release and test fixes") ?></h2>
+      <ul>
+        <li><?= t("Changer la musique à Loden.", "Change musics at Loden.") ?></li>
+        <li><?= t("Fix tuile bug, Loden.", "Fix tile bug, Loden.") ?></li>
+        <li><?= t("Animation carte plus visible.", "Make card animation more visible.") ?></li>
+        <li><?= t("Amélioration textes.", "Text improvements.") ?></li>
+        <li><?= t("Fixe icone pour la version Desktop.", "Fix Icon for desktop version.") ?></li>
+        <li><?= t("Installateur proposer ouverture du jeu.", "Installer offers game launch.") ?></li>
+      </ul>
+    </section>
+    <section class="release">Misc after release and test fixes : Change musics, improve transition, tiles, animations, text, fix Icon for desktop version
       <h2>Version 0.5.1.0 : <?= t("Phase 1 Exam Hunter", "Phase 1 Exam Hunter") ?></h2>
       <ul>
         <li><?= t("Phase 1 Exam Hunter fini.", "Phase 1 Exam Hunter finished.") ?></li>
