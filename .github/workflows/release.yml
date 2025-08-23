@@ -177,6 +177,11 @@ jobs:
           !insertmacro MUI_PAGE_DIRECTORY
           Page custom PageKeepSavesCreate PageKeepSavesLeave
           !insertmacro MUI_PAGE_INSTFILES
+
+          ; --- Page Finish avec "Démarrer l'application" ---
+          !define MUI_FINISHPAGE_RUN
+          !define MUI_FINISHPAGE_RUN_TEXT "Démarrer l'application"
+          !define MUI_FINISHPAGE_RUN_FUNCTION LaunchApp
           !insertmacro MUI_PAGE_FINISH
           !insertmacro MUI_UNPAGE_CONFIRM
           !insertmacro MUI_UNPAGE_INSTFILES
@@ -292,6 +297,24 @@ jobs:
             WriteUninstaller "$INSTDIR\Uninstall.exe"
             CreateShortCut "$SMPROGRAMS\${STARTMENU_FOLDER}\Désinstaller HunterEvolution.lnk" "$INSTDIR\Uninstall.exe"
           SectionEnd
+
+          ;-------------------------
+          ; Fonction de lancement
+          ;-------------------------
+          Function LaunchApp
+            ; Par défaut, pointons vers Game.exe s’il existe
+            StrCpy $0 "$INSTDIR\www\index.html"
+            ${If} ${FileExists} "$INSTDIR\Game.exe"
+              StrCpy $0 "$INSTDIR\Game.exe"
+            ${Else}
+              FindFirst $1 $2 "$INSTDIR\*.exe"
+              StrCmp $2 "" +3 0
+                StrCpy $0 "$INSTDIR\$2"
+              FindClose $1
+            ${EndIf}
+
+            Exec "$0"
+          FunctionEnd
 
           ;-------------------------
           ; Section de désinstallation
