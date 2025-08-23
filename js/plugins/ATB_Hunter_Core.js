@@ -34,14 +34,25 @@
     document.body.appendChild(script);
   });
 
-  window.checkDebugMode = function() {
-    var fs = require('fs');
-
-    const files = fs.readdirSync(".");
-    console.log(files);
-    $gameVariables.setValue(46, files.includes("debug.ini") ? 1 : 0);
-    console.log("Debug mode: " + ($gameVariables.value(46) ? "ON" : "OFF"));
-  }
+  window.checkDebugMode = async function() {
+    try {
+      // --- Cas Node.js / NW.js ---
+      if (typeof require !== "undefined") {
+        const fs = require("fs");
+        const files = fs.readdirSync(".");
+        $gameVariables.setValue(46, files.includes("debug.ini") ? 1 : 0);
+      }
+      // --- Cas Web (navigateur) ---
+      else {
+        // On teste via une requête HTTP si le fichier est servi par le serveur
+        const response = await fetch("debug.ini", { method: "HEAD" });
+        $gameVariables.setValue(46, response.ok ? 1 : 0);
+      }
+    } catch (err) {
+      console.error("Erreur checkDebugMode:", err);
+      $gameVariables.setValue(46, 0);
+    }
+  };
 
   AudioManager._replayBgmActive        = true;
   
