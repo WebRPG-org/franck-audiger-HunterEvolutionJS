@@ -534,6 +534,9 @@ ConfigManager.makeData = function() {
     config.bgsVolume = this.bgsVolume;
     config.meVolume = this.meVolume;
     config.seVolume = this.seVolume;
+    config.fitMode = this.fitMode;
+    config.fullscreen = this.fullscreen;
+    config.language = this.language;
     return config;
 };
 
@@ -544,10 +547,29 @@ ConfigManager.applyData = function(config) {
     this.bgsVolume = this.readVolume(config, 'bgsVolume');
     this.meVolume = this.readVolume(config, 'meVolume');
     this.seVolume = this.readVolume(config, 'seVolume');
+    if(config["fitMode"] === undefined){
+        this.fitMode = true;
+    } else {
+        this.fitMode = this.readFlag(config, "fitMode");
+    }
+    if(config["fullscreen"] === undefined){
+        this.fullscreen = true;
+    } else {
+        this.fullscreen = this.readFlag(config, "fullscreen");
+    }
+    if(config["language"] === undefined){
+        this.language = "fr";
+    } else {
+        this.language = this.readValue(config, "language");
+    }
 };
 
 ConfigManager.readFlag = function(config, name) {
     return !!config[name];
+};
+
+ConfigManager.readValue = function(config, name) {
+    return config[name];
 };
 
 ConfigManager.readVolume = function(config, name) {
