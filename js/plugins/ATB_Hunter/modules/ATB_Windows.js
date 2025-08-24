@@ -126,6 +126,19 @@ var _BL_addText = Window_BattleLog.prototype.addText;
 Window_BattleLog.prototype.addText = function(text) {
     this._lineDurations.push(this.lineDisplayDuration());
     _BL_addText.call(this, text);
+    this.checkOverflow(); // Supprimer automatiquement si trop de lignes
+};
+
+
+// Supprime les lignes les plus anciennes si l'affichage est trop grand
+Window_BattleLog.prototype.checkOverflow = function() {
+    var maxVisibleLines = Math.floor((Graphics.boxHeight / 3) / this.fittingHeight(1));
+    maxVisibleLines = Math.max(4, maxVisibleLines)
+    while (this._lines.length > maxVisibleLines) {
+    this._lineDurations.shift();
+    this._lines.shift();
+    this.refresh();
+    }
 };
 
 Window_BattleLog.prototype.updateLineDurations = function() {

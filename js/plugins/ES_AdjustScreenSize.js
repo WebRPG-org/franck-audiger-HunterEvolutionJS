@@ -27,7 +27,6 @@
         initialModeFit = isScaleModeFit;
         isFullScreen = ConfigManager.fullscreen;
         initialFullScreen = isFullScreen;
-        TextManagerEx.setLanguage(ConfigManager.language)
         _SceneManager_run.call(this, sceneClass);
         if (Utils.isNwjs()) {
             if (initialFullScreen) {
@@ -122,6 +121,7 @@
         if(!initialModeFit){
             adjustScreenSize();
         }
+        TextManagerEx.setLanguage(ConfigManager.language, false)
     };
 
     const _Scene_Base_start = Scene_Base.prototype.start;
@@ -336,22 +336,18 @@
     
     const _Sprite_Actor_setActorHome = Sprite_Actor.prototype.setActorHome;
     Sprite_Actor.prototype.setActorHome = function(index) {
-        if(initialModeFit){
-            _Sprite_Actor_setActorHome.call(this);
-        } else {
-            const scaleX = Graphics.boxWidth / 816;
-            const scaleY = Graphics.boxHeight / 624;
-            const baseX = (550*scaleX) + index * 32;
-            const baseY = (360*scaleY) + index * 48;
+        const scaleX = Graphics.boxWidth / 816;
+        const scaleY = Graphics.boxHeight / 624;
+        const baseX = (550*scaleX) + index * 32;
+        const baseY = (360*scaleY) + index * 48;
 
 
-            const offsetX = (Graphics.boxWidth - 816) / 2;
+        const offsetX = (Graphics.boxWidth - 816) / 2;
 
-            const finalX = Math.round(baseX);
-            const finalY = Math.round(baseY);
+        const finalX = Math.round(baseX);
+        const finalY = Math.round(baseY);
 
-            this.setHome(finalX, finalY);
-        }
+        this.setHome(finalX, finalY);
     };
 
     //WINDOW PART
@@ -407,92 +403,60 @@
 
     const _Window_BattleStatus_drawItem = Window_BattleStatus.prototype.drawItem; 
     Window_BattleStatus.prototype.drawItem = function(index) {
-        if(initialModeFit){
-            return _Window_BattleStatus_drawItem.call(this, index);
-        } else {
-            var actor = $gameParty.battleMembers()[index];
-            this.drawBasicArea(this.basicAreaRect(index), actor);
-            this.drawGaugeArea(this.gaugeAreaRect(index), actor);
-        }
+        var actor = $gameParty.battleMembers()[index];
+        this.drawBasicArea(this.basicAreaRect(index), actor);
+        this.drawGaugeArea(this.gaugeAreaRect(index), actor);
     };
 
     const _Window_BattleStatus_basicAreaRect = Window_BattleStatus.prototype.basicAreaRect;
     Window_BattleStatus.prototype.basicAreaRect = function(index) {
-        if(initialModeFit){
-            return _Window_BattleStatus_basicAreaRect.call(this, index);
-        } else {
-            var rect = this.itemRectForText(index);
-            rect.width -= this.gaugeAreaWidth() + 15;
-            return rect;
-        }
+        var rect = this.itemRectForText(index);
+        rect.width -= this.gaugeAreaWidth() + 15;
+        return rect;
     };
 
     const _Window_BattleStatus_gaugeAreaRect = Window_BattleStatus.prototype.gaugeAreaRect;
     Window_BattleStatus.prototype.gaugeAreaRect = function(index) {
-        if(initialModeFit){
-            return _Window_BattleStatus_gaugeAreaRect.call(this, index);
-        } else {
-            var rect = this.itemRectForText(index);
-            rect.x += rect.width - this.gaugeAreaWidth();
-            rect.width = this.gaugeAreaWidth();
-            return rect;
-        }
+        var rect = this.itemRectForText(index);
+        rect.x += rect.width - this.gaugeAreaWidth();
+        rect.width = this.gaugeAreaWidth();
+        return rect;
     };
 
     const _Window_BattleStatus_gaugeAreaWidth = Window_BattleStatus.prototype.gaugeAreaWidth;
     Window_BattleStatus.prototype.gaugeAreaWidth = function() {
-        if(initialModeFit){
-            return _Window_BattleStatus_gaugeAreaWidth.call(this);
-        } else {
-            return 330+(Graphics.boxWidth - DEFAULT_WIDTH);
-        }
+        return 330+(Graphics.boxWidth - DEFAULT_WIDTH);
     };
 
     const _Window_BattleStatus_drawBasicArea = Window_BattleStatus.prototype.drawBasicArea;
     Window_BattleStatus.prototype.drawBasicArea = function(rect, actor) {
-        if(initialModeFit){
-            return _Window_BattleStatus_drawBasicArea.call(this, rect, actor);
-        } else {
-            this.drawActorName(actor, rect.x + 0, rect.y, 150);
-            this.drawActorIcons(actor, rect.x + 156, rect.y, rect.width - 156);
-        }
+        this.drawActorName(actor, rect.x + 0, rect.y, 150);
+        this.drawActorIcons(actor, rect.x + 156, rect.y, rect.width - 156);
     };
 
     const _Window_BattleStatus_drawGaugeArea = Window_BattleStatus.prototype.drawGaugeArea;
     Window_BattleStatus.prototype.drawGaugeArea = function(rect, actor) {
-        if(initialModeFit){
-            return _Window_BattleStatus_drawGaugeArea.call(this, rect, actor);
+        if ($dataSystem.optDisplayTp) {
+            this.drawGaugeAreaWithTp(rect, actor);
         } else {
-            if ($dataSystem.optDisplayTp) {
-                this.drawGaugeAreaWithTp(rect, actor);
-            } else {
-                this.drawGaugeAreaWithoutTp(rect, actor);
-            }
+            this.drawGaugeAreaWithoutTp(rect, actor);
         }
     };
 
     const _Window_BattleStatus_drawGaugeAreaWithTp = Window_BattleStatus.prototype.drawGaugeAreaWithTp;
     Window_BattleStatus.prototype.drawGaugeAreaWithTp = function(rect, actor) {
-        if(initialModeFit){
-            return _Window_BattleStatus_drawGaugeAreaWithTp.call(this, rect, actor);
-        } else {
             this.drawActorHp(actor, rect.x + 0, rect.y, 108);
             this.drawActorMp(actor, rect.x + 123, rect.y, 96);
             this.drawActorTp(actor, rect.x + 234, rect.y, 96);
-        }
     };
 
     const _Window_BattleStatus_drawGaugeAreaWithoutTp = Window_BattleStatus.prototype.drawGaugeAreaWithoutTp;
     Window_BattleStatus.prototype.drawGaugeAreaWithoutTp = function(rect, actor) {
-        if(initialModeFit){
-            return _Window_BattleStatus_drawGaugeAreaWithoutTp.call(this, rect, actor);
-        } else {
             const third = (Graphics.boxWidth - DEFAULT_WIDTH)/3;
             const hpWidth = 201+ ($gameVariables.value(37) === 1? 0 + 2*third : 129+ 3*third) ;
             const mapWidth = 114 + third;
             this.drawActorHp(actor, rect.x + 0, rect.y, hpWidth);
             this.drawActorMp(actor, rect.x + hpWidth + 15, rect.y, mapWidth);
-        }
     };
 
     const _Window_ChoiceList_updatePlacement = Window_ChoiceList.prototype.updatePlacement;
@@ -751,7 +715,6 @@
         var align = "center";
         this.resetTextColor();
         this.changeTextColor(this.deathColor());
-        //this.changePaintOpacity(true);
         this.drawText(TextManagerEx.t('command.restartHelp'), 0, 0, 360, align);
     };
 

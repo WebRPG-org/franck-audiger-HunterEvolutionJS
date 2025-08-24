@@ -316,7 +316,7 @@ Scene_Battle.prototype.commandSkill = function() {
 };
 
 Scene_Battle.prototype.commandGuard = function() {
-    //TODO : incrementNumberActionWithoutDef();
+    $gameVariables.setValue(VAR_NUM_ACTIONS, 0); // Reset
     BattleManager.getCurrentInputActor().inputtingAction().setGuard();
     if(BattleManager.getCurrentInputActor().isActor()){
         BattleManager.getCurrentInputActor().setGuard()

@@ -374,7 +374,7 @@ window.showCustomAutoMessage = function(faceName, faceIndex, text, durationFrame
   text = text.replace(/langText\[(.+?)\]/gi, (_, key) => {
     return TextManagerEx.t(key);
   });
-  spr.setMessage(faceName, faceIndex, text, durationFrames);
+  spr.setMessage(faceName, faceIndex, wrapSmart(text), durationFrames);
 }
 
 function checkMessagesToShow(coord, configs) {
