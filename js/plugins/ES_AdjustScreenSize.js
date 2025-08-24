@@ -649,222 +649,220 @@
 
 
     //Options management part 
-    if (Utils.isNwjs()) {
-        Scene_Options.prototype.createHeaderWindow = function() {
-            this._headerWindow = new Window_TitleHeader();
-            this.addWindow(this._headerWindow);
-        };
+    Scene_Options.prototype.createHeaderWindow = function() {
+        this._headerWindow = new Window_TitleHeader();
+        this.addWindow(this._headerWindow);
+    };
 
 
-        Scene_Options.prototype.create = function() {
-            Scene_MenuBase.prototype.create.call(this);
-            this.createHeaderWindow();
-            this.createOptionsWindow();
-        };
+    Scene_Options.prototype.create = function() {
+        Scene_MenuBase.prototype.create.call(this);
+        this.createHeaderWindow();
+        this.createOptionsWindow();
+    };
 
-        //-----------------------------------------------------------------------------
-        // Window_TitleHeader
-        //
-        // The window class with cursor movement and scroll functions.
+    //-----------------------------------------------------------------------------
+    // Window_TitleHeader
+    //
+    // The window class with cursor movement and scroll functions.
 
-        function Window_TitleHeader() {
-            this.initialize.apply(this, arguments);
-        }
-
-        Window_TitleHeader.prototype = Object.create(Window_Base.prototype);
-        Window_TitleHeader.prototype.constructor = Window_TitleHeader;
-        
-        optionsFittingHeight = function(numLines) {
-            return 10 * 36 + 18 * 2;
-        };
-        
-        Window_TitleHeader.prototype.initialize = function() {
-            var width = 400;
-            var height = this.fittingHeight(1);
-            let px = (Graphics.boxWidth - width) / 2;
-            let py = ((Graphics.boxHeight - optionsFittingHeight()) / 2) - height;
-            Window_Base.prototype.initialize.call(this, px, py, width, height);
-            this.deactivate();
-        };
-
-        Window_TitleHeader.prototype.maxCols = function() {
-            return 1;
-        };
-
-        Window_TitleHeader.prototype.maxItems = function() {
-            return 1;
-        };
-
-        Window_TitleHeader.prototype.spacing = function() {
-            return 12;
-        };
-
-        Window_TitleHeader.prototype.itemWidth = function() {
-            return Math.floor((this.width - this.padding * 2 +
-                            this.spacing()) / this.maxCols() - this.spacing());
-        };
-
-        Window_TitleHeader.prototype.itemHeight = function() {
-            return this.lineHeight();
-        };
-
-        Window_TitleHeader.prototype.maxRows = function() {
-            return 1;
-        };
-
-        Window_TitleHeader.prototype.activate = function() {
-            Window_Base.prototype.activate.call(this);
-        };
-
-        Window_TitleHeader.prototype.deactivate = function() {
-            Window_Base.prototype.deactivate.call(this);
-        };
-
-        Window_TitleHeader.prototype.itemRect = function(index) {
-            var rect = new Rectangle();
-            var maxCols = this.maxCols();
-            rect.width = this.itemWidth();
-            rect.height = this.itemHeight();
-            rect.x = index % maxCols * (rect.width + this.spacing()) - this._scrollX;
-            rect.y = Math.floor(index / maxCols) * rect.height - this._scrollY;
-            return rect;
-        };
-
-        Window_TitleHeader.prototype.itemRectForText = function(index) {
-            var rect = this.itemRect(index);
-            rect.x += this.textPadding();
-            rect.width -= this.textPadding() * 2;
-            return rect;
-        };
-
-        Window_TitleHeader.prototype.update = function() {
-            Window_Base.prototype.update.call(this);
-            this.drawAllItems();
-        };
-
-        Window_TitleHeader.prototype.drawAllItems = function() {
-            this.contents.clear();
-            this.drawItem();
-        };
-
-        Window_TitleHeader.prototype.drawItem = function() {
-            var rect = this.itemRectForText(1);
-            var align = "center";
-            this.resetTextColor();
-            this.changeTextColor(this.deathColor());
-            //this.changePaintOpacity(true);
-            this.drawText(TextManagerEx.t('command.restartHelp'), 0, 0, 360, align);
-        };
-
-        Window_TitleHeader.prototype.clearItem = function() {
-            var rect = this.itemRect(1);
-            this.contents.clearRect(rect.x, rect.y, rect.width, rect.height);
-        };
-
-        Window_TitleHeader.prototype.redrawItem = function() {
-            this.clearItem();
-            this.drawItem();
-        };
-
-        Window_TitleHeader.prototype.redrawCurrentItem = function() {
-            this.redrawItem();
-        };
-
-        Window_TitleHeader.prototype.refresh = function() {
-            if (this.contents) {
-                this.contents.clear();
-                this.drawAllItems();
-            }
-        };
-
-        Window_Options.prototype.drawItem = function(index) {
-            var rect = this.itemRectForText(index);
-            var statusWidth = this.statusWidth();
-            var titleWidth = rect.width - statusWidth;
-            if(this.isHighlightRed(index)){
-                this.changeTextColor(this.deathColor());
-            } else {
-                this.resetTextColor();
-            }
-            this.changePaintOpacity(this.isCommandEnabled(index));
-            this.drawText(this.commandName(index), rect.x, rect.y, titleWidth, 'left');
-            this.drawText(this.statusText(index), titleWidth, rect.y, statusWidth, 'right');
-        };
-
-
-
-        Window_Options.prototype.addCommand = function(name, symbol, enabled, ext, highlightRed = false) {
-            if (enabled === undefined) {
-                enabled = true;
-            }
-            if (ext === undefined) {
-                ext = null;
-            }
-            this._list.push({ name: name, symbol: symbol, enabled: enabled, ext: ext, highlightRed: highlightRed });
-        };
-
-
-        Window_Options.prototype.isHighlightRed = function(index) {
-            return this._list[index].highlightRed;
-        };
-
-        Window_Options.prototype.drawItem = function(index) {
-            var rect = this.itemRectForText(index);
-            var statusWidth = this.statusWidth();
-            var titleWidth = rect.width - statusWidth;
-            if(this.isHighlightRed(index)){
-                this.changeTextColor(this.deathColor());
-            } else {
-                this.resetTextColor();
-            }
-            this.changePaintOpacity(this.isCommandEnabled(index));
-            this.drawText(this.commandName(index), rect.x, rect.y, titleWidth, 'left');
-            this.drawText(this.statusText(index), titleWidth, rect.y, statusWidth, 'right');
-        };
-        
-        Window_Options.prototype.statusText = function(index) {
-            var symbol = this.commandSymbol(index);
-            var value = this.getConfigValue(symbol);
-            if (this.isVolumeSymbol(symbol)) {
-                return this.volumeStatusText(value);
-            } else {
-                if(symbol === FIT_MODE) {
-                    return value ? TextManagerEx.t('command.scaleMode.on') : TextManagerEx.t('command.scaleMode.off');
-                } else {
-                    return this.booleanStatusText(value);
-                }
-            } 
-        };
-        
-        const _Window_Options_addGeneralOptions2 = Window_Options.prototype.addGeneralOptions;
-        Window_Options.prototype.addGeneralOptions = function() {
-            _Window_Options_addGeneralOptions2.call(this);
-            this.addCommand(TextManagerEx.t("command.scaleMode"), FIT_MODE, true, null, true);
-            if(Utils.isNwjs()){
-                this.addCommand(TextManagerEx.t("command.screen"), PARAM_FULLSCREEN, true, null, true);
-            }
-        };
-
-        // Bascule entre les modes quand on appuie sur Entrée
-        const _Window_Options_processOk2 = Window_Options.prototype.processOk;
-        Window_Options.prototype.processOk = function() {
-            const symbol = this.commandSymbol(this.index());
-            if(Utils.isNwjs()){
-                if (symbol === PARAM_FULLSCREEN) {
-                    isFullScreen = !isFullScreen;
-                    this.changeValue(symbol, isFullScreen);
-                    ConfigManager.fullscreen = isFullScreen;
-                    return;
-                }
-            }
-            if (symbol === FIT_MODE) {
-                    isScaleModeFit = !isScaleModeFit;
-                    this.changeValue(symbol, isScaleModeFit);
-                    ConfigManager.fitMode = isScaleModeFit;
-                    return;
-                }
-            _Window_Options_processOk2.call(this);
-        };    
+    function Window_TitleHeader() {
+        this.initialize.apply(this, arguments);
     }
+
+    Window_TitleHeader.prototype = Object.create(Window_Base.prototype);
+    Window_TitleHeader.prototype.constructor = Window_TitleHeader;
+    
+    optionsFittingHeight = function() {
+        return (Utils.isNwjs() ? 10 : 9) * 36 + 18 * 2;
+    };
+    
+    Window_TitleHeader.prototype.initialize = function() {
+        var width = 400;
+        var height = this.fittingHeight(1);
+        let px = (Graphics.boxWidth - width) / 2;
+        let py = ((Graphics.boxHeight - optionsFittingHeight()) / 2) - height;
+        Window_Base.prototype.initialize.call(this, px, py, width, height);
+        this.deactivate();
+    };
+
+    Window_TitleHeader.prototype.maxCols = function() {
+        return 1;
+    };
+
+    Window_TitleHeader.prototype.maxItems = function() {
+        return 1;
+    };
+
+    Window_TitleHeader.prototype.spacing = function() {
+        return 12;
+    };
+
+    Window_TitleHeader.prototype.itemWidth = function() {
+        return Math.floor((this.width - this.padding * 2 +
+                        this.spacing()) / this.maxCols() - this.spacing());
+    };
+
+    Window_TitleHeader.prototype.itemHeight = function() {
+        return this.lineHeight();
+    };
+
+    Window_TitleHeader.prototype.maxRows = function() {
+        return 1;
+    };
+
+    Window_TitleHeader.prototype.activate = function() {
+        Window_Base.prototype.activate.call(this);
+    };
+
+    Window_TitleHeader.prototype.deactivate = function() {
+        Window_Base.prototype.deactivate.call(this);
+    };
+
+    Window_TitleHeader.prototype.itemRect = function(index) {
+        var rect = new Rectangle();
+        var maxCols = this.maxCols();
+        rect.width = this.itemWidth();
+        rect.height = this.itemHeight();
+        rect.x = index % maxCols * (rect.width + this.spacing()) - this._scrollX;
+        rect.y = Math.floor(index / maxCols) * rect.height - this._scrollY;
+        return rect;
+    };
+
+    Window_TitleHeader.prototype.itemRectForText = function(index) {
+        var rect = this.itemRect(index);
+        rect.x += this.textPadding();
+        rect.width -= this.textPadding() * 2;
+        return rect;
+    };
+
+    Window_TitleHeader.prototype.update = function() {
+        Window_Base.prototype.update.call(this);
+        this.drawAllItems();
+    };
+
+    Window_TitleHeader.prototype.drawAllItems = function() {
+        this.contents.clear();
+        this.drawItem();
+    };
+
+    Window_TitleHeader.prototype.drawItem = function() {
+        var rect = this.itemRectForText(1);
+        var align = "center";
+        this.resetTextColor();
+        this.changeTextColor(this.deathColor());
+        //this.changePaintOpacity(true);
+        this.drawText(TextManagerEx.t('command.restartHelp'), 0, 0, 360, align);
+    };
+
+    Window_TitleHeader.prototype.clearItem = function() {
+        var rect = this.itemRect(1);
+        this.contents.clearRect(rect.x, rect.y, rect.width, rect.height);
+    };
+
+    Window_TitleHeader.prototype.redrawItem = function() {
+        this.clearItem();
+        this.drawItem();
+    };
+
+    Window_TitleHeader.prototype.redrawCurrentItem = function() {
+        this.redrawItem();
+    };
+
+    Window_TitleHeader.prototype.refresh = function() {
+        if (this.contents) {
+            this.contents.clear();
+            this.drawAllItems();
+        }
+    };
+
+    Window_Options.prototype.drawItem = function(index) {
+        var rect = this.itemRectForText(index);
+        var statusWidth = this.statusWidth();
+        var titleWidth = rect.width - statusWidth;
+        if(this.isHighlightRed(index)){
+            this.changeTextColor(this.deathColor());
+        } else {
+            this.resetTextColor();
+        }
+        this.changePaintOpacity(this.isCommandEnabled(index));
+        this.drawText(this.commandName(index), rect.x, rect.y, titleWidth, 'left');
+        this.drawText(this.statusText(index), titleWidth, rect.y, statusWidth, 'right');
+    };
+
+
+
+    Window_Options.prototype.addCommand = function(name, symbol, enabled, ext, highlightRed = false) {
+        if (enabled === undefined) {
+            enabled = true;
+        }
+        if (ext === undefined) {
+            ext = null;
+        }
+        this._list.push({ name: name, symbol: symbol, enabled: enabled, ext: ext, highlightRed: highlightRed });
+    };
+
+
+    Window_Options.prototype.isHighlightRed = function(index) {
+        return this._list[index].highlightRed;
+    };
+
+    Window_Options.prototype.drawItem = function(index) {
+        var rect = this.itemRectForText(index);
+        var statusWidth = this.statusWidth();
+        var titleWidth = rect.width - statusWidth;
+        if(this.isHighlightRed(index)){
+            this.changeTextColor(this.deathColor());
+        } else {
+            this.resetTextColor();
+        }
+        this.changePaintOpacity(this.isCommandEnabled(index));
+        this.drawText(this.commandName(index), rect.x, rect.y, titleWidth, 'left');
+        this.drawText(this.statusText(index), titleWidth, rect.y, statusWidth, 'right');
+    };
+    
+    Window_Options.prototype.statusText = function(index) {
+        var symbol = this.commandSymbol(index);
+        var value = this.getConfigValue(symbol);
+        if (this.isVolumeSymbol(symbol)) {
+            return this.volumeStatusText(value);
+        } else {
+            if(symbol === FIT_MODE) {
+                return value ? TextManagerEx.t('command.scaleMode.on') : TextManagerEx.t('command.scaleMode.off');
+            } else {
+                return this.booleanStatusText(value);
+            }
+        } 
+    };
+    
+    const _Window_Options_addGeneralOptions2 = Window_Options.prototype.addGeneralOptions;
+    Window_Options.prototype.addGeneralOptions = function() {
+        _Window_Options_addGeneralOptions2.call(this);
+        this.addCommand(TextManagerEx.t("command.scaleMode"), FIT_MODE, true, null, true);
+        if(Utils.isNwjs()){
+            this.addCommand(TextManagerEx.t("command.screen"), PARAM_FULLSCREEN, true, null, true);
+        }
+    };
+
+    // Bascule entre les modes quand on appuie sur Entrée
+    const _Window_Options_processOk2 = Window_Options.prototype.processOk;
+    Window_Options.prototype.processOk = function() {
+        const symbol = this.commandSymbol(this.index());
+        if(Utils.isNwjs()){
+            if (symbol === PARAM_FULLSCREEN) {
+                isFullScreen = !isFullScreen;
+                this.changeValue(symbol, isFullScreen);
+                ConfigManager.fullscreen = isFullScreen;
+                return;
+            }
+        }
+        if (symbol === FIT_MODE) {
+                isScaleModeFit = !isScaleModeFit;
+                this.changeValue(symbol, isScaleModeFit);
+                ConfigManager.fitMode = isScaleModeFit;
+                return;
+            }
+        _Window_Options_processOk2.call(this);
+    };    
 
 })();
