@@ -81,6 +81,13 @@ jobs:
           cp -vr ./audio/*  "${DEST_GAME}/audio/"
           cp -vr ./movies/* "${DEST_GAME}/movies/"
           cp -vr ./js/*     "${DEST_GAME}/js/"
+          
+          PLACEHOLDER="XXX_URL_DEBUG_INI_XXX"
+          VALUE="/game/debug.ini"
+
+          ESCAPED=$(printf '%s\n' "$VALUE" | sed -e 's/[\/&]/\\&/g')
+
+          sed -i "s|$PLACEHOLDER|$ESCAPED|g" $DEST/js/plugins/ATB_Hunter_Core.js
 
           echo "🧱 Copie vers build web (Windows payload)"
           PAYLOAD_WWW="${BUILD_ROOT}/Hunter/www"

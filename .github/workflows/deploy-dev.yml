@@ -43,6 +43,14 @@ jobs:
           cp -vr ./movies/* "$DEST/movies/"
           cp -vr ./js/* "$DEST/js/"
 
+          
+          PLACEHOLDER="XXX_URL_DEBUG_INI_XXX"
+          VALUE="/game-dev/debug.ini"
+
+          ESCAPED=$(printf '%s\n' "$VALUE" | sed -e 's/[\/&]/\\&/g')
+
+          sed -i "s|$PLACEHOLDER|$ESCAPED|g" $DEST/js/plugins/ATB_Hunter_Core.js
+
           cd ..
           rm -rf ./tmp
 
