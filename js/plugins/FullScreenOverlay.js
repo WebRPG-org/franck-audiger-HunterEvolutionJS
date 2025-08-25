@@ -22,8 +22,8 @@
 
     sprite.anchor.x = 0.5;
     sprite.anchor.y = 0.5;
-    sprite.x = Graphics.width / 2;
-    sprite.y = Graphics.height / 2;
+    sprite.x = (Graphics.width / 2);
+    sprite.y = (Graphics.height / 2);
     sprite.z = 255;
 
     // Redimensionner en préservant le ratio

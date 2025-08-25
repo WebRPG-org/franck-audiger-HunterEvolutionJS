@@ -218,48 +218,85 @@
 
     //SPRITE PART
     
-    // Forcer la position à (0,0) même si elle a été définie par l’événement
-    const _Sprite_Picture_updatePosition = Sprite_Picture.prototype.updatePosition;
     Sprite_Picture.prototype.updatePosition = function() {
-        if(initialModeFit){
-            _Sprite_Picture_updatePosition.call(this);
+        var picture = this.picture();
+        const visibleW = $gameMap.tileWidth() * $gameMap.width();
+        const visibleH = $gameMap.tileHeight() * $gameMap.height();
+
+        if (visibleW <= DEFAULT_WIDTH || visibleH <= DEFAULT_HEIGHT) {
+            // 👇 Stratégie "petit écran" : mise à l’échelle globale
+
+            var bWidth = Graphics.boxWidth;
+            var bHeight = Graphics.boxHeight;
+            // Centrage de la scène pour éviter décalages
+            this.x = ((bWidth - visibleW) / 2) + Math.floor(picture.x() * (isScaleModeFit ? 2 : 1)) 
+            this.y = ((bHeight - visibleH) / 2) + Math.floor(picture.y() * (isScaleModeFit ? 2 : 1));
         } else {
-            this.x = 0;
-            this.y = 0;
+            this.x = Math.floor(picture.x());
+            this.y = Math.floor(picture.y());
         }
     };
-    
-    // Empêche RPG Maker de modifier le scale
-    const _Sprite_Picture_updateScale = Sprite_Picture.prototype.updateScale;
-    Sprite_Picture.prototype.updateScale = function() {
-        if(initialModeFit){
-            _Sprite_Picture_updateScale.call(this);
-        }
-    };
-    
-    const _Sprite_Picture_updateBitmap = Sprite_Picture.prototype.updateBitmap;
+
     Sprite_Picture.prototype.updateBitmap = function() {
-        _Sprite_Picture_updateBitmap.call(this);
-        if(!initialModeFit){
-            if (this._pictureName !== this._lastScaledName) {
-                this._lastScaledName = this._pictureName;
+        const picture = this.picture();
+        if (picture) {
+            const name = picture.name();
+            if (this._pictureName !== name) {
+                this._pictureName = name;
+                this.bitmap = ImageManager.loadPicture(name);
+                // Appliquer le scale correct dès le chargement de la bitmap
+                const sprite = this;
+                this.bitmap.addLoadListener(function() {
+                    sprite.updateScale()
 
-                if (this.bitmap) {
-                    this.bitmap.addLoadListener(() => {
-                        // Déforme l’image pour remplir toute la box
-                        const w = Graphics.boxWidth;
-                        const h = Graphics.boxHeight;
-
-                        this.scale.x = w / this.bitmap.width;
-                        this.scale.y = h / this.bitmap.height;
-
-                        // Position en haut à gauche
-                        this.x = 0;
-                        this.y = 0;
-                    });
-                }
+                    // Recalculer la position pour éviter le décalage
+                    sprite.updatePosition();
+                });
             }
+            this.visible = true;
+        } else {
+            this._pictureName = '';
+            this.bitmap = null;
+            this.visible = false;
         }
+    };
+
+    
+    Sprite_Picture.prototype.update = function() {
+        Sprite.prototype.update.call(this);
+        this.updateBitmap();
+        if (this.visible && this.picture()) {
+            this.updateOrigin();
+            this.updatePosition();
+            this.updateScale();
+            this.updateTone();
+            this.updateOther();
+        }
+    };
+
+    // Empêche RPG Maker de modifier le scale
+    Sprite_Picture.prototype.updateScale = function() {
+        var picture = this.picture();
+        if(this.bitmap && this.bitmap.height != 0 && this.bitmap.width != 0){
+            var hRatio = DEFAULT_HEIGHT / this.bitmap.height;
+            var wRatio = DEFAULT_WIDTH / this.bitmap.width;
+            var addedScale = 1;
+            if(!isScaleModeFit){
+                const visibleW = $gameMap.tileWidth() * $gameMap.width();
+                const visibleH = $gameMap.tileHeight() * $gameMap.height();
+                var bWidth = Graphics.boxWidth;
+                var bHeight = Graphics.boxHeight;
+                const scaleX = visibleW / DEFAULT_WIDTH;
+                const scaleY = visibleH / DEFAULT_HEIGHT;
+                addedScale = Math.max(scaleX, scaleY);
+            }
+            this.scale.x = addedScale * wRatio * picture.scaleX() / 100;
+            this.scale.y = addedScale * hRatio * picture.scaleY() / 100;
+        }
+    };
+    
+    Sprite_Picture.prototype.loadBitmap = function() {
+        this.bitmap = ImageManager.loadPicture(this._pictureName);
     };
 
     const _Spriteset_Battle_createBattleback = Spriteset_Battle.prototype.createBattleback;
