@@ -7,6 +7,17 @@ include 'header.php';
   <h1><?= $title ?></h1>
   <div class="container">
     <section class="release">
+      <h2>Version 0.5.1.2 : <?= t("Améliorations graphiques, redimensionnement écran & correctifs web", "Graphics polish, screen resize & web fixes") ?></h2>
+      <ul>
+        <li><?= t("Mode de redimensionnement d’écran finalisé.", "Screen resize mode finalized.") ?></li>
+        <li><?= t("Ajout du paramètre d’échelle : Normal et Étiré.", "Added scale parameter: Normal and Stretched.") ?></li>
+        <li><?= t("Refonte de la scène de début de jeu.", "Rework of the begin game scene.") ?></li>
+        <li><?= t("Améliorations graphiques générales.", "General graphics improvements.") ?></li>
+        <li><?= t("Derniers correctifs graphiques avant release.", "Last graphic fixes before release.") ?></li>
+        <li><?= t("Correctifs spécifiques pour la version Web.", "Fixes for the Web version.") ?></li>
+      </ul>
+    </section>
+    <section class="release">
       <h2>Version 0.5.1.1 : <?= t("Fix divers post release et test", "Misc after release and test fixes") ?></h2>
       <ul>
         <li><?= t("Changer la musique à Loden.", "Change musics at Loden.") ?></li>
