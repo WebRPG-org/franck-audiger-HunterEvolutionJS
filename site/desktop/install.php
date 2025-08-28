@@ -29,16 +29,6 @@ include '../header.php';
     </p>
     <li>
       <?= t(
-        "Windows peut afficher un avertissement SmartScreen. Cliquez sur « Informations complémentaires » puis « Exécuter quand même ».",
-        "Windows may show a SmartScreen warning. Click “More info” then “Run anyway”."
-      ) ?>
-      <div class="screenshot">
-        <img src="img/SmartScreen1.png" alt="SmartScreen Admin" />
-        <img src="img/SmartScreen2.png" alt="SmartScreen Admin" />
-      </div>
-    </li>
-    <li>
-      <?= t(
         "Autorisez l’application à apporter des modifications (UAC).",
         "Allow the application to make changes (UAC)."
       ) ?>

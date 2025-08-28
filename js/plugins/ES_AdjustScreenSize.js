@@ -15,8 +15,8 @@
     const FIT_MODE = "fitMode";
     const PARAM_FULLSCREEN = "fullscreen";
 
-    let isScaleModeFit = true;
-    let initialModeFit = true;
+    let isScaleModeFit = false;
+    let initialModeFit = false;
     let isFullScreen = true;
     let initialFullScreen = true;
 
@@ -657,8 +657,10 @@
 
 
     Scene_Options.prototype.create = function() {
-        Scene_MenuBase.prototype.create.call(this);
-        this.createHeaderWindow();
+        Scene_MenuBase.prototype.create.call(this); 
+        if(Utils.isNwjs()){
+            this.createHeaderWindow();
+        }
         this.createOptionsWindow();
     };
 
@@ -838,8 +840,8 @@
     const _Window_Options_addGeneralOptions2 = Window_Options.prototype.addGeneralOptions;
     Window_Options.prototype.addGeneralOptions = function() {
         _Window_Options_addGeneralOptions2.call(this);
-        this.addCommand(TextManagerEx.t("command.scaleMode"), FIT_MODE, true, null, true);
         if(Utils.isNwjs()){
+            this.addCommand(TextManagerEx.t("command.scaleMode"), FIT_MODE, true, null, true);
             this.addCommand(TextManagerEx.t("command.screen"), PARAM_FULLSCREEN, true, null, true);
         }
     };

@@ -548,7 +548,7 @@ ConfigManager.applyData = function(config) {
     this.meVolume = this.readVolume(config, 'meVolume');
     this.seVolume = this.readVolume(config, 'seVolume');
     if(config["fitMode"] === undefined){
-        this.fitMode = true;
+        this.fitMode = false;
     } else {
         this.fitMode = this.readFlag(config, "fitMode");
     }
@@ -577,7 +577,7 @@ ConfigManager.readVolume = function(config, name) {
     if (value !== undefined) {
         return Number(value).clamp(0, 100);
     } else {
-        return 100;
+        return 50;
     }
 };
 

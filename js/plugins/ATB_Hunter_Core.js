@@ -213,7 +213,7 @@
           var nwWin = require('nw.gui').Window.get();
           nwWin.close();
       } else {
-          window.location.href = "https://hunter-evolution-game.com/";
+          window.location.href = "/";
       }
   };
 
@@ -224,5 +224,45 @@
       this.addCommand(TextManager.gameEnd,   'gameEnd');
   };
 
+  const MESSAGE_HEIGHT = 168;
+  const MESSAGE_ID = 'video-message-overlay';
+  window.showVideoMessage = function(text, duration = 180) {
+    hideVideoMessage(); // Nettoyage si déjà présent
+
+    const messageDiv = document.createElement('div');
+    messageDiv.id = MESSAGE_ID;
+    messageDiv.style.position = 'absolute';
+    messageDiv.style.height = MESSAGE_HEIGHT + 'px';
+    messageDiv.style.bottom = '0px';
+    messageDiv.style.left = '50%';
+    messageDiv.style.width = '100%';
+    messageDiv.style.transform = 'translateX(-50%)';
+    messageDiv.style.maxWidth = '100%';
+    messageDiv.style.padding = '16px 24px';
+    messageDiv.style.background = 'rgba(0, 0, 0, 1)';
+    messageDiv.style.color = '#FFFFFF';
+    messageDiv.style.fontSize = '32px';
+    messageDiv.style.fontFamily = 'GameFont, sans-serif';
+    messageDiv.style.textAlign = 'center';
+    messageDiv.style.borderRadius = '3px';
+    messageDiv.style.zIndex = 10;
+    messageDiv.style.whiteSpace = 'pre-line'; // Gère les \n
+    messageDiv.style.pointerEvents = 'none'; // Ne bloque pas les clics
+
+    messageDiv.innerText = TextManagerEx.t(text);
+
+    document.body.appendChild(messageDiv);
+
+    setTimeout(() => {
+        hideVideoMessage();
+    }, duration * 1000 / 60); // Convertit frames en millisecondes
+  };
+
+  window.hideVideoMessage = function() {
+      const existing = document.getElementById(MESSAGE_ID);
+      if (existing) {
+          existing.remove();
+      }
+  };
 
 })();
