@@ -7,6 +7,14 @@ include 'header.php';
   <h1><?= $title ?></h1>
   <div class="container">
     <section class="release">
+      <h2>Version 0.5.1.3 : <?= t("Améliorations graphiques, cadre, intro redimensionnement desactivé", "Graphics polish, frame, intro resizing disabled") ?></h2>
+      <ul>
+        <li><?= t("Mode de redimensionnement d’écran désactivé pour la version web.", "Screen resize mode disabled for the web version.") ?></li>
+        <li><?= t("Ajout de cadre pour les faces dans les messages.", "Added frame for faces in messages.") ?></li>
+        <li><?= t("Ajout de la vidéo pour introduire la scene de départ.", "Added video to introduce the starting scene.") ?></li>
+      </ul>
+    </section>
+    <section class="release">
       <h2>Version 0.5.1.2 : <?= t("Améliorations graphiques, redimensionnement écran & correctifs web", "Graphics polish, screen resize & web fixes") ?></h2>
       <ul>
         <li><?= t("Mode de redimensionnement d’écran finalisé.", "Screen resize mode finalized.") ?></li>
