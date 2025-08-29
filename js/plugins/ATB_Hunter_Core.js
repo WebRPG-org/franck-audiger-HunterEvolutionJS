@@ -227,28 +227,29 @@
   const DEFAULT_WIDTH = 816;
   const DEFAULT_HEIGHT = 624;
   const MESSAGE_HEIGHT = 84;
+  const MESSAGE_FONT_SIZE = 24;
   const MESSAGE_ID = 'video-message-overlay';
 
   window.showVideoMessage = function(text, duration = 180) {
     hideVideoMessage(); // Nettoyage si déjà présent
 
-    var scaleX = Graphics.boxWidth / DEFAULT_WIDTH;
-    var scaleY = Graphics.boxHeight / DEFAULT_HEIGHT;
+    var scaleX = window.innerWidth / DEFAULT_WIDTH;
+    var scaleY = window.innerHeight / DEFAULT_HEIGHT;
     var scale = Math.max(scaleX, scaleY);
-
+    
     const messageDiv = document.createElement('div');
     messageDiv.id = MESSAGE_ID;
     messageDiv.style.position = 'absolute';
     messageDiv.style.height = (MESSAGE_HEIGHT * scale) + 'px';
     messageDiv.style.bottom = '0px'
     messageDiv.style.left = '50%';
-    messageDiv.style.width = ConfigManager.fullscreen ? '100%' : '94%';
+    messageDiv.style.width = ConfigManager.fullscreen ? (Utils.isNwjs() ? '100%' : '94%') : '94%';
     messageDiv.style.transform = 'translateX(-50%)';
-    messageDiv.style.maxWidth = ConfigManager.fullscreen ? '100%' : '94%';
+    messageDiv.style.maxWidth = ConfigManager.fullscreen ? (Utils.isNwjs() ? '100%' : '94%') : '94%';
     messageDiv.style.padding = '16px 24px';
     messageDiv.style.background = 'rgba(0, 0, 0, 1)';
     messageDiv.style.color = '#FFFFFF';
-    messageDiv.style.fontSize = '32px';
+    messageDiv.style.fontSize = (MESSAGE_FONT_SIZE * (1+(scale-1)/2)) + 'px';
     messageDiv.style.fontFamily = 'GameFont, sans-serif';
     messageDiv.style.textAlign = 'center';
     messageDiv.style.zIndex = 10;

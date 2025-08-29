@@ -7,6 +7,13 @@ include 'header.php';
   <h1><?= $title ?></h1>
   <div class="container">
     <section class="release">
+      <h2>Version 0.5.1.4 : <?= t("Améliorations graphiques, bug fixe fenêtre", "Graphics polish, window bug fix") ?></h2>
+      <ul>
+        <li><?= t("Changement de la vidéo intro, musique seule au début.", "Changed the intro video, music only at the beginning.") ?></li>
+        <li><?= t("Fixe du bug affichant les barres de scroll sur la version web et desktop ajusté.", "Fixed the bug displaying scroll bars on the web and desktop stretched version.") ?></li>
+      </ul>
+    </section>
+    <section class="release">
       <h2>Version 0.5.1.3 : <?= t("Améliorations graphiques, cadre, intro redimensionnement desactivé", "Graphics polish, frame, intro resizing disabled") ?></h2>
       <ul>
         <li><?= t("Mode de redimensionnement d’écran désactivé pour la version web.", "Screen resize mode disabled for the web version.") ?></li>
