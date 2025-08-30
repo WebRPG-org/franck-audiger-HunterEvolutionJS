@@ -153,25 +153,20 @@ jobs:
         run: |
           set -euo pipefail
 
-          ASSET_DIR="${DEST_WEB}/desktop-assets/${TAG_NAME}"
-          mkdir -p "$ASSET_DIR"
+          PAYLOAD_ROOT="${BUILD_ROOT}/Hunter"
+          
+          ASSET_DIR="${DEST_WEB}/desktop-assets"
+          ZIP_PATH="${ASSET_DIR}/${TAG_NAME}.zip"
 
-          echo "📦 Création des archives pour ${ASSET_DIR}…"
-          cd ./tmpRelease
+          cd $PAYLOAD_ROOT
 
-          for d in data fonts icon img audio movies js; do
-            if [ -d "$d" ]; then
-              echo " → Archive $d"
-              zip -r "${ASSET_DIR}/${d}.zip" "$d"
-            fi
-          done
+          # Crée l'archive avec tout ce qui est dans PAYLOAD_ROOT (fichiers cachés inclus)
+          zip -r "$ZIP_PATH" . || {
+            echo "❌ Échec de la création du zip"
+            exit 1
+          }
 
-          # Copier aussi le binaire principal
-          if [ -f "Game.exe" ]; then
-            cp -v Game.exe "${ASSET_DIR}/Game.exe"
-          else
-            echo "⚠️ Game.exe introuvable dans tmpRelease"
-          fi
+          echo "✅ Archive générée : $ZIP_PATH"
 
       - name: Générer l’installateur Windows (NSIS) + icône cohérente
         if: steps.tagcheck.outputs.valid == 'true'
