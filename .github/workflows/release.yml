@@ -141,6 +141,31 @@ jobs:
 
           cd ..
 
+      - name: Préparer les archives assets (ZIP) pour installeur web
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          ASSET_DIR="${DEST_WEB}/desktop-assets/${TAG_NAME}"
+          mkdir -p "$ASSET_DIR"
+
+          echo "📦 Création des archives pour ${ASSET_DIR}…"
+          cd ./tmpRelease
+
+          for d in data fonts icon img audio movies js; do
+            if [ -d "$d" ]; then
+              echo " → Archive $d"
+              zip -r "${ASSET_DIR}/${d}.zip" "$d"
+            fi
+          done
+
+          # Copier aussi le binaire principal
+          if [ -f "Game.exe" ]; then
+            cp -v Game.exe "${ASSET_DIR}/Game.exe"
+          else
+            echo "⚠️ Game.exe introuvable dans tmpRelease"
+          fi
 
       - name: Générer l’installateur Windows (NSIS) + icône cohérente
         if: steps.tagcheck.outputs.valid == 'true'
@@ -181,22 +206,21 @@ jobs:
           !include "nsDialogs.nsh"
           !include "LogicLib.nsh"
 
+          ; Ajouter le répertoire Plugins (inetc.dll, nsisunz.dll)
+          !addplugindir "${BUILD_ROOT}/Plugins"
+
           !define APP_NAME "HunterEvolution"
           !define COMPANY  "HunterEvolution"
           !define APP_VERSION "${TAG_NAME}"
           !define INSTALL_DIR "$PROGRAMFILES\HunterEvolution"
           !define STARTMENU_FOLDER "HunterEvolution"
-          !define PAYLOAD_DIR "${APP_DIR}"
           !define OUT_EXE "${INSTALLER_DIR}/HunterEvolution-${TAG_NAME}.exe"
 
-          ; --- Emplacement des sauvegardes ---
-          !define SAVE_DIR "$APPDATA\HunterEvolution\save"
-          !define LEGACY_SAVE_DIR "$INSTDIR\www\save"
-
-          Var KeepSaves
-          Var IsUpgrade
+          Var RemoteBaseURL
           Var SaveBackupDir
           Var StartTarget
+          Var KeepSaves
+          Var IsUpgrade
           Var hDlg
           Var chkKeep
 
@@ -213,60 +237,37 @@ jobs:
           !insertmacro MUI_PAGE_DIRECTORY
           Page custom PageKeepSavesCreate PageKeepSavesLeave
           !insertmacro MUI_PAGE_INSTFILES
-
-          ; --- Page Finish avec "Démarrer l'application" ---
-          !define MUI_FINISHPAGE_RUN
-          !define MUI_FINISHPAGE_RUN_TEXT "Démarrer l'application"
-          !define MUI_FINISHPAGE_RUN_FUNCTION LaunchApp
           !insertmacro MUI_PAGE_FINISH
-
           !insertmacro MUI_UNPAGE_CONFIRM
           !insertmacro MUI_UNPAGE_INSTFILES
           !insertmacro MUI_LANGUAGE "French"
 
-          ;-------------------------
-          ; Init (install)
-          ;-------------------------
+          ; -----------------------
+          ; Init
+          ; -----------------------
           Function .onInit
             SetShellVarContext all
             StrCpy $IsUpgrade "0"
             StrCpy $KeepSaves "0"
+            StrCpy $RemoteBaseURL "https://hunter-evolution-game.com/desktop-assets/${TAG_NAME}"
           FunctionEnd
 
-          ;-------------------------
-          ; Init (uninstall)
-          ;-------------------------
-          Function un.onInit
-            SetShellVarContext all
-          FunctionEnd
-
-          ;------------------------------------------
-          ; Page custom : Conserver les sauvegardes ?
-          ;------------------------------------------
+          ; -----------------------
+          ; Page Conserver sauvegardes
+          ; -----------------------
           Function PageKeepSavesCreate
-            StrCpy $IsUpgrade "0"
-
-            ; Si le dossier d’installation contient déjà des fichiers, on suppose upgrade
             ${If} ${FileExists} "$INSTDIR\*.*"
               StrCpy $IsUpgrade "1"
             ${EndIf}
-
-            ; Montrer la page seulement si upgrade + saves existantes
             ${If} $IsUpgrade == "1"
-              ${If} ${FileExists} "${SAVE_DIR}\*.*"
-                StrCpy $KeepSaves "1"
-              ${ElseIf} ${FileExists} "${LEGACY_SAVE_DIR}\*.*"
+              ${If} ${FileExists} "$APPDATA\HunterEvolution\save\*.*"
                 StrCpy $KeepSaves "1"
               ${Else}
-                Abort ; pas de sauvegarde -> pas de page
+                Abort
               ${EndIf}
 
               nsDialogs::Create 1018
               Pop $hDlg
-              ${If} $hDlg == error
-                Abort
-              ${EndIf}
-
               ${NSD_CreateLabel} 0 0 100% 24u "Installation existante détectée.$\r$\nSouhaitez-vous conserver vos sauvegardes ?"
               Pop $0
               ${NSD_CreateCheckbox} 0 28u 100% 12u "Conserver mes sauvegardes"
@@ -274,57 +275,71 @@ jobs:
               ${If} $KeepSaves == "1"
                 ${NSD_Check} $chkKeep
               ${EndIf}
-
               nsDialogs::Show
               ${NSD_GetState} $chkKeep $KeepSaves
             ${Else}
-              Abort ; fresh install -> pas de page
+              Abort
             ${EndIf}
           FunctionEnd
 
           Function PageKeepSavesLeave
-            ; $KeepSaves est déjà défini
           FunctionEnd
 
-          ;-------------------------
-          ; Section d’installation
-          ;-------------------------
+          ; -----------------------
+          ; Téléchargement + install
+          ; -----------------------
           Section "Installer"
             SetOutPath "$INSTDIR"
 
-            ; 0) Dossier Start Menu
-            CreateDirectory "$SMPROGRAMS\${STARTMENU_FOLDER}"
+            ; Fonction utilitaire interne (télécharger + extraire un zip)
+            ; Paramètres : nom (data, fonts, …)
+            Function DownloadAndExtract
+              Exch $0
+              StrCpy $1 "$RemoteBaseURL/$0.zip"
+              StrCpy $2 "$INSTDIR\$0.zip"
+              StrCpy $3 "$INSTDIR\www\$0"
 
-            ; 1) Backup des sauvegardes si demandé
-            StrCpy $SaveBackupDir "$TEMP\he_save_backup"
-            ${If} $KeepSaves == "1"
-              RMDir /r "$SaveBackupDir"
-              CreateDirectory "$SaveBackupDir"
-              ${If} ${FileExists} "${SAVE_DIR}\*.*"
-                CreateDirectory "$SaveBackupDir\official"
-                CopyFiles /SILENT "${SAVE_DIR}\*.*" "$SaveBackupDir\official\"
-              ${EndIf}
-              ${If} ${FileExists} "${LEGACY_SAVE_DIR}\*.*"
-                CreateDirectory "$SaveBackupDir\legacy"
-                CopyFiles /SILENT "${LEGACY_SAVE_DIR}\*.*" "$SaveBackupDir\legacy\"
-              ${EndIf}
-            ${EndIf}
+              DetailPrint "Téléchargement $0..."
+              inetc::get $1 $2 /END
+              Pop $R0
+              StrCmp $R0 "OK" +2
+                MessageBox MB_OK "Erreur téléchargement $0.zip"
 
-            ; 2) Copie du payload (compile time sur runner Linux => slashs)
-            File /r "${PAYLOAD_DIR}/*.*"
+              DetailPrint "Extraction $0..."
+              CreateDirectory $3
+              nsisunz::Unzip $2 $3
+              Pop $R1
+              StrCmp $R1 "success" +2
+                MessageBox MB_OK "Erreur extraction $0.zip"
 
-            ; 3) Choix de la cible pour les raccourcis
-            StrCpy $StartTarget "$INSTDIR\www\index.html"
-            ${If} ${FileExists} "$INSTDIR\Game.exe"
-              StrCpy $StartTarget "$INSTDIR\Game.exe"
-            ${Else}
-              FindFirst $1 $2 "$INSTDIR\*.exe"
-              StrCmp $2 "" +3 0
-                StrCpy $StartTarget "$INSTDIR\$2"
-              FindClose $1
-            ${EndIf}
+              Delete $2
+            FunctionEnd
 
-            ; 4) Raccourcis (icône si présente)
+            ; Téléchargement des archives
+            Push "data"
+            Call DownloadAndExtract
+            Push "fonts"
+            Call DownloadAndExtract
+            Push "icon"
+            Call DownloadAndExtract
+            Push "img"
+            Call DownloadAndExtract
+            Push "audio"
+            Call DownloadAndExtract
+            Push "movies"
+            Call DownloadAndExtract
+            Push "js"
+            Call DownloadAndExtract
+
+            ; Télécharger l’exécutable principal
+            DetailPrint "Téléchargement Game.exe..."
+            inetc::get "$RemoteBaseURL/Game.exe" "$INSTDIR\Game.exe" /END
+            Pop $R0
+            StrCmp $R0 "OK" +2
+              MessageBox MB_OK "Erreur téléchargement Game.exe"
+
+            ; Raccourcis
+            StrCpy $StartTarget "$INSTDIR\Game.exe"
             ${If} ${FileExists} "$INSTDIR\www\icon\icon.ico"
               CreateShortCut "$DESKTOP\HunterEvolution.lnk" "$StartTarget" "" "$INSTDIR\www\icon\icon.ico" 0
               CreateShortCut "$SMPROGRAMS\${STARTMENU_FOLDER}\HunterEvolution.lnk" "$StartTarget" "" "$INSTDIR\www\icon\icon.ico" 0
@@ -333,53 +348,27 @@ jobs:
               CreateShortCut "$SMPROGRAMS\${STARTMENU_FOLDER}\HunterEvolution.lnk" "$StartTarget"
             ${EndIf}
 
-            ; 5) Restauration des sauvegardes
-            ${If} $KeepSaves == "1"
-              CreateDirectory "${SAVE_DIR}"
-              ${If} ${FileExists} "$SaveBackupDir\official\*.*"
-                CopyFiles /SILENT "$SaveBackupDir\official\*.*" "${SAVE_DIR}\"
-              ${EndIf}
-              ${If} ${FileExists} "$SaveBackupDir\legacy\*.*"
-                CopyFiles /SILENT "$SaveBackupDir\legacy\*.*" "${SAVE_DIR}\"
-              ${EndIf}
-              RMDir /r "$SaveBackupDir"
-            ${EndIf}
-
-            ; 6) Désinstalleur
+            ; Désinstalleur
             WriteUninstaller "$INSTDIR\Uninstall.exe"
             CreateShortCut "$SMPROGRAMS\${STARTMENU_FOLDER}\Désinstaller HunterEvolution.lnk" "$INSTDIR\Uninstall.exe"
           SectionEnd
 
-          ;-------------------------
-          ; Fonction de lancement
-          ;-------------------------
+          ; -----------------------
+          ; Lancer l’app
+          ; -----------------------
           Function LaunchApp
-            ; Par défaut, pointons vers Game.exe s’il existe
-            StrCpy $StartTarget "$INSTDIR\www\index.html"
-            ${If} ${FileExists} "$INSTDIR\Game.exe"
-              StrCpy $StartTarget "$INSTDIR\Game.exe"
-            ${Else}
-              FindFirst $1 $2 "$INSTDIR\*.exe"
-              StrCmp $2 "" +3 0
-                StrCpy $StartTarget "$INSTDIR\$2"
-              FindClose $1
-            ${EndIf}
-
+            StrCpy $StartTarget "$INSTDIR\Game.exe"
             ExecShell "open" "$StartTarget"
           FunctionEnd
 
-          ;-------------------------
-          ; Section de désinstallation
-          ;-------------------------
+          ; -----------------------
+          ; Uninstall
+          ; -----------------------
           Section "Uninstall"
             Delete "$DESKTOP\HunterEvolution.lnk"
             Delete "$SMPROGRAMS\${STARTMENU_FOLDER}\HunterEvolution.lnk"
             Delete "$SMPROGRAMS\${STARTMENU_FOLDER}\Désinstaller HunterEvolution.lnk"
             RMDir  "$SMPROGRAMS\${STARTMENU_FOLDER}"
-
-            ; Ne PAS supprimer les sauvegardes utilisateur
-            ; RMDir /r "${SAVE_DIR}"
-
             RMDir /r "$INSTDIR"
           SectionEnd
           NSIS

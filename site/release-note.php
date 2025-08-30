@@ -7,6 +7,9 @@ include 'header.php';
   <h1><?= $title ?></h1>
   <div class="container">
     <section class="release">
+      <h2>Version 0.5.1.5 : <?= t("Installeur télécharge les fichiers du jeu", "Installer downloads game files") ?></h2>
+    </section>
+    <section class="release">
       <h2>Version 0.5.1.4 : <?= t("Améliorations graphiques, bug fixe fenêtre", "Graphics polish, window bug fix") ?></h2>
       <ul>
         <li><?= t("Changement de la vidéo intro, musique seule au début.", "Changed the intro video, music only at the beginning.") ?></li>
