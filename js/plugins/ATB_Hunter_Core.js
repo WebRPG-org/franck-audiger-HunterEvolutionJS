@@ -34,23 +34,40 @@
     document.body.appendChild(script);
   });
 
+  Utils.isOptionValid = function(name) {
+    if(name === "test"){
+      return checkDebugMode();
+    } else {
+      if (location.search.slice(1).split('&').contains(name)) {return 1;};
+      if (typeof nw !== "undefined" && nw.App.argv.length > 0 && nw.App.argv[0].split('&').contains(name)) {return 1;};
+      return 0;
+    }
+  };
+
+
   window.checkDebugMode = async function() {
     try {
       // --- Cas Node.js / NW.js ---
       if (typeof require !== "undefined") {
         const fs = require("fs");
         const files = fs.readdirSync(".");
-        $gameVariables.setValue(46, files.includes("debug.ini") ? 1 : 0);
+        if($gameVariables)
+          $gameVariables.setValue(46, files.includes("debug.ini") ? 1 : 0);
+        return files.includes("debug.ini");
       }
       // --- Cas Web (navigateur) ---
       else {
         // On teste via une requête HTTP si le fichier est servi par le serveur
         const response = await fetch("XXX_URL_DEBUG_INI_XXX", { method: "HEAD" });
-        $gameVariables.setValue(46, response.ok ? 1 : 0);
+        if($gameVariables)
+          $gameVariables.setValue(46, response.ok ? 1 : 0);
+        return response.ok;
       }
     } catch (err) {
       console.error("Erreur checkDebugMode:", err);
-      $gameVariables.setValue(46, 0);
+      if($gameVariables)
+        $gameVariables.setValue(46, 0);
+      return 0;
     }
   };
 
