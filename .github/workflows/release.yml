@@ -102,10 +102,13 @@ jobs:
           cp -vr ./audio/*  "${PAYLOAD_WWW}/audio/"
           cp -vr ./movies/* "${PAYLOAD_WWW}/movies/"
           cp -vr ./js/*     "${PAYLOAD_WWW}/js/"
+          cp -vr ./HunterInstaller.nsi     "${BUILD_ROOT}/HunterInstaller.nsi"
 
           cd ..
 
       - name: Release Site (copie vers /var/www)
+        env:
+          TAG_NAME: ${{ github.ref_name }}
         run: |
           set -euo pipefail
 
@@ -138,6 +141,8 @@ jobs:
           cp -v ./site/release-note.php    "${DEST_WEB}/release-note.php"
           cp -v ./site/style.css           "${DEST_WEB}/style.css"
           cp -v ./site/disclaimer.php      "${DEST_WEB}/disclaimer.php"
+          cp -v ./site/index-assets.php      "${DEST_WEB}/desktop-assets/index.php"
+          cp -v ./site/index-assets.php      "${DEST_WEB}/desktop-assets/${TAG_NAME}/index.php"
 
           cd ..
 
@@ -199,179 +204,6 @@ jobs:
 
           echo "📝 Génération du script NSIS…"
           NSI="${BUILD_ROOT}/HunterInstaller.nsi"
-          cat > "${NSI}" <<'NSIS'
-          Unicode true
-          !include "MUI2.nsh"
-          !include "FileFunc.nsh"
-          !include "nsDialogs.nsh"
-          !include "LogicLib.nsh"
-
-          ; Ajouter le répertoire Plugins (inetc.dll, nsisunz.dll)
-          !addplugindir "${BUILD_ROOT}/Plugins"
-
-          !define APP_NAME "HunterEvolution"
-          !define COMPANY  "HunterEvolution"
-          !define APP_VERSION "${TAG_NAME}"
-          !define INSTALL_DIR "$PROGRAMFILES\HunterEvolution"
-          !define STARTMENU_FOLDER "HunterEvolution"
-          !define OUT_EXE "${INSTALLER_DIR}/HunterEvolution-${TAG_NAME}.exe"
-
-          Var RemoteBaseURL
-          Var SaveBackupDir
-          Var StartTarget
-          Var KeepSaves
-          Var IsUpgrade
-          Var hDlg
-          Var chkKeep
-
-          Name "${APP_NAME} ${APP_VERSION}"
-          OutFile "${OUT_EXE}"
-          InstallDir "${INSTALL_DIR}"
-          RequestExecutionLevel admin
-
-          !define MUI_ABORTWARNING
-          !define MUI_ICON "${ICO_PATH}"
-          !define MUI_UNICON "${ICO_PATH}"
-
-          !insertmacro MUI_PAGE_WELCOME
-          !insertmacro MUI_PAGE_DIRECTORY
-          Page custom PageKeepSavesCreate PageKeepSavesLeave
-          !insertmacro MUI_PAGE_INSTFILES
-          !insertmacro MUI_PAGE_FINISH
-          !insertmacro MUI_UNPAGE_CONFIRM
-          !insertmacro MUI_UNPAGE_INSTFILES
-          !insertmacro MUI_LANGUAGE "French"
-
-          ; -----------------------
-          ; Init
-          ; -----------------------
-          Function .onInit
-            SetShellVarContext all
-            StrCpy $IsUpgrade "0"
-            StrCpy $KeepSaves "0"
-            StrCpy $RemoteBaseURL "https://hunter-evolution-game.com/desktop-assets/${TAG_NAME}"
-          FunctionEnd
-
-          ; -----------------------
-          ; Page Conserver sauvegardes
-          ; -----------------------
-          Function PageKeepSavesCreate
-            ${If} ${FileExists} "$INSTDIR\*.*"
-              StrCpy $IsUpgrade "1"
-            ${EndIf}
-            ${If} $IsUpgrade == "1"
-              ${If} ${FileExists} "$APPDATA\HunterEvolution\save\*.*"
-                StrCpy $KeepSaves "1"
-              ${Else}
-                Abort
-              ${EndIf}
-
-              nsDialogs::Create 1018
-              Pop $hDlg
-              ${NSD_CreateLabel} 0 0 100% 24u "Installation existante détectée.$\r$\nSouhaitez-vous conserver vos sauvegardes ?"
-              Pop $0
-              ${NSD_CreateCheckbox} 0 28u 100% 12u "Conserver mes sauvegardes"
-              Pop $chkKeep
-              ${If} $KeepSaves == "1"
-                ${NSD_Check} $chkKeep
-              ${EndIf}
-              nsDialogs::Show
-              ${NSD_GetState} $chkKeep $KeepSaves
-            ${Else}
-              Abort
-            ${EndIf}
-          FunctionEnd
-
-          Function PageKeepSavesLeave
-          FunctionEnd
-
-          ; -----------------------
-          ; Téléchargement + install
-          ; -----------------------
-          Section "Installer"
-            SetOutPath "$INSTDIR"
-
-            ; Fonction utilitaire interne (télécharger + extraire un zip)
-            ; Paramètres : nom (data, fonts, …)
-            Function DownloadAndExtract
-              Exch $0
-              StrCpy $1 "$RemoteBaseURL/$0.zip"
-              StrCpy $2 "$INSTDIR\$0.zip"
-              StrCpy $3 "$INSTDIR\www\$0"
-
-              DetailPrint "Téléchargement $0..."
-              inetc::get $1 $2 /END
-              Pop $R0
-              StrCmp $R0 "OK" +2
-                MessageBox MB_OK "Erreur téléchargement $0.zip"
-
-              DetailPrint "Extraction $0..."
-              CreateDirectory $3
-              nsisunz::Unzip $2 $3
-              Pop $R1
-              StrCmp $R1 "success" +2
-                MessageBox MB_OK "Erreur extraction $0.zip"
-
-              Delete $2
-            FunctionEnd
-
-            ; Téléchargement des archives
-            Push "data"
-            Call DownloadAndExtract
-            Push "fonts"
-            Call DownloadAndExtract
-            Push "icon"
-            Call DownloadAndExtract
-            Push "img"
-            Call DownloadAndExtract
-            Push "audio"
-            Call DownloadAndExtract
-            Push "movies"
-            Call DownloadAndExtract
-            Push "js"
-            Call DownloadAndExtract
-
-            ; Télécharger l’exécutable principal
-            DetailPrint "Téléchargement Game.exe..."
-            inetc::get "$RemoteBaseURL/Game.exe" "$INSTDIR\Game.exe" /END
-            Pop $R0
-            StrCmp $R0 "OK" +2
-              MessageBox MB_OK "Erreur téléchargement Game.exe"
-
-            ; Raccourcis
-            StrCpy $StartTarget "$INSTDIR\Game.exe"
-            ${If} ${FileExists} "$INSTDIR\www\icon\icon.ico"
-              CreateShortCut "$DESKTOP\HunterEvolution.lnk" "$StartTarget" "" "$INSTDIR\www\icon\icon.ico" 0
-              CreateShortCut "$SMPROGRAMS\${STARTMENU_FOLDER}\HunterEvolution.lnk" "$StartTarget" "" "$INSTDIR\www\icon\icon.ico" 0
-            ${Else}
-              CreateShortCut "$DESKTOP\HunterEvolution.lnk" "$StartTarget"
-              CreateShortCut "$SMPROGRAMS\${STARTMENU_FOLDER}\HunterEvolution.lnk" "$StartTarget"
-            ${EndIf}
-
-            ; Désinstalleur
-            WriteUninstaller "$INSTDIR\Uninstall.exe"
-            CreateShortCut "$SMPROGRAMS\${STARTMENU_FOLDER}\Désinstaller HunterEvolution.lnk" "$INSTDIR\Uninstall.exe"
-          SectionEnd
-
-          ; -----------------------
-          ; Lancer l’app
-          ; -----------------------
-          Function LaunchApp
-            StrCpy $StartTarget "$INSTDIR\Game.exe"
-            ExecShell "open" "$StartTarget"
-          FunctionEnd
-
-          ; -----------------------
-          ; Uninstall
-          ; -----------------------
-          Section "Uninstall"
-            Delete "$DESKTOP\HunterEvolution.lnk"
-            Delete "$SMPROGRAMS\${STARTMENU_FOLDER}\HunterEvolution.lnk"
-            Delete "$SMPROGRAMS\${STARTMENU_FOLDER}\Désinstaller HunterEvolution.lnk"
-            RMDir  "$SMPROGRAMS\${STARTMENU_FOLDER}"
-            RMDir /r "$INSTDIR"
-          SectionEnd
-          NSIS
 
           echo "⚙️  Compilation NSIS…"
           makensis \
