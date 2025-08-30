@@ -142,6 +142,7 @@ jobs:
           cp -v ./site/style.css           "${DEST_WEB}/style.css"
           cp -v ./site/disclaimer.php      "${DEST_WEB}/disclaimer.php"
           cp -v ./site/index-assets.php      "${DEST_WEB}/desktop-assets/index.php"
+          mkdir -p "${DEST_WEB}/desktop-assets/${TAG_NAME}"
           cp -v ./site/index-assets.php      "${DEST_WEB}/desktop-assets/${TAG_NAME}/index.php"
 
           cd ..
