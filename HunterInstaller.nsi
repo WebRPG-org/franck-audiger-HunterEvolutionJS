@@ -1,10 +1,7 @@
 Unicode true
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
-!include "nsDialogs.nsh"
 !include "LogicLib.nsh"
-
-!addplugindir "Plugins/x86-unicode"
 
 !define APP_NAME "HunterEvolution"
 !define COMPANY  "HunterEvolution"
@@ -13,10 +10,8 @@ Unicode true
 !define STARTMENU_FOLDER "HunterEvolution"
 !define OUT_EXE "${INSTALLER_DIR}/HunterEvolution-${TAG_NAME}.exe"
 
-Var RemoteZipURL
+Var RemoteArchiveURL
 Var StartTarget
-Var RAppData
-Var SaveDir
 
 Name "${APP_NAME} ${APP_VERSION}"
 OutFile "${OUT_EXE}"
@@ -38,82 +33,60 @@ RequestExecutionLevel admin
 !insertmacro MUI_UNPAGE_INSTFILES
 !insertmacro MUI_LANGUAGE "French"
 
-; =========================
-; Init
-; =========================
 Function .onInit
   SetShellVarContext current
-  StrCpy $RAppData "$APPDATA"
-  StrCpy $SaveDir "$RAppData\HunterEvolution\save"
-  StrCpy $RemoteZipURL "https://hunter-evolution-game.com/desktop-assets/${TAG_NAME}.zip"
+  StrCpy $RemoteArchiveURL "https://hunter-evolution-game.com/desktop-assets/${TAG_NAME}.7z"
 FunctionEnd
 
-; =========================
-; Télécharger via inetc
-; =========================
 Function DownloadFile
-  Exch $1 ; destination
+  Exch $1
   Exch
-  Exch $0 ; URL
+  Exch $0
 
   ${GetParent} $1 $2
   CreateDirectory "$2"
   Delete "$1"
 
-  DetailPrint "→ Téléchargement : $0"
   inetc::get /POPUP "" /RESUME "" /CAPTION "Téléchargement de $0" /NOIEPROXY "$0" "$1"
   Pop $R0
   StrCmp $R0 "OK" done
-
-  MessageBox MB_OK "Erreur lors du téléchargement via HTTPS:$\r$\n$0$\r$\nCode: $R0"
+  MessageBox MB_OK "Erreur téléchargement :$0$\nCode: $R0"
   Abort
-
 done:
 FunctionEnd
 
-; =========================
-; Décompresser ZIP
-; =========================
-Function UnzipZip
-  Exch $1 ; destination
+Function ExtractArchive
+  Exch $1 ; Destination
   Exch
-  Exch $0 ; zip path
+  Exch $0 ; Archive path
 
-  CreateDirectory "$1"
-  DetailPrint "→ Décompression: $0 → $1"
-  nsisunz::Unzip "$0" "$1"
+  Nsis7z::Extract "$0" "$1"
   Pop $R0
-  StrCmp $R0 "success" +2
-    MessageBox MB_OK "Erreur lors de l’extraction : $R0"
+  DetailPrint "Résultat extraction : $R0"
 FunctionEnd
 
-; =========================
-; Section d’installation
-; =========================
 Section "Installer"
-  ; Nettoyage ancien dossier s’il existe
   ${If} ${FileExists} "$INSTDIR\*.*"
-    DetailPrint "→ Installation existante détectée. Nettoyage..."
     RMDir /r "$INSTDIR"
   ${EndIf}
 
-  ; Créer dossier
   CreateDirectory "$INSTDIR"
   SetOutPath "$INSTDIR"
 
-  ; Télécharger et extraire le ZIP complet
-  StrCpy $0 "$RemoteZipURL"
-  StrCpy $1 "$INSTDIR\payload.zip"
+  ; 1. Télécharger l’archive .7z
+  StrCpy $0 "$RemoteArchiveURL"
+  StrCpy $1 "$INSTDIR\payload.7z"
   Push $0
   Push $1
   Call DownloadFile
 
+  ; 2. Extraction via Nsis7z
   Push "$1"
   Push "$INSTDIR"
-  Call UnzipZip
+  Call ExtractArchive
   Delete "$1"
 
-  ; Créer raccourcis
+  ; 3. Raccourcis
   StrCpy $StartTarget "$INSTDIR\Game.exe"
   ${If} ${FileExists} "$INSTDIR\www\icon\icon.ico"
     CreateShortCut "$DESKTOP\HunterEvolution.lnk" "$StartTarget" "" "$INSTDIR\www\icon\icon.ico" 0
@@ -123,27 +96,19 @@ Section "Installer"
     CreateShortCut "$SMPROGRAMS\${STARTMENU_FOLDER}\HunterEvolution.lnk" "$StartTarget"
   ${EndIf}
 
-  ; Créer désinstalleur
+  ; 4. Uninstall
   WriteUninstaller "$INSTDIR\Uninstall.exe"
   CreateShortCut "$SMPROGRAMS\${STARTMENU_FOLDER}\Désinstaller HunterEvolution.lnk" "$INSTDIR\Uninstall.exe"
 SectionEnd
 
-; =========================
-; Lancer le jeu
-; =========================
 Function LaunchApp
-  StrCpy $StartTarget "$INSTDIR\Game.exe"
-  ExecShell "open" "$StartTarget"
+  ExecShell "open" "$INSTDIR\Game.exe"
 FunctionEnd
 
-; =========================
-; Désinstallation
-; =========================
 Section "Uninstall"
   Delete "$DESKTOP\HunterEvolution.lnk"
   Delete "$SMPROGRAMS\${STARTMENU_FOLDER}\HunterEvolution.lnk"
   Delete "$SMPROGRAMS\${STARTMENU_FOLDER}\Désinstaller HunterEvolution.lnk"
   RMDir "$SMPROGRAMS\${STARTMENU_FOLDER}"
-  ; Sauvegardes préservées (AppData)
   RMDir /r "$INSTDIR"
 SectionEnd
