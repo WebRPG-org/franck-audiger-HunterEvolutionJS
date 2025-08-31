@@ -216,5 +216,5 @@ jobs:
 
           echo "⚙️  Démarrage de SimplySign…"
           scp "${INSTALLER_TMP_DIR}/HunterEvolution-${TAG_NAME}.exe" FranckAudiger@20.33.23.72:"workspace\"
-          ssh FranckAudiger@20.33.23.72 "cd workspace && signtool sign /sha1 \"ab5c58511d5fa63fb85c443b187a47ab878f2b9f\" /tr http://time.certum.pl /td sha256 /fd sha256 /v \"HunterEvolution-V0.5.1.7.exe\""
+          ssh FranckAudiger@20.33.23.72 "cd workspace && signtool sign /sha1 \"ab5c58511d5fa63fb85c443b187a47ab878f2b9f\" /tr http://time.certum.pl /td sha256 /fd sha256 /v \"HunterEvolution-${TAG_NAME}.exe\""
           scp FranckAudiger@20.33.23.72:"workspace\HunterEvolution-${TAG_NAME}.exe.sig" "${INSTALLER_DIR}/"
