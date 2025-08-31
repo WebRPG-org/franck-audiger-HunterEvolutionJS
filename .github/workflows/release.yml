@@ -16,6 +16,7 @@ jobs:
       APP_DIR: /var/www/workspace/buildDesktop/Hunter            # dossier du build desktop
       APP_PAYLOAD: /var/www/workspace/buildDesktop/Hunter        # ce qu'on installe
       INSTALLER_DIR: /var/www/desktop                            # où déposer l'EXE final
+      INSTALLER_TMP_DIR: /var/www/workspace/buildDesktop/tmp    # où déposer l'EXE final
       # --- Android ---
       ANDROID_ROOT: /var/www/workspace/buildAndroid
       ANDROID_APP: /var/www/workspace/buildAndroid/Hunter        # projet Cordova
@@ -142,8 +143,6 @@ jobs:
           cp -v ./site/style.css           "${DEST_WEB}/style.css"
           cp -v ./site/disclaimer.php      "${DEST_WEB}/disclaimer.php"
           cp -v ./site/index-assets.php      "${DEST_WEB}/desktop-assets/index.php"
-          mkdir -p "${DEST_WEB}/desktop-assets/${TAG_NAME}"
-          cp -v ./site/index-assets.php      "${DEST_WEB}/desktop-assets/${TAG_NAME}/index.php"
 
           cd ..
 
@@ -161,10 +160,7 @@ jobs:
           cd $PAYLOAD_ROOT
 
           # Crée l'archive avec tout ce qui est dans PAYLOAD_ROOT (fichiers cachés inclus)
-          zip -r "$ZIP_PATH" . || {
-            echo "❌ Échec de la création du zip"
-            exit 1
-          }
+          7z a -tzip "$ZIP_PATH" ./*
 
           echo "✅ Archive générée : $ZIP_PATH"
 
@@ -175,7 +171,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          mkdir -p "${INSTALLER_DIR}" "${APP_DIR}/www/icon"
+          mkdir -p "${INSTALLER_DIR}" "${INSTALLER_TMP_DIR}" "${APP_DIR}/www/icon"
 
           echo "🖼️  Conversion icon.png -> .ico pour l'installateur et les raccourcis"
           ICON_SRC=""
@@ -204,9 +200,21 @@ jobs:
           echo "⚙️  Compilation NSIS…"
           makensis \
             -DAPP_DIR="${APP_DIR}" \
-            -DINSTALLER_DIR="${INSTALLER_DIR}" \
+            -DINSTALLER_DIR="${INSTALLER_TMP_DIR}" \
             -DTAG_NAME="${TAG_NAME}" \
             -DICO_PATH="${ICO_PATH}" \
             "${NSI}"
 
-          echo "✅ Installateur généré: ${INSTALLER_DIR}/HunterEvolution-${TAG_NAME}.exe"
+          echo "✅ Installateur généré: ${INSTALLER_TMP_DIR}/HunterEvolution-${TAG_NAME}.exe"
+
+      - name: Copier l'exe et signature de l’installateur Windows
+        if: steps.tagcheck.outputs.valid == 'true'
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          echo "⚙️  Démarrage de SimplySign…"
+          scp "${INSTALLER_TMP_DIR}/HunterEvolution-${TAG_NAME}.exe" FranckAudiger@20.33.23.72:"workspace\"
+          ssh FranckAudiger@20.33.23.72 "cd workspace && signtool sign /sha1 \"ab5c58511d5fa63fb85c443b187a47ab878f2b9f\" /tr http://time.certum.pl /td sha256 /fd sha256 /v \"HunterEvolution-V0.5.1.7.exe\""
+          scp FranckAudiger@20.33.23.72:"workspace\HunterEvolution-${TAG_NAME}.exe.sig" "${INSTALLER_DIR}/"
