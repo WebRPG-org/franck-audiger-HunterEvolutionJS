@@ -214,7 +214,11 @@ jobs:
         run: |
           set -euo pipefail
 
-          echo "⚙️  Démarrage de SimplySign…"
-          scp "${INSTALLER_TMP_DIR}/HunterEvolution-${TAG_NAME}.exe" FranckAudiger@20.33.23.72:"workspace\"
+          echo "📤 Copie de l'exe a signer…"
+          scp "${INSTALLER_TMP_DIR}/HunterEvolution-${TAG_NAME}.exe" FranckAudiger@20.33.23.72:"workspace\HunterEvolution-${TAG_NAME}.exe"
+
+          echo "🔏 Signature de l'exe"
           ssh FranckAudiger@20.33.23.72 "cd workspace && signtool sign /sha1 \"ab5c58511d5fa63fb85c443b187a47ab878f2b9f\" /tr http://time.certum.pl /td sha256 /fd sha256 /v \"HunterEvolution-${TAG_NAME}.exe\""
-          scp FranckAudiger@20.33.23.72:"workspace\HunterEvolution-${TAG_NAME}.exe.sig" "${INSTALLER_DIR}/"
+          
+          echo "📥  Récupération de l'installateur signé…"
+          scp FranckAudiger@20.33.23.72:/C:/Users/FranckAudiger/workspace/HunterEvolution-${TAG_NAME}.exe ${INSTALLER_DIR}/HunterEvolution-${TAG_NAME}.exe
