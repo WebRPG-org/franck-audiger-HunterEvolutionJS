@@ -222,3 +222,5 @@ jobs:
           
           echo "📥  Récupération de l'installateur signé…"
           scp FranckAudiger@20.33.23.72:/C:/Users/FranckAudiger/workspace/HunterEvolution-${TAG_NAME}.exe ${INSTALLER_DIR}/HunterEvolution-${TAG_NAME}.exe
+          chmod 664 ${INSTALLER_DIR}/HunterEvolution-${TAG_NAME}.exe
+          chown root:root ${INSTALLER_DIR}/HunterEvolution-${TAG_NAME}.exe
