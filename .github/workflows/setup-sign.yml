@@ -1,0 +1,37 @@
+name: Preparation Signature Windows (manuel)
+
+on:
+  workflow_dispatch:
+    inputs:
+      token:
+        description: "Token SimplySign"
+        required: true
+        type: string
+
+jobs:
+  sign:
+    runs-on: self-hosted
+    steps:
+      - name: Lancer prepare (tâche interactive)
+        run: |
+          set -euo pipefail
+
+          echo "⚙️  Démarrage de SimplySign…"
+          ssh FranckAudiger@20.33.23.72 "powershell -NoProfile -Command \"\$A = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-NoProfile -ExecutionPolicy Bypass -File \"\"C:\Users\FranckAudiger\workspace\prepare.ps1\"\"'; \$P = New-ScheduledTaskPrincipal -UserId 'FranckAudiger' -LogonType Interactive -RunLevel Highest; Register-ScheduledTask -TaskName 'RunPrepare' -Action \$A -Principal \$P -Force\""
+          ssh FranckAudiger@20.33.23.72 "powershell -NoProfile -Command Start-ScheduledTask -TaskName 'RunPrepare'"
+          
+          echo "⏳ Attente 30 secondes pour laisser l’agent se lancer…"
+          sleep 30
+
+      - name: Lancer login avec token
+        env:
+          TOKEN: ${{ inputs.token }}
+        run: |
+          set -euo pipefail
+
+          echo "📝 Login SimplySign…"
+          ssh FranckAudiger@20.33.23.72 "powershell -NoProfile -Command \"\$A = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-NoProfile -ExecutionPolicy Bypass -File \"\"C:\Users\FranckAudiger\workspace\SimplySignAutoLogin.ps1\"\" ${TOKEN}'; \$P = New-ScheduledTaskPrincipal -UserId 'FranckAudiger' -LogonType Interactive -RunLevel Highest; Register-ScheduledTask -TaskName 'RunLogin' -Action \$A -Principal \$P -Force\""
+          ssh FranckAudiger@20.33.23.72 "powershell -NoProfile -Command Start-ScheduledTask -TaskName 'RunLogin'"
+
+          echo "⏳ Attente 30 secondes pour laisser l’agent se connecter…"
+          sleep 30
