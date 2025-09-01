@@ -243,41 +243,34 @@ jobs:
           !insertmacro MUI_UNPAGE_INSTFILES
           !insertmacro MUI_LANGUAGE "French"
 
+          Function DownloadFile
+            Exch $1
+            Exch
+            Exch $0
+
+            ${GetParent} $1 $2
+            CreateDirectory "$2"
+            Delete "$1"
+
+            inetc::get /POPUP "" /RESUME "" /CAPTION "Téléchargement de $0" /NOIEPROXY "$0" "$1"
+            Pop $R0
+            StrCmp $R0 "OK" done
+            MessageBox MB_OK "Erreur téléchargement :$0$\nCode: $R0"
+            Abort
+          done:
+          FunctionEnd
+
+          Function ExtractArchive
+            Exch $1 ; Destination
+            Exch
+            Exch $0 ; Archive path
+
+            Nsis7z::Extract "$0" "$1"
+            Pop $R0
+            DetailPrint "Résultat extraction : $R0"
+          FunctionEnd
+
           Section "Installer" SEC_MAIN
-
-            Function .onInit
-              SetShellVarContext current
-              StrCpy $RemoteArchiveURL "https://hunter-evolution-game.com/desktop-assets/${TAG_NAME}.7z"
-              SectionSetSize ${SEC_MAIN} ${ARCHIVE_SIZE_KB}
-            FunctionEnd
-
-            Function DownloadFile
-              Exch $1
-              Exch
-              Exch $0
-
-              ${GetParent} $1 $2
-              CreateDirectory "$2"
-              Delete "$1"
-
-              inetc::get /POPUP "" /RESUME "" /CAPTION "Téléchargement de $0" /NOIEPROXY "$0" "$1"
-              Pop $R0
-              StrCmp $R0 "OK" done
-              MessageBox MB_OK "Erreur téléchargement :$0$\nCode: $R0"
-              Abort
-            done:
-            FunctionEnd
-
-            Function ExtractArchive
-              Exch $1 ; Destination
-              Exch
-              Exch $0 ; Archive path
-
-              Nsis7z::Extract "$0" "$1"
-              Pop $R0
-              DetailPrint "Résultat extraction : $R0"
-            FunctionEnd
-
             ${If} ${FileExists} "$INSTDIR\*.*"
               RMDir /r "$INSTDIR"
             ${EndIf}
@@ -312,6 +305,12 @@ jobs:
             WriteUninstaller "$INSTDIR\Uninstall.exe"
             CreateShortCut "$SMPROGRAMS\${STARTMENU_FOLDER}\Désinstaller HunterEvolution.lnk" "$INSTDIR\Uninstall.exe"
           SectionEnd
+
+          Function .onInit
+            SetShellVarContext current
+            StrCpy $RemoteArchiveURL "https://hunter-evolution-game.com/desktop-assets/${TAG_NAME}.7z"
+            SectionSetSize ${SEC_MAIN} ${ARCHIVE_SIZE_KB}
+          FunctionEnd
 
           Function LaunchApp
             ExecShell "open" "$INSTDIR\Game.exe"
