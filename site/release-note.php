@@ -7,6 +7,9 @@ include 'header.php';
   <h1><?= $title ?></h1>
   <div class="container">
     <section class="release">
+      <h2>Version 0.5.1.6 : <?= t("Installeur montre la taille du zip", "Change installer to show zip size") ?></h2>
+    </section>
+    <section class="release">
       <h2>Version 0.5.1.5 : <?= t("Installeur télécharge les fichiers du jeu", "Installer downloads game files") ?></h2>
     </section>
     <section class="release">

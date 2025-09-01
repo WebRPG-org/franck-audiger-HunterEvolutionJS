@@ -193,6 +193,17 @@ jobs:
 
           cp -f "${ICO_PATH}" "${APP_DIR}/www/icon/icon.ico"
 
+          ZIP_PATH="${DEST_WEB}/desktop-assets/${TAG_NAME}.7z"
+
+          # Taille en octets
+          ARCHIVE_SIZE_BYTES=$(stat -c%s "$ZIP_PATH")
+          # Converti en kilo-octets (arrondi vers le haut) — unité attendue par NSIS
+          ARCHIVE_SIZE_KB=$(( (ARCHIVE_SIZE_BYTES + 1023) / 1024 ))
+          # Joli affichage en Mo pour le texte des pages
+          ARCHIVE_SIZE_MB=$(awk "BEGIN {printf \"%.1f\", $ARCHIVE_SIZE_BYTES/1048576}")
+
+          echo "📦 Archive: $ZIP_PATH — ${ARCHIVE_SIZE_MB} Mo"
+
           echo "📝 Génération du script NSIS…"
           NSI="${BUILD_ROOT}/HunterInstaller.nsi"
 
@@ -232,39 +243,41 @@ jobs:
           !insertmacro MUI_UNPAGE_INSTFILES
           !insertmacro MUI_LANGUAGE "French"
 
-          Function .onInit
-            SetShellVarContext current
-            StrCpy $RemoteArchiveURL "https://hunter-evolution-game.com/desktop-assets/${TAG_NAME}.7z"
-          FunctionEnd
+          Section "Installer" SEC_MAIN
 
-          Function DownloadFile
-            Exch $1
-            Exch
-            Exch $0
+            Function .onInit
+              SetShellVarContext current
+              StrCpy $RemoteArchiveURL "https://hunter-evolution-game.com/desktop-assets/${TAG_NAME}.7z"
+              SectionSetSize ${SEC_MAIN} ${ARCHIVE_SIZE_KB}
+            FunctionEnd
 
-            ${GetParent} $1 $2
-            CreateDirectory "$2"
-            Delete "$1"
+            Function DownloadFile
+              Exch $1
+              Exch
+              Exch $0
 
-            inetc::get /POPUP "" /RESUME "" /CAPTION "Téléchargement de $0" /NOIEPROXY "$0" "$1"
-            Pop $R0
-            StrCmp $R0 "OK" done
-            MessageBox MB_OK "Erreur téléchargement :$0$\nCode: $R0"
-            Abort
-          done:
-          FunctionEnd
+              ${GetParent} $1 $2
+              CreateDirectory "$2"
+              Delete "$1"
 
-          Function ExtractArchive
-            Exch $1 ; Destination
-            Exch
-            Exch $0 ; Archive path
+              inetc::get /POPUP "" /RESUME "" /CAPTION "Téléchargement de $0" /NOIEPROXY "$0" "$1"
+              Pop $R0
+              StrCmp $R0 "OK" done
+              MessageBox MB_OK "Erreur téléchargement :$0$\nCode: $R0"
+              Abort
+            done:
+            FunctionEnd
 
-            Nsis7z::Extract "$0" "$1"
-            Pop $R0
-            DetailPrint "Résultat extraction : $R0"
-          FunctionEnd
+            Function ExtractArchive
+              Exch $1 ; Destination
+              Exch
+              Exch $0 ; Archive path
 
-          Section "Installer"
+              Nsis7z::Extract "$0" "$1"
+              Pop $R0
+              DetailPrint "Résultat extraction : $R0"
+            FunctionEnd
+
             ${If} ${FileExists} "$INSTDIR\*.*"
               RMDir /r "$INSTDIR"
             ${EndIf}
@@ -320,6 +333,8 @@ jobs:
             -DINSTALLER_DIR="${INSTALLER_TMP_DIR}" \
             -DTAG_NAME="${TAG_NAME}" \
             -DICO_PATH="${ICO_PATH}" \
+            -DARCHIVE_SIZE_KB="${ARCHIVE_SIZE_KB}" \
+            -DARCHIVE_SIZE_MB="${ARCHIVE_SIZE_MB}" \
             "${NSI}"
 
           echo "✅ Installateur généré: ${INSTALLER_TMP_DIR}/HunterEvolution-${TAG_NAME}.exe"
