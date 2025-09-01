@@ -154,14 +154,14 @@ jobs:
           PAYLOAD_ROOT="${BUILD_ROOT}/Hunter"
           
           ASSET_DIR="${DEST_WEB}/desktop-assets"
-          7Z_PATH="${ASSET_DIR}/${TAG_NAME}.7z"
+          ZIP_PATH="${ASSET_DIR}/${TAG_NAME}.7z"
 
           cd $PAYLOAD_ROOT
 
           # Crée l'archive avec tout ce qui est dans PAYLOAD_ROOT (fichiers cachés inclus)
-          7z a -t7z "$7Z_PATH" ./*
+          7z a -t7z "$ZIP_PATH" ./*
 
-          echo "✅ Archive générée : $7Z_PATH"
+          echo "✅ Archive générée : $ZIP_PATH"
 
       - name: Générer l’installateur Windows (NSIS) + icône cohérente
         if: steps.tagcheck.outputs.valid == 'true'
