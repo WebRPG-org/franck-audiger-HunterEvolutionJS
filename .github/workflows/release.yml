@@ -145,7 +145,7 @@ jobs:
 
           cd ..
 
-      - name: Préparer les archives assets (ZIP) pour installeur web
+      - name: Préparer les archives assets (7z) pour installeur web
         env:
           TAG_NAME: ${{ github.ref_name }}
         run: |
@@ -154,14 +154,14 @@ jobs:
           PAYLOAD_ROOT="${BUILD_ROOT}/Hunter"
           
           ASSET_DIR="${DEST_WEB}/desktop-assets"
-          ZIP_PATH="${ASSET_DIR}/${TAG_NAME}.zip"
+          7Z_PATH="${ASSET_DIR}/${TAG_NAME}.7z"
 
           cd $PAYLOAD_ROOT
 
           # Crée l'archive avec tout ce qui est dans PAYLOAD_ROOT (fichiers cachés inclus)
-          7z a -tzip "$ZIP_PATH" ./*
+          7z a -t7z "$7Z_PATH" ./*
 
-          echo "✅ Archive générée : $ZIP_PATH"
+          echo "✅ Archive générée : $7Z_PATH"
 
       - name: Générer l’installateur Windows (NSIS) + icône cohérente
         if: steps.tagcheck.outputs.valid == 'true'
