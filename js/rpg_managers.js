@@ -513,6 +513,7 @@ ConfigManager.load = function() {
     var config = {};
     try {
         json = StorageManager.load(-1);
+        console.log("ConfigManager.load : ", json);
     } catch (e) {
         console.error(e);
     }
@@ -562,6 +563,8 @@ ConfigManager.applyData = function(config) {
     } else {
         this.language = this.readValue(config, "language");
     }
+    console.log("this.fitMode : " + this.fitMode);
+    console.log("full config : ", config);
 };
 
 ConfigManager.readFlag = function(config, name) {
@@ -775,10 +778,33 @@ StorageManager.removeWebStorage = function(savefileId) {
 };
 
 StorageManager.localFileDirectoryPath = function() {
-    var path = require('path');
+    const path = require('path');
+    const fs = require('fs');
+    const os = require('os');
 
-    var base = path.dirname(process.mainModule.filename);
-    return path.join(base, 'save/');
+    const appData = process.env.APPDATA || 
+                    (process.platform === 'darwin' ? path.join(os.homedir(), 'Library', 'Application Support') :
+                    path.join(os.homedir(), '.config'));
+
+    const baseDir = path.join(appData, 'HunterEvolution');
+    const saveDir = path.join(baseDir, 'save');
+
+    // Fonction utilitaire pour créer un dossier si nécessaire
+    function ensureDirectoryExists(dirPath) {
+        if (!fs.existsSync(dirPath)) {
+            try {
+                fs.mkdirSync(dirPath);
+            } catch (err) {
+                console.error(`Failed to create directory: ${dirPath}`, err);
+            }
+        }
+    }
+
+    // Création manuelle des dossiers un par un
+    ensureDirectoryExists(baseDir);
+    ensureDirectoryExists(saveDir);
+
+    return saveDir + '/';
 };
 
 StorageManager.localFilePath = function(savefileId) {

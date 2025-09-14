@@ -34,35 +34,7 @@
     document.body.appendChild(script);
   });
 
-StorageManager.localFileDirectoryPath = function() {
-    const path = require('path');
-    const fs = require('fs');
-    const os = require('os');
 
-    const appData = process.env.APPDATA || 
-                    (process.platform === 'darwin' ? path.join(os.homedir(), 'Library', 'Application Support') :
-                    path.join(os.homedir(), '.config'));
-
-    const baseDir = path.join(appData, 'HunterEvolution');
-    const saveDir = path.join(baseDir, 'save');
-
-    // Fonction utilitaire pour créer un dossier si nécessaire
-    function ensureDirectoryExists(dirPath) {
-        if (!fs.existsSync(dirPath)) {
-            try {
-                fs.mkdirSync(dirPath);
-            } catch (err) {
-                console.error(`Failed to create directory: ${dirPath}`, err);
-            }
-        }
-    }
-
-    // Création manuelle des dossiers un par un
-    ensureDirectoryExists(baseDir);
-    ensureDirectoryExists(saveDir);
-
-    return saveDir + '/';
-};
 
   Utils.isOptionValid = function(name) {
     if(name === "test"){
@@ -74,6 +46,20 @@ StorageManager.localFileDirectoryPath = function() {
     }
   };
 
+  window.alignAllLevelOn = function(level){
+    // Trouve le niveau le plus élevé dans l'équipe
+    var maxLevel = Math.max.apply(null, $gameParty.members().map(function(actor) {
+      return actor.level;
+    }));
+
+    // Calcule le niveau à appliquer
+    var targetLevel = Math.max(level, maxLevel);
+
+    // Applique le niveau à tous les membres
+    $gameParty.members().forEach(function(actor) {
+      actor.changeLevel(targetLevel, false);
+    });
+  }
 
   window.checkDebugMode = async function() {
     try {
