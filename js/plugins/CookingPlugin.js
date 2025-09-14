@@ -31,26 +31,28 @@
     // --- Liste d'ingrédients "hardcodée" + catégorie ---
     // cat: 'protein' | 'vegetal' | 'condiment'
     var CookingIngredients = [
-        { id: 1, name: "Viande de Sanglier", cat: "protein", iconIndex: 0 },
-        { id: 2, name: "Pommes", cat: "vegetal", iconIndex: 1 },
-        { id: 3, name: "Herbes Sauvages", cat: "condiment", iconIndex: 2 },
-        { id: 4, name: "Sel", cat: "condiment", iconIndex: 3 },
-        { id: 5, name: "Poivre", cat: "condiment", iconIndex: 4 },
-        { id: 6, name: "Eau", cat: "condiment", iconIndex: 5 },
-        { id: 7, name: "Eau Salée", cat: "combinaison", iconIndex: 5 },
-        { id: 8, name: "Eau Poivrée", cat: "combinaison", iconIndex: 5 },
-        { id: 9, name: "Eau Aromatisée", cat: "combinaison", iconIndex: 5 },
-        { id: 10, name: "Eau Aromatisée Salée", cat: "combinaison", iconIndex: 5 },
-        { id: 11, name: "Eau Aromatisée Poivrée", cat: "combinaison", iconIndex: 5 },
-        { id: 12, name: "Eau Assaisonnée", cat: "combinaison", iconIndex: 5 },
-        { id: 13, name: "Eau Assaisonnée+", cat: "combinaison", iconIndex: 5 },
-        { id: 14, name: "Sanglier Salée", cat: "combinaison", iconIndex: 0 },
-        { id: 15, name: "Sanglier Poivrée", cat: "combinaison", iconIndex: 0 },
-        { id: 16, name: "Sanglier Aromatisée", cat: "combinaison", iconIndex: 0 },
-        { id: 17, name: "Sanglier Aromatisée Salée", cat: "combinaison", iconIndex: 0 },
-        { id: 18, name: "Sanglier Aromatisée Poivrée", cat: "combinaison", iconIndex: 0 },
-        { id: 19, name: "Sanglier Assaisonnée", cat: "combinaison", iconIndex: 0 },
-        { id: 20, name: "Sanglier Assaisonnée+", cat: "combinaison", iconIndex: 0 }
+        { id: 1,  name: "Viande de Sanglier",           cat: "protein",     iconIndex: 0, canRotisserie: true  },
+        { id: 2,  name: "Pommes",                       cat: "vegetal",     iconIndex: 1, canRotisserie: false },
+        { id: 3,  name: "Herbes Sauvages",              cat: "condiment",   iconIndex: 2, canRotisserie: false },
+        { id: 4,  name: "Sel",                          cat: "condiment",   iconIndex: 3, canRotisserie: false },
+        { id: 5,  name: "Poivre",                       cat: "condiment",   iconIndex: 4, canRotisserie: false },
+        { id: 6,  name: "Eau",                          cat: "condiment",   iconIndex: 5, canRotisserie: false },
+
+        { id: 7,  name: "Eau Salée",                    cat: "combinaison", iconIndex: 5, canRotisserie: false },
+        { id: 8,  name: "Eau Poivrée",                  cat: "combinaison", iconIndex: 5, canRotisserie: false },
+        { id: 9,  name: "Eau Aromatisée",               cat: "combinaison", iconIndex: 5, canRotisserie: false },
+        { id: 10, name: "Eau Aromatisée Salée",         cat: "combinaison", iconIndex: 5, canRotisserie: false },
+        { id: 11, name: "Eau Aromatisée Poivrée",       cat: "combinaison", iconIndex: 5, canRotisserie: false },
+        { id: 12, name: "Eau Assaisonnée",              cat: "combinaison", iconIndex: 5, canRotisserie: false },
+        { id: 13, name: "Eau Assaisonnée+",             cat: "combinaison", iconIndex: 5, canRotisserie: false },
+
+        { id: 14, name: "Sanglier Salée",               cat: "combinaison", iconIndex: 0, canRotisserie: true },
+        { id: 15, name: "Sanglier Poivrée",             cat: "combinaison", iconIndex: 0, canRotisserie: true },
+        { id: 16, name: "Sanglier Aromatisée",          cat: "combinaison", iconIndex: 0, canRotisserie: true },
+        { id: 17, name: "Sanglier Aromatisée Salée",    cat: "combinaison", iconIndex: 0, canRotisserie: true },
+        { id: 18, name: "Sanglier Aromatisée Poivrée",  cat: "combinaison", iconIndex: 0, canRotisserie: true },
+        { id: 19, name: "Sanglier Assaisonnée",         cat: "combinaison", iconIndex: 0, canRotisserie: true },
+        { id: 20, name: "Sanglier Assaisonnée+",        cat: "combinaison", iconIndex: 0, canRotisserie: true }
     ];
 
     // Planche d'icônes dédiée (img/pictures/Ingredients.png)
@@ -128,6 +130,62 @@
         }
     };
 
+
+
+    // --- Règles de combinaison pour la rôtisserie (similaire au plan de travail)
+    var RotisserieRules = {
+        rules: {
+            1: {},
+            2: {},
+            3: { // Herbes
+                1: 16,
+                6: 9,
+                7: 10,
+                8: 11,
+                12: 13,
+                14: 17,
+                15: 18,
+                19: 20
+            },
+            4: { // Sel
+                1: 14,
+                6: 7,
+                8: 12,
+                9: 10,
+                11: 13,
+                15: 19,
+                16: 17,
+                18: 20
+            },
+            5: { // Poivre
+                1: 15,
+                6: 8,
+                7: 12,
+                9: 11,
+                10: 13,
+                14: 19,
+                16: 18,
+                17: 20
+            },
+            6: {},
+            7: {},
+            8: {}
+        },
+        getResultId: function (base, top) {
+            if (!top) return null;
+            var baseId = (base && base.id) || base;
+            var topId = (top && top.id) || top;
+            var map = this.rules[topId] || {};
+            var res = map[baseId];
+            return (typeof res === 'number') ? res : null;
+        },
+        canPlace: function (base, top) {
+            if (!top) return false;
+            if (!base) return !!(top && top.canRotisserie); // vide -> viande only
+            return !!this.getResultId(base, top);
+        }
+    };
+
     //-----------------------------------------------------------------------------
     // Scene_CookingBase
     //-----------------------------------------------------------------------------
@@ -149,6 +207,7 @@
         this.createHelpWindow();
         this.createZoneWindow();
         this.createIngredientWindows();
+        this.createRotisserieWindow();
         this.createActionBar();
         this.createBottomBar();
     };
@@ -312,7 +371,10 @@
             this.openIngredients();
         } else if (index === 1) {    // Rôtisserie
             SoundManager.playOk();
-            this._helpWindow.setText("Rôtisserie : (placeholder) Déposer l'objet tenu ici.");
+            this._zoneWindow.deactivate();
+            this._rotiWindow.select(0);
+            this.showRotisserieView(true);
+            this._helpWindow.setText("Rôtisserie : Entrée = déposer/prendre | Échap = retour");
         } else if (index === 2) {    // Casserole
             SoundManager.playOk();
             this._helpWindow.setText("Casserole : (placeholder) Déposer l'objet tenu ici.");
@@ -435,8 +497,8 @@
         var flags = {
             hand: !!CookingUI.heldItem(),
             bench: this._workbenchWindow && this._workbenchWindow.hasItems(),
-            pot: (this._pot && this._pot.length > 0),
-            roti: (this._rotisserie && this._rotisserie.length > 0)
+            pot:   false, // placeholder tant que la Casserole n'est pas implémentée
+            roti:  this._rotiWindow && this._rotiWindow.hasItems()
         };
         this._actionBar.setEnabledStates(flags);
     };
@@ -507,10 +569,9 @@
     };
 
     Scene_CookingBase.prototype.doClearRoti = function () {
-        var had = this._rotisserie && this._rotisserie.length > 0;
-        this._rotisserie = [];
+        var ok = this._rotiWindow && this._rotiWindow.clearAll();
         var msg;
-        if (had) {
+        if (ok) {
             SoundManager.playOk();
             msg = "Rôtisserie vidée.";
         } else {
@@ -530,6 +591,70 @@
         if (this._actionBar) this._actionBar.deactivate();
         if (this._zoneWindow) this._zoneWindow.activate();
         if (this._helpWindow) this._helpWindow.setText(message || "←/→ choisir | Entrée valider | ↓ Actions | Échap retour");
+    };
+
+    // NEW: Création de la fenêtre Rôtisserie
+    Scene_CookingBase.prototype.createRotisserieWindow = function () {
+        var top = this._helpWindow.height;
+        var y   = top + 24;
+        var h   = Graphics.boxHeight - top - BOTTOM_BAR_H - ACTION_BAR_H - 48;
+        var x   = 24;
+        var w   = Graphics.boxWidth - 48;
+
+        this._rotiWindow = new Window_CookingRotisserie(x, y, w, h);
+        this._rotiWindow.setHandler('ok',     this.onRotisserieOk.bind(this));
+        this._rotiWindow.setHandler('cancel', this.onRotisserieCancel.bind(this));
+        this.addWindow(this._rotiWindow);
+        this._rotiWindow.hide();
+        this._rotiWindow.deactivate();
+    };
+
+    // NEW: Affichage/masquage de la vue Rôtisserie
+    Scene_CookingBase.prototype.showRotisserieView = function (show) {
+        var m = show ? 'show' : 'hide';
+        var a = show ? 'activate' : 'deactivate';
+        this._rotiWindow[m](); this._rotiWindow[a]();
+        // Barre d’actions visible uniquement quand on est sur la vue Zones
+        this.setActionBarVisible(!show);
+    };
+
+    // NEW: handlers Rôtisserie
+    Scene_CookingBase.prototype.onRotisserieOk = function () {
+        var held = CookingUI.heldItem();
+        var success = false;
+
+        if (!held) {
+            // Main vide -> tenter de PRENDRE
+            if (this._rotiWindow && this._rotiWindow.hasItems()) {
+                var taken = this._rotiWindow.takeTop();
+                if (taken) {
+                    CookingUI.setHeldItem(taken);
+                    this.refreshBottomBar();
+                    success = true;
+                }
+            }
+        } else {
+            // Main pleine -> tenter de DÉPOSER
+            if (this._rotiWindow.placeHeldItem(held)) {
+                CookingUI.setHeldItem(null);
+                this.refreshBottomBar();
+                success = true;
+            }
+        }
+
+        if (success) SoundManager.playOk();
+        else SoundManager.playBuzzer();
+
+        // IMPORTANT : toujours remettre la fenêtre dans un état stable
+        this._rotiWindow.select(0);
+        this._rotiWindow.activate();
+        this._helpWindow.setText("Rôtisserie : Entrée = déposer/prendre | Échap = retour");
+    };
+
+    Scene_CookingBase.prototype.onRotisserieCancel = function () {
+        this.showRotisserieView(false);
+        this._zoneWindow.activate();
+        this._helpWindow.setText("←/→ choisir | Entrée valider | ↓ Actions | Échap retour");
     };
 
     window.Scene_CookingBase = Scene_CookingBase;
@@ -888,6 +1013,107 @@
         var sx = (iconIndex % ING_ICON_COLS) * ING_ICON_W;
         var sy = Math.floor(iconIndex / ING_ICON_COLS) * ING_ICON_H;
         this.contents.blt(bmp, sx, sy, ING_ICON_W, ING_ICON_H, x, y);
+    };
+
+    //-----------------------------------------------------------------------------
+    // NEW: Window_CookingRotisserie (1 slot empilable, démarrage viande only)
+    //-----------------------------------------------------------------------------
+    function Window_CookingRotisserie() { this.initialize.apply(this, arguments); }
+    Window_CookingRotisserie.prototype = Object.create(Window_Selectable.prototype);
+    Window_CookingRotisserie.prototype.constructor = Window_CookingRotisserie;
+
+    Window_CookingRotisserie.prototype.initialize = function (x, y, w, h) {
+        this._stack = []; // [base, ...]
+        Window_Selectable.prototype.initialize.call(this, x, y, w, h);
+        this.refresh();
+    };
+
+    Window_CookingRotisserie.prototype.maxItems = function () { return 1; };
+    Window_CookingRotisserie.prototype.maxCols  = function () { return 1; };
+
+    Window_CookingRotisserie.prototype.itemRect = function () {
+        var rect = new Rectangle();
+        var boxW = 96, boxH = 72;
+        rect.width  = boxW;
+        rect.height = boxH;
+        rect.x = Math.floor((this.contentsWidth()  - boxW) / 2);
+        rect.y = Math.floor((this.contentsHeight() - boxH) / 2);
+        return rect;
+    };
+
+    Window_CookingRotisserie.prototype.refresh = function () {
+        this.contents.clear();
+        var rect = this.itemRect(0);
+        // cadre
+        this.contents.fillRect(rect.x, rect.y, rect.width, rect.height, "rgba(255,255,255,0.10)");
+        this.changeTextColor(this.systemColor());
+        this.drawText("Rôtisserie", 0, 0, this.contentsWidth(), "left");
+        this.changeTextColor(this.normalColor());
+
+        if (this._stack.length > 0) {
+            var maxIcons = Math.min(3, this._stack.length);
+            for (var i = 0; i < maxIcons; i++) {
+                var it = this._stack[this._stack.length - 1 - i];
+                var dx = rect.x + 8 + i * 18;
+                var dy = rect.y + 8 + i * 6;
+                this.drawIngredientIcon(it.iconIndex, dx, dy);
+            }
+            var top = this._stack[this._stack.length - 1];
+            this.drawText(top.name, rect.x + 8, rect.y + rect.height - this.lineHeight(), rect.width - 16, "center");
+        } else {
+            this.changeTextColor(this.textColor(7));
+            this.drawText("(vide — viande uniquement)", rect.x, rect.y + rect.height / 2 - this.lineHeight() / 2, rect.width, "center");
+            this.changeTextColor(this.normalColor());
+        }
+    };
+
+    Window_CookingRotisserie.prototype.drawIngredientIcon = function (iconIndex, x, y) {
+        var bmp = ImageManager.loadPicture(ING_SHEET);
+        if (!bmp.isReady()) { bmp.addLoadListener(this.refresh.bind(this)); return; }
+        var sx = (iconIndex % ING_ICON_COLS) * ING_ICON_W;
+        var sy = Math.floor(iconIndex / ING_ICON_COLS) * ING_ICON_H;
+        this.contents.blt(bmp, sx, sy, ING_ICON_W, ING_ICON_H, x, y);
+    };
+
+    // Peut-on accepter cet ingrédient maintenant ?
+    Window_CookingRotisserie.prototype.canAccept = function (item) {
+        var base = this._stack.length ? this._stack[this._stack.length - 1] : null;
+        return RotisserieRules.canPlace(base, item);
+    };
+
+    // Tenter de placer l'objet tenu
+    Window_CookingRotisserie.prototype.placeHeldItem = function (item) {
+        if (this._stack.length === 0) {
+            if (!item || !item.canRotisserie) return false; // démarrage viande only
+            this._stack.push(item);
+            this.refresh();
+            return true;
+        }
+        var base  = this._stack[this._stack.length - 1];
+        var resId = RotisserieRules.getResultId(base, item);
+        if (!resId) return false;
+        var result = null;
+        for (var i = 0; i < CookingIngredients.length; i++) {
+            if (CookingIngredients[i].id === resId) { result = CookingIngredients[i]; break; }
+        }
+        if (!result) return false;
+        this._stack[this._stack.length - 1] = result;
+        this.refresh();
+        return true;
+    };
+
+    Window_CookingRotisserie.prototype.hasItems = function () { return this._stack.length > 0; };
+    Window_CookingRotisserie.prototype.clearAll = function () {
+        if (this._stack.length === 0) return false;
+        this._stack = [];
+        this.refresh();
+        return true;
+    };
+    Window_CookingRotisserie.prototype.takeTop = function () {
+        if (this._stack.length === 0) return null;
+        var it = this._stack.pop();
+        this.refresh();
+        return it || null;
     };
 
 })();
