@@ -23,12 +23,6 @@
 
 (function () {
     "use strict";
-    // === Couleurs et réglages (en haut du plugin idéalement) ===
-    // Tolérance de cuisson (±10% autour de la cible)
-    var COOK_TOLERANCE = 0.10;          // si déjà présent, garde ta valeur
-
-
-    // Gabarit de la forme : (position en % de z, valeur y)
     const TEMPLATE_COOK_CURVE = [
         [0.00, 0.00],
         [0.15, 0.51],
@@ -38,70 +32,91 @@
         [1.00, 0.00],
     ];
 
+    const CookingConfig = Object.freeze({
+        scoring: {
+            tolerance: 0.10,
+            templateCookCurve: TEMPLATE_COOK_CURVE,
+            redPeakRatio: 1.60
+        },
+        visuals: {
+            maxCookScale: 200,
+            cookBar: {
+                GREEN_GAMMA: 2.4,
+                MIX_MAX: 0.85,
+                FLAT_RATIO: 0.0,
+                TOL_RATIO_VISUAL: 0.5
+            },
+            colors: {
+                blueRaw: "#2f7afc",
+                greenGood: "#34d399",
+                redOver: "#ff5b5b",
+                blackBurn: "#000000",
+                futureGray: "#3a403e"
+            }
+        },
+        helpWindow: {
+            lines: 1,
+            fontSize: 22,
+            scrollSpeed: 0.6,
+            scrollWait: 45,
+            scrollGap: 12
+        },
+        layout: {
+            bottomBarHeight: 72,
+            actionBarHeight: 72,
+            actionBarMargin: 0,
+            itemBox: {
+                height: 72,
+                width: 274
+            }
+        },
+        texts: {
+            zone: "Zones : ←/→ = choisir | Entrée = valider \n ↓ = Actions | Échap = retour",
+            action: "Actions : ←/→ = choisir | Entrée = exécuter \n ↑/Échap = retour",
+            ingredients: "Ingrédients : ←/→ = catégorie | Entrée = ouvrir la liste \n Échap = retour | ↓ = Plan de travail",
+            select: "Sélectionne un ingrédient | Entrée = tenir \n Échap = catégories",
+            rotisserie: "Rôtisserie : Entrée = déposer/prendre | ↓ = Actions \n Échap = retour",
+            workbench: "Plan de travail : Entrée = déposer/prendre \n Échap = catégories",
+            plate: "Dressage : Entrée = déposer/prendre | ↓ = Actions \n Échap/↑ = retour",
+            pot: "Casserole : Entrée = déposer/prendre | ↓ = Actions \n Échap = retour",
+            disabledExit: "Échap désactivé : va dans Dressage (Entrée), puis choisis \"Finaliser plat\" pour quitter.",
+            endDish: "Dressage : plat final dressé."
+        },
+        modes: {
+            zones: "zones",
+            ingredients: "ingredients",
+            rotisserie: "rotisserie",
+            plate: "plate",
+            pot: "pot"
+        },
+        variables: {
+            plateResult: 54,
+            plateDishScore: 55,
+            plateDishScoreTotal: 56
+        },
+        icons: {
+            sheet: "Ingredients",
+            width: 32,
+            height: 32,
+            columns: 16
+        },
+        ui: {
+            barDimOffAlpha: 0.45
+        }
+    });
 
-    // Échelle fixe: toute la largeur = 2000 "points" de cuisson
-    var MAX_COOK_SCALE = 200;
-    var HELP_LINES = 1;   // hauteur visible (1 ou 2 lignes)
-    var HELP_FONT_SIZE = 22;  // taille de police de la fenêtre d’aide
-    var HELP_SCROLL_SPEED = 0.6; // pixels par frame (0.5–1.0 est doux)
-    var HELP_SCROLL_WAIT = 45;  // pause (en frames) en haut et en bas
-    var HELP_SCROLL_GAP = 12;  // espace entre 2 copies pour la boucle
+    window.CookingConfig = CookingConfig;
 
-    // Couleurs
-    var COLOR_BLUE_RAW = "#2f7afc";
-    var COLOR_GREEN_GOOD = "#34d399";     // zone parfaite (uniforme)
-    var COLOR_RED_OVER = "#ff5b5b";
-    var COLOR_BLACK_BURN = "#000000";
-    var COLOR_FUTURE_GRAY = "#3a403e";   // gris opaque pour masquer le futur
+    const Config = CookingConfig;
+    const Texts = Config.texts;
+    const Modes = Config.modes;
+    const Layout = Config.layout;
+    const Visuals = Config.visuals;
+    const HelpConfig = Config.helpWindow;
 
-    // --- Réglages visuels de la barre de cuisson ---
-    var COOK_VISUAL = {
-        // 1) Accentuation : >1 = zone verte plus fine (1 = inchangé)
-        GREEN_GAMMA: 2.4,
-        // 2) Même si cookFunction1=1, on ne "verdit" jamais à 100% (0..1)
-        MIX_MAX: 0.85,
-        // 3) Si tu veux garder un mini-plateau vert autour de target:
-        //    0 = aucun plateau ; 0.2 = 20% de l'ex-zone tolérance
-        FLAT_RATIO: 0.0,
-        // 4) Optionnel: si tu veux une tolérance d'affichage plus petite que la logique
-        //    (n’influe QUE l’affichage quand FLAT_RATIO > 0)
-        TOL_RATIO_VISUAL: 0.5 // 50% de ta COOK_TOLERANCE pour la partie "plate"
-    };
-
-    var TEXT_ZONE = "Zones : ←/→ = choisir | Entrée = valider \n ↓ = Actions | Échap = retour"
-    var TEXT_ACTION = "Actions : ←/→ = choisir | Entrée = exécuter \n ↑/Échap = retour";
-    var TEXT_INGREDIENTS = "Ingrédients : ←/→ = catégorie | Entrée = ouvrir la liste \n Échap = retour | ↓ = Plan de travail";
-
-    var TEXT_SELECT = "Sélectionne un ingrédient | Entrée = tenir \n Échap = catégories";
-    var TEXT_ROTI = "Rôtisserie : Entrée = déposer/prendre | ↓ = Actions \n Échap = retour";
-    var TEXT_WORKBENCH = "Plan de travail : Entrée = déposer/prendre \n Échap = catégories";
-    var TEXT_PLATE = "Dressage : Entrée = déposer/prendre | ↓ = Actions \n Échap/↑ = retour";
-    var TEXT_POT = "Casserole : Entrée = déposer/prendre | ↓ = Actions \n Échap = retour"; // AJOUT
-    var TEXT_DISABLED_EXIT = "Échap désactivé : va dans Dressage (Entrée), puis choisis \"Finaliser plat\" pour quitter.";
-    var TEXT_END_DISH = "Dressage : plat final dressé."; // AJOUT
-
-    // Où le rouge est "plein" avant de tirer vers le noir
-    var RED_PEAK_RATIO = 1.60;          // = 1.6 × target
-
-    // --- Constantes de layout ---
-    var BOTTOM_BAR_H = 72;     // barre du bas (objet tenu)
-    var ACTION_BAR_H = 72;     // nouvelle barre d'actions (au-dessus de la barre du bas)
-    var ITEM_BOX_H = 72;      // hauteur des icônes d'ingrédients
-    var ITEM_BOX_W = 274;
-    var ACTION_BAR_MARGIN = 0;     // nouvelle barre d'actions (au-dessus de la barre du bas)
-
-    var COOK_MODE_ZONES = 'zones';
-    var COOK_MODE_INGR = 'ingredients';
-    var COOK_MODE_ROTI = 'rotisserie';
-    var COOK_MODE_PLATE = 'plate';
-    var COOK_MODE_POT = 'pot';              // AJOUT
-    var PLATE_RESULT_VARIABLE_ID = 54;
-    var PLATE_DISH_SCORE_VARIABLE_ID = 55;
-    var PLATE_DISH_SCORE_TOTAL_VARIABLE_ID = 56; // AJOUT
-
-    var COOK_TOLERANCE = 0.10;
-
-    var BAR_DIM_OFF_ALPHA = 0.45;
+    const IconConfig = Config.icons;
+    const Colors = Visuals.colors;
+    const CookBarConfig = Visuals.cookBar;
 
     // --- Liste d'ingrédients "hardcodée" + catégorie ---
     // cat: 'main' | 'side' | 'condiment' | 'combinaison'
@@ -163,62 +178,148 @@
     ];
     window.CookingIngredients = CookingIngredients;
 
-    // Planche d'icônes dédiée (img/pictures/Ingredients.png)
-    var ING_SHEET = "Ingredients";
-    var ING_ICON_W = 32;
-    var ING_ICON_H = 32;
-    var ING_ICON_COLS = 16;
+    const IngredientRepository = (function (list) {
+        const map = {};
+        for (let i = 0; i < list.length; i++) {
+            const item = list[i];
+            if (item && item.id != null) {
+                map[item.id] = item;
+            }
+        }
+        return {
+            list: list,
+            byId: function (id) {
+                return map[id] || null;
+            }
+        };
+    })(CookingIngredients);
+
+    window.CookingIngredientRepository = IngredientRepository;
+
+    function CookingDeviceState(type) {
+        this.type = type || 'device';
+        this.stack = [];
+        this.cookScore = null;
+        this.tasteScore = null;
+        this.isOn = false;
+        this.cookFrames = 0;
+        this._accMs = 0;
+        this._changed = false;
+    }
+
+    CookingDeviceState.prototype.resetCookProgress = function (value) {
+        this._accMs = 0;
+        this.cookScore = (value != null) ? value : 0;
+        this._changed = true;
+    };
+
+    CookingDeviceState.prototype.addCookSteps = function (steps) {
+        if (!steps) return;
+        this.cookScore = (this.cookScore == null) ? steps : (this.cookScore + steps);
+        this._changed = true;
+    };
+
+    CookingDeviceState.prototype.update = function (dtMs) {
+        if (!this.isOn || !this.stack || this.stack.length === 0) return;
+        this._accMs = (this._accMs || 0) + dtMs;
+        var steps = Math.floor(this._accMs / 1000);
+        if (steps > 0) {
+            this._accMs -= steps * 1000;
+            this.addCookSteps(steps);
+        }
+    };
+
+    CookingDeviceState.prototype.clear = function () {
+        this.stack.length = 0;
+        this.cookScore = null;
+        this.tasteScore = null;
+        this.isOn = false;
+        this.cookFrames = 0;
+        this._accMs = 0;
+        this._changed = true;
+    };
+
+    CookingDeviceState.prototype.hasItems = function () {
+        return this.stack && this.stack.length > 0;
+    };
+
+    CookingDeviceState.prototype.topItem = function () {
+        return this.hasItems() ? this.stack[this.stack.length - 1] : null;
+    };
+
+    function CookingInstance(id) {
+        this.id = String(id);
+        this.ui = {
+            held: null,
+            heldTasteScore: null,
+            heldCookScore: null,
+            heldCookDevice: null
+        };
+        this.workbench = { stack: [], cookScore: null, tasteScore: null, cookDevice: null };
+        this.pot = new CookingDeviceState('pot');
+        this.rotisserie = new CookingDeviceState('rotisserie');
+        this.plate = { slots: [null, null, null] };
+    }
+
+    CookingInstance.prototype.resetUi = function () {
+        this.ui.held = null;
+        this.ui.heldTasteScore = null;
+        this.ui.heldCookScore = null;
+        this.ui.heldCookDevice = null;
+    };
+
+    function drawIngredientIconHelper(targetWindow, iconIndex, x, y) {
+        if (iconIndex == null) return;
+        var bmp = ImageManager.loadPicture(IconConfig.sheet);
+        if (!bmp.isReady()) {
+            bmp.addLoadListener(targetWindow.refresh.bind(targetWindow));
+            return;
+        }
+        var sx = (iconIndex % IconConfig.columns) * IconConfig.width;
+        var sy = Math.floor(iconIndex / IconConfig.columns) * IconConfig.height;
+        targetWindow.contents.blt(bmp, sx, sy, IconConfig.width, IconConfig.height, x, y);
+    }
 
     window.loadDishScore = function (mandatoryDishId, strategy) {
         strategy = strategy || "ignoreBest";
-        var dishScore = CookingScore.dishScore($gameVariables.value(PLATE_RESULT_VARIABLE_ID), CookingIngredients, { strategy: strategy }, mandatoryDishId);
-        $gameVariables.setValue(PLATE_DISH_SCORE_VARIABLE_ID, dishScore);
-        $gameVariables.setValue(PLATE_DISH_SCORE_TOTAL_VARIABLE_ID, dishScore.total);
+        var dishScore = CookingScore.dishScore($gameVariables.value(Config.variables.plateResult), IngredientRepository.list, { strategy: strategy }, mandatoryDishId);
+        $gameVariables.setValue(Config.variables.plateDishScore, dishScore);
+        $gameVariables.setValue(Config.variables.plateDishScoreTotal, dishScore.total);
     }
 
     // ======================================================
     // Registre d'instances (multi-plateaux) + API d'ouverture
     // ======================================================
     var CookingManager = (function () {
-        function tmpl(id) {
-            return {
-                id: String(id),
-                ui: {
-                    held: null,
-                    heldTasteScore: null,
-                    heldCookScore: null
-                },
-                workbench: { stack: [], cookScore: null, tasteScore: null },
-                pot: {
-                    stack: [],
-                    cookScore: null,
-                    tasteScore: null,
-                    isOn: false,
-                    cookFrames: 0
-                },
-                rotisserie: {
-                    stack: [],        // pile de la broche
-                    cookScore: null,  // score de cuisson courant
-                    tasteScore: null, // cumul goût
-                    isOn: false,      // état ON/OFF
-                    cookFrames: 0     // timer pour +1/s
-                },
-                plate: { slots: [null, null, null] }
-            };
+        function createInstance(id) {
+            return new CookingInstance(id);
         }
-        var api = {
-            _instances: {}, _currentId: "default",
+        return {
+            _instances: {},
+            _currentId: 'default',
             instance: function (id) {
-                id = (id != null) ? String(id) : "default";
-                if (!this._instances[id]) this._instances[id] = tmpl(id);
+                id = (id != null) ? String(id) : 'default';
+                if (!this._instances[id]) {
+                    this._instances[id] = createInstance(id);
+                }
                 return this._instances[id];
             },
-            setCurrent: function (id) { this._currentId = (id != null) ? String(id) : "default"; return this.instance(this._currentId); },
-            current: function () { return this.instance(this._currentId); },
-            allIds: function () { var a = []; for (var k in this._instances) { if (this._instances.hasOwnProperty(k)) a.push(k); } return a; },
-            reset: function (id) { if (this._instances[id]) this._instances[id] = tmpl(id); }
+            setCurrent: function (id) {
+                this._currentId = (id != null) ? String(id) : 'default';
+                return this.instance(this._currentId);
+            },
+            current: function () {
+                return this.instance(this._currentId);
+            },
+            allIds: function () {
+                return Object.keys(this._instances);
+            },
+            reset: function (id) {
+                if (this._instances[id]) {
+                    this._instances[id] = createInstance(id);
+                }
+            }
         };
-        return api;
     })();
 
     CookingManager._lastUpdateMs = null;
@@ -233,29 +334,13 @@
         for (var id in this._instances) {
             if (!this._instances.hasOwnProperty(id)) continue;
             var inst = this._instances[id];
+            if (!inst) continue;
 
-            // === RÔTISSERIE === (indépendant)
-            var R = inst.rotisserie;
-            if (R && R.isOn && R.stack && R.stack.length > 0) {
-                R._accMs = (R._accMs || 0) + dt;
-                var steps = Math.floor(R._accMs / 1000);
-                if (steps > 0) {
-                    R._accMs -= steps * 1000;
-                    R.cookScore = (R.cookScore == null) ? steps : (R.cookScore + steps);
-                    R._changed = true;
-                }
+            if (inst.rotisserie && typeof inst.rotisserie.update === 'function') {
+                inst.rotisserie.update(dt);
             }
-
-            // === CASSEROLE === (indépendant)
-            var P = inst.pot;
-            if (P && P.isOn && P.stack && P.stack.length > 0) {
-                P._accMs = (P._accMs || 0) + dt;
-                var stepsP = Math.floor(P._accMs / 1000);
-                if (stepsP > 0) {
-                    P._accMs -= stepsP * 1000;
-                    P.cookScore = (P.cookScore == null) ? stepsP : (P.cookScore + stepsP);
-                    P._changed = true;
-                }
+            if (inst.pot && typeof inst.pot.update === 'function') {
+                inst.pot.update(dt);
             }
         }
     };
@@ -278,18 +363,49 @@
         heldCookDevice: function () { return CookingManager.current().ui.heldCookDevice || null; },
         setHeldCookDevice: function (dev) { CookingManager.current().ui.heldCookDevice = dev || null; },
         clearHeld: function () {
-            var inst = CookingManager.current(); var had = !!inst.ui.held;
-            inst.ui.heldCookDevice = null;
-            inst.ui.held = null; inst.ui.heldTasteScore = null; inst.ui.heldCookScore = null; return had;
+            var inst = CookingManager.current();
+            var had = !!(inst && inst.ui && inst.ui.held);
+            if (inst && typeof inst.resetUi === 'function') {
+                inst.resetUi();
+            } else if (inst && inst.ui) {
+                inst.ui.heldCookDevice = null;
+                inst.ui.held = null;
+                inst.ui.heldTasteScore = null;
+                inst.ui.heldCookScore = null;
+            }
+            return had;
         }
     };
 
     window.CookingUI = CookingUI;
+
+    function CombinationRuleSet(rules, options) {
+        options = options || {};
+        this._rules = rules || {};
+        this._canStart = options.canStart || function () { return true; };
+    }
+
+    CombinationRuleSet.prototype.getResultId = function (base, top) {
+        if (!top) return null;
+        var baseId = (base && base.id) || base;
+        var topId = (top && top.id) || top;
+        var map = this._rules[topId] || {};
+        var res = map[baseId];
+        return (typeof res === 'number') ? res : null;
+    };
+
+    CombinationRuleSet.prototype.canStart = function (item) {
+        return !!this._canStart(item);
+    };
+
+    CombinationRuleSet.prototype.canPlace = function (base, top) {
+        if (!top) return false;
+        if (!base) return this.canStart(top);
+        return !!this.getResultId(base, top);
+    };
     // --- Règles de combinaison sur le Plan de travail ---
     // canPlace(base, top) : true si on peut poser "top" par-dessus "base"
-    var WorkbenchRules = {
-        // Nouvelle structure : topId -> { baseId: resultId }
-        rules: {
+    var WorkbenchRules = new CombinationRuleSet({
             1: {},
             2: {},
             3: { // Herbes
@@ -337,27 +453,14 @@
             6: {},
             7: {},
             8: {}
-        },
-        getResultId: function (base, top) {
-            if (!top) return null;
-            var baseId = (base && base.id) || base;
-            var topId = (top && top.id) || top;
-            var map = this.rules[topId] || {};
-            var res = map[baseId];
-            return (typeof res === 'number') ? res : null;
-        },
-        canPlace: function (base, top) {
-            if (!top) return false;
-            if (!base) return true; // plateau vide → on peut poser n'importe quoi
-            return !!this.getResultId(base, top);
-        }
-    };
+        }, {
+            canStart: function () { return true; }
+        });
 
 
 
     // --- Règles de combinaison pour la rôtisserie (similaire au plan de travail)
-    var RotisserieRules = {
-        rules: {
+    var RotisserieRules = new CombinationRuleSet({
             1: {},
             2: {},
             3: { // Herbes
@@ -405,26 +508,13 @@
             6: {},
             7: {},
             8: {}
-        },
-        getResultId: function (base, top) {
-            if (!top) return null;
-            var baseId = (base && base.id) || base;
-            var topId = (top && top.id) || top;
-            var map = this.rules[topId] || {};
-            var res = map[baseId];
-            return (typeof res === 'number') ? res : null;
-        },
-        canPlace: function (base, top) {
-            if (!top) return false;
-            if (!base) return !!(top && top.canRotisserie); // vide -> viande only
-            return !!this.getResultId(base, top);
-        }
-    };
+        }, {
+            canStart: function (item) { return !!(item && item.canRotisserie); }
+        });
 
 
 
-    var PotRules = {
-        rules: {
+    var PotRules = new CombinationRuleSet({
             2: {
                 6: 28,
                 7: 29,
@@ -462,7 +552,7 @@
                 40: 41,
                 42: 44,
             },
-            5: { // Poivre  
+            5: { // Poivre
                 6: 8,
                 7: 12,
                 9: 11,
@@ -476,8 +566,7 @@
                 40: 42,
                 41: 44,
             },
-            36 : // Fond de veau
-            {
+            36: { // Fond de veau
                 6: 37,
                 7: 38,
                 8: 39,
@@ -487,27 +576,14 @@
                 12: 43,
                 13: 44,
             }
-        },
-        getResultId: function (base, top) {
-            if (!top) return null;
-            var baseId = (base && base.id) || base;
-            var topId = (top && top.id) || top;
-            var map = this.rules[topId] || {};
-            var res = map[baseId];
-            return (typeof res === 'number') ? res : null;
-        },
-        canStartInPot: function (item) {
-            if (!item) return false;
-            // si canPot existe → l'utiliser ; sinon fallback: cat main/side
-            if (typeof item.canPot === 'boolean') return item.canPot;
-            return (item.cat === 'main' || item.cat === 'side');
-        },
-        canPlace: function (base, top) {
-            if (!top) return false;
-            if (!base) return !!this.canStartInPot(top); // vide → doit pouvoir aller à la casserole
-            return !!this.getResultId(base, top);
-        }
-    };
+        }, {
+            canStart: function (item) {
+                if (!item) return false;
+                if (typeof item.canPot === 'boolean') return item.canPot;
+                return (item.cat === 'main' || item.cat === 'side');
+            }
+        });
+    PotRules.canStartInPot = PotRules.canStart.bind(PotRules);
 
     /*=============================================================================
     * CookingScore – Scoring helpers (ES5)
@@ -736,7 +812,7 @@
     Scene_CookingBase.prototype.createPlateWindow = function () {
         var top = this._helpWindow.height;
         var y = top + 24;
-        var h = Graphics.boxHeight - top - BOTTOM_BAR_H - ACTION_BAR_H - 48;
+        var h = Graphics.boxHeight - top - Layout.bottomBarHeight - Layout.actionBarHeight - 48;
         var x = 24;
         var w = Graphics.boxWidth - 48;
         this._plateWindow = new Window_CookingPlate(x, y, w, h);
@@ -749,8 +825,8 @@
     };
 
     Scene_CookingBase.prototype.createPlateActionBar = function () {
-        var y = Graphics.boxHeight - BOTTOM_BAR_H - ACTION_BAR_H;
-        this._plateActionBar = new Window_PlateActionBar(0, y, Graphics.boxWidth, ACTION_BAR_H);
+        var y = Graphics.boxHeight - Layout.bottomBarHeight - Layout.actionBarHeight;
+        this._plateActionBar = new Window_PlateActionBar(0, y, Graphics.boxWidth, Layout.actionBarHeight);
         this._plateActionBar.setHandler('plateClear', this.doPlateClear.bind(this));
         this._plateActionBar.setHandler('plateFinish', this.doPlateFinish.bind(this));
         this._plateActionBar.setHandler('cancel', this.onPlateActionCancel.bind(this));
@@ -787,54 +863,54 @@
         if (this._rotiActionBar) this._rotiActionBar.deactivate();
 
         // 2) Mode Zones
-        if (mode === COOK_MODE_ZONES) {
+        if (mode === Modes.zones) {
             if (this._zoneWindow) { this._zoneWindow.show(); this._zoneWindow.activate(); }
             this.setActionBarVisible(true); // barre d’actions générale visible seulement ici
-            if (this._helpWindow) this._helpWindow.setText(TEXT_ZONE);
+            if (this._helpWindow) this._helpWindow.setText(Texts.zone);
             this.refreshBottomBar();
             this.refreshActionBar();
             return;
         }
 
         // 3) Mode Ingrédients
-        if (mode === COOK_MODE_INGR) {
+        if (mode === Modes.ingredients) {
             this.showIngredientView(true);  // n’affiche que le trio catégories/liste/plan
             if (this._ingrCatWindow) { this._ingrCatWindow.activate(); this._ingrCatWindow.select(this._ingrCatWindow.index() || 0); }
-            if (this._helpWindow) this._helpWindow.setText(TEXT_INGREDIENTS);
+            if (this._helpWindow) this._helpWindow.setText(Texts.ingredients);
             this.refreshBottomBar();
             this.refreshActionBar();
             return;
         }
 
         // 4) Mode Rôtisserie
-        if (mode === COOK_MODE_ROTI) {
+        if (mode === Modes.rotisserie) {
             this.showRotisserieView(true);  // juste la rôtisserie
             if (this._rotiWindow) { this._rotiWindow.activate(); this._rotiWindow.select(0); }
             this.setRotiActionBarVisible(true); // barre ON/OFF dédiée
             this.refreshRotiActionBar();
-            if (this._helpWindow) this._helpWindow.setText(TEXT_ROTI);
+            if (this._helpWindow) this._helpWindow.setText(Texts.rotisserie);
             this.refreshBottomBar();
             this.refreshActionBar();
             return;
         }
 
         // 5) Mode Pot
-        if (mode === COOK_MODE_POT) {
+        if (mode === Modes.pot) {
             this.showPotView(true);
             if (this._potWindow) { this._potWindow.activate(); this._potWindow.select(0); }
             this.setPotActionBarVisible(true);
             this.refreshPotActionBar();
-            if (this._helpWindow) this._helpWindow.setText(TEXT_POT);
+            if (this._helpWindow) this._helpWindow.setText(Texts.pot);
             this.refreshBottomBar();
             this.refreshActionBar();
             return;
         }
 
         // 6) Mode Dressage
-        if (mode === COOK_MODE_PLATE) {
+        if (mode === Modes.plate) {
             if (this._plateWindow) { this._plateWindow.show(); this._plateWindow.activate(); this._plateWindow.select(0); }
             this.setPlateActionBarVisible(true);
-            if (this._helpWindow) this._helpWindow.setText(TEXT_PLATE);
+            if (this._helpWindow) this._helpWindow.setText(Texts.plate);
             this.refreshBottomBar();
             return;
         }
@@ -856,7 +932,7 @@
         Scene_Base.prototype.start.call(this);
         this.centerSprite(this._backSprite);
         this.startFadeIn(this.fadeSpeed(), false);
-        this.setUIMode(COOK_MODE_ZONES);
+        this.setUIMode(Modes.zones);
     };
 
     Scene_CookingBase.prototype.update = function () {
@@ -875,7 +951,7 @@
                         this._ingrCatWindow.deactivate();
                         this._workbenchWindow.select(0);
                         this._workbenchWindow.activate();
-                        this._helpWindow.setText(TEXT_WORKBENCH);
+                        this._helpWindow.setText(Texts.workbench);
                     } else {
                         SoundManager.playBuzzer();
                     }
@@ -886,7 +962,7 @@
                         this._ingrCatWindow.deactivate();
                         this._workbenchWindow.select(0);
                         this._workbenchWindow.activate();
-                        this._helpWindow.setText(TEXT_WORKBENCH);
+                        this._helpWindow.setText(Texts.workbench);
                     }
                 }
             }
@@ -898,7 +974,7 @@
                 this._plateWindow.deactivate();
                 this._plateActionBar.select(0);
                 this._plateActionBar.activate();
-                this._helpWindow.setText(TEXT_ACTION);
+                this._helpWindow.setText(Texts.action);
             }
         }
         // ↑ : barre d’actions dressage -> Dressage
@@ -914,7 +990,7 @@
                 this._zoneWindow.deactivate();
                 this._actionBar.select(0);
                 this._actionBar.activate();
-                this._helpWindow.setText(TEXT_ACTION);
+                this._helpWindow.setText(Texts.action);
             }
         }
         // ↑ : Barre d’actions -> Zones
@@ -938,7 +1014,7 @@
                 this._rotiWindow.deactivate();
                 this._rotiActionBar.select(0);
                 this._rotiActionBar.activate();
-                this._helpWindow.setText(TEXT_ACTION);
+                this._helpWindow.setText(Texts.action);
             }
         }
         // ↑ : barre d’actions rôtisserie -> Rôtisserie
@@ -966,7 +1042,7 @@
                 this._potWindow.deactivate();
                 this._potActionBar.select(0);
                 this._potActionBar.activate();
-                this._helpWindow.setText(TEXT_ACTION);
+                this._helpWindow.setText(Texts.action);
             }
         }
         // ↑ : barre d'actions casserole -> Casserole
@@ -997,14 +1073,14 @@
     Scene_CookingBase.prototype.createHelpWindow = function () {
         this._helpWindow = new Window_CookHelp();
         this._helpWindow.y = 0;
-        this._helpWindow.setText(TEXT_ZONE);
+        this._helpWindow.setText(Texts.zone);
         this.addWindow(this._helpWindow);
     };
 
     Scene_CookingBase.prototype.onZoneCancelLocked = function () {
         SoundManager.playBuzzer();
         if (this._helpWindow) {
-            this._helpWindow.setText(TEXT_DISABLED_EXIT);
+            this._helpWindow.setText(Texts.disabledExit);
         }
         this._zoneWindow.deactivate();
         this._zoneWindow.activate();
@@ -1014,7 +1090,7 @@
     // --- Sélecteur de zone (centre) ---
     Scene_CookingBase.prototype.createZoneWindow = function () {
         var top = this._helpWindow.height;
-        var h = Graphics.boxHeight - top - BOTTOM_BAR_H - ACTION_BAR_H; // réserve l'espace de la barre d'actions + bas
+        var h = Graphics.boxHeight - top - Layout.bottomBarHeight - Layout.actionBarHeight; // réserve l'espace de la barre d'actions + bas
         this._zoneWindow = new Window_CookingZoneSelect(0, top, Graphics.boxWidth, h);
         this._zoneWindow.setHandler('ok', this.onZoneOk.bind(this));
         var cancelHandler = this._lockExit ? this.onZoneCancelLocked.bind(this) : this.popScene.bind(this);
@@ -1025,7 +1101,7 @@
     // --- Fenêtres de la vue "Ingrédients" ---
     Scene_CookingBase.prototype.createIngredientWindows = function () {
         var top = this._helpWindow.height;
-        var zoneTop = top, zoneH = Graphics.boxHeight - top - BOTTOM_BAR_H; // la vue ingrédients n'utilise pas la barre d'actions
+        var zoneTop = top, zoneH = Graphics.boxHeight - top - Layout.bottomBarHeight; // la vue ingrédients n'utilise pas la barre d'actions
         var margin = 24;
 
         // Barre de catégories
@@ -1059,8 +1135,8 @@
     };
 
     Scene_CookingBase.prototype.createActionBar = function () {
-        var y = Graphics.boxHeight - BOTTOM_BAR_H - ACTION_BAR_H; // juste au-dessus de la barre du bas
-        this._actionBar = new Window_CookingActionBar(0, y, Graphics.boxWidth, ACTION_BAR_H);
+        var y = Graphics.boxHeight - Layout.bottomBarHeight - Layout.actionBarHeight; // juste au-dessus de la barre du bas
+        this._actionBar = new Window_CookingActionBar(0, y, Graphics.boxWidth, Layout.actionBarHeight);
         // Handlers par symbole
         this._actionBar.setHandler('clearHand', this.doClearHand.bind(this));
         this._actionBar.setHandler('clearWorkbench', this.doClearWorkbench.bind(this));
@@ -1074,7 +1150,7 @@
     };
 
     Scene_CookingBase.prototype.createBottomBar = function () {
-        var h = BOTTOM_BAR_H;
+        var h = Layout.bottomBarHeight;
         var y = Graphics.boxHeight - h;
         this._bottomBar = new Window_CookingBottomBar(0, y, Graphics.boxWidth, h);
         this.addWindow(this._bottomBar);
@@ -1130,18 +1206,18 @@
         if (P && P.isOn) {
             this._potWindow.select(0);
             this._potWindow.activate();
-            this._helpWindow.setText(TEXT_POT);
+            this._helpWindow.setText(Texts.pot);
         } else {
             if (this._potActionBar) {
                 this._potWindow.deactivate();
                 this._potActionBar.select(0);
                 this._potActionBar.activate();
-                this._helpWindow.setText(TEXT_ACTION);
+                this._helpWindow.setText(Texts.action);
             }
         }
     };
 
-    Scene_CookingBase.prototype.onPotCancel = function () { this.setUIMode(COOK_MODE_ZONES); };
+    Scene_CookingBase.prototype.onPotCancel = function () { this.setUIMode(Modes.zones); };
 
     Scene_CookingBase.prototype.doPotOn = function () {
         var P = this._inst.pot;
@@ -1159,26 +1235,26 @@
     Scene_CookingBase.prototype.onPotActionCancel = function () {
         if (this._potActionBar) this._potActionBar.deactivate();
         if (this._potWindow) { this._potWindow.activate(); this._potWindow.select(0); }
-        if (this._helpWindow) this._helpWindow.setText(TEXT_POT);
+        if (this._helpWindow) this._helpWindow.setText(Texts.pot);
     };
 
     Scene_CookingBase.prototype.onZoneOk = function () {
         var index = this._zoneWindow.index();
         if (index === 0) {                 // Ingrédients
-            this.setUIMode(COOK_MODE_INGR);
+            this.setUIMode(Modes.ingredients);
             var cat = this._ingrCatWindow.currentCategory() || 'main';
             this._ingrWindow.setCategory(cat);
         } else if (index === 1) {          // Rôtisserie
-            this.setUIMode(COOK_MODE_ROTI);
+            this.setUIMode(Modes.rotisserie);
         } else if (index === 2) {
-            this.setUIMode(COOK_MODE_POT);   // Casserole 
+            this.setUIMode(Modes.pot);   // Casserole 
         } else if (index === 3) {      // Dressage
-            this.setUIMode(COOK_MODE_PLATE);
+            this.setUIMode(Modes.plate);
         }
     };
 
     Scene_CookingBase.prototype.openIngredients = function () {
-        this.setUIMode(COOK_MODE_INGR);
+        this.setUIMode(Modes.ingredients);
         var cat = this._ingrCatWindow.currentCategory() || 'main';
         this._ingrWindow.setCategory(cat);
     };
@@ -1199,8 +1275,7 @@
 
                 // Pré-initialise le cook de la rôtissoire si elle est vide (facilite la 2e cuisson)
                 if (!this._rotiWindow || !this._rotiWindow.hasItems()) {
-                    R._accMs = 0;
-                    R.cookScore = slot.cook || 0;
+                    R.resetCookProgress(slot.cook || 0);
                     // (on ne rallume pas automatiquement)
                 }
 
@@ -1218,8 +1293,7 @@
             if (this._plateWindow.placeItem(held, cook, taste)) {
                 // Après sauvegarde dans le dressage, on RESET le cook courant de la rôtissoire
                 if (!this._rotiWindow || !this._rotiWindow.hasItems()) {
-                    R._accMs = 0;
-                    R.cookScore = 0; // reset demandé
+                    R.resetCookProgress(0); // reset demandé
                     // (on laisse R.isOn inchangé ; à toi de rallumer quand tu veux)
                 }
 
@@ -1236,13 +1310,13 @@
     };
 
     Scene_CookingBase.prototype.onPlateCancel = function () {
-        this.setUIMode(COOK_MODE_ZONES);
+        this.setUIMode(Modes.zones);
     };
 
     Scene_CookingBase.prototype.onPlateActionCancel = function () {
         if (this._plateActionBar) this._plateActionBar.deactivate();
         if (this._plateWindow) { this._plateWindow.activate(); this._plateWindow.select(this._plateWindow.index() || 0); }
-        if (this._helpWindow) this._helpWindow.setText(TEXT_PLATE);
+        if (this._helpWindow) this._helpWindow.setText(Texts.plate);
     };
 
     Scene_CookingBase.prototype.doPlateClear = function () {
@@ -1268,9 +1342,9 @@
                 result.push(null);
             }
         }
-        $gameVariables.setValue(PLATE_RESULT_VARIABLE_ID, result); // tableau de 3 entrées (ou null)
+        $gameVariables.setValue(Config.variables.plateResult, result); // tableau de 3 entrées (ou null)
         SoundManager.playOk();
-        if (this._helpWindow) this._helpWindow.setText(TEXT_END_DISH);
+        if (this._helpWindow) this._helpWindow.setText(Texts.endDish);
         this._plateWindow.clearAll();
         this.onPlateActionCancel();
         setTimeout(() => { SceneManager.pop() }, 2000)
@@ -1278,7 +1352,7 @@
 
     // Catégories -> Liste
     Scene_CookingBase.prototype.onCategoryOk = function () {
-        this._helpWindow.setText(TEXT_SELECT);
+        this._helpWindow.setText(Texts.select);
         this._ingrWindow.select(0);
         this._ingrWindow.activate();
     };
@@ -1313,19 +1387,19 @@
         this._ingrWindow.deselect();
         this._ingrWindow.deactivate();
         this._ingrCatWindow.activate();
-        this._helpWindow.setText(TEXT_INGREDIENTS);
+        this._helpWindow.setText(Texts.ingredients);
     };
 
     // Liste -> retour catégories
     Scene_CookingBase.prototype.onIngredientCancel = function () {
         this._ingrWindow.deactivate();
         this._ingrCatWindow.activate();
-        this._helpWindow.setText(TEXT_INGREDIENTS);
+        this._helpWindow.setText(Texts.ingredients);
     };
 
     // Catégories -> quitter vue Ingrédients
     Scene_CookingBase.prototype.onIngredientViewCancel = function () {
-        this.setUIMode(COOK_MODE_ZONES);
+        this.setUIMode(Modes.zones);
     };
 
     // Plan de travail -> déposer
@@ -1387,14 +1461,14 @@
         this._workbenchWindow.deactivate();
 
         this._ingrCatWindow.activate();
-        this._helpWindow.setText(TEXT_INGREDIENTS);
+        this._helpWindow.setText(Texts.ingredients);
     };
 
     // Plan de travail -> retour catégories
     Scene_CookingBase.prototype.onWorkbenchCancel = function () {
         this._workbenchWindow.deactivate();
         this._ingrCatWindow.activate();
-        this._helpWindow.setText(TEXT_INGREDIENTS);
+        this._helpWindow.setText(Texts.ingredients);
     };
 
     Scene_CookingBase.prototype.refreshBottomBar = function () {
@@ -1467,13 +1541,15 @@ Scene_CookingBase.prototype.doClearPot = function () {
 
     // 2) Réinitialiser l'état de cuisson
     var P = this._inst.pot;
-    if (P) {
+    if (P && typeof P.clear === 'function') {
+        P.clear();
+    } else if (P) {
         P.isOn = false;
         P.cookScore = null;
         P.tasteScore = null;
         P.cookFrames = 0;
         P._accMs = 0;
-        P._changed = true; // force un refresh visuel
+        P._changed = true;
     }
 
     // 3) Feedback + UI
@@ -1497,22 +1573,26 @@ Scene_CookingBase.prototype.doClearPot = function () {
         }
         this.refreshActionBar();
         this.returnToZoneFromAction(msg);
-        R.isOn = false;
-        R.cookScore = null;
-        R.tasteScore = null;
-        R.cookFrames = 0;
+        if (R && typeof R.clear === 'function') {
+            R.clear();
+        } else if (R) {
+            R.isOn = false;
+            R.cookScore = null;
+            R.tasteScore = null;
+            R.cookFrames = 0;
+        }
         this.refreshRotiActionBar();
     };
 
     Scene_CookingBase.prototype.onActionCancel = function () {
-        this.setUIMode(COOK_MODE_ZONES);
+        this.setUIMode(Modes.zones);
     };
 
     // Revenir proprement aux Zones après une action
     Scene_CookingBase.prototype.returnToZoneFromAction = function (message) {
-        this.setUIMode(COOK_MODE_ZONES);
+        this.setUIMode(Modes.zones);
         if (this._helpWindow) {
-            this._helpWindow.setText(message || TEXT_ZONE);
+            this._helpWindow.setText(message || Texts.zone);
         }
     };
 
@@ -1520,7 +1600,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
     Scene_CookingBase.prototype.createRotisserieWindow = function () {
         var top = this._helpWindow.height;
         var y = top + 24;
-        var h = Graphics.boxHeight - top - BOTTOM_BAR_H - ACTION_BAR_H - 48;
+        var h = Graphics.boxHeight - top - Layout.bottomBarHeight - Layout.actionBarHeight - 48;
         var x = 24;
         var w = Graphics.boxWidth - 48;
 
@@ -1534,8 +1614,8 @@ Scene_CookingBase.prototype.doClearPot = function () {
     };
 
     Scene_CookingBase.prototype.createRotisserieActionBar = function () {
-        var y = Graphics.boxHeight - BOTTOM_BAR_H - ACTION_BAR_H;
-        this._rotiActionBar = new Window_RotisserieActionBar(0, y, Graphics.boxWidth, ACTION_BAR_H);
+        var y = Graphics.boxHeight - Layout.bottomBarHeight - Layout.actionBarHeight;
+        this._rotiActionBar = new Window_RotisserieActionBar(0, y, Graphics.boxWidth, Layout.actionBarHeight);
         this._rotiActionBar.setHandler('rotiOn', this.doRotiOn.bind(this));
         this._rotiActionBar.setHandler('rotiOff', this.doRotiOff.bind(this));
         this._rotiActionBar.setHandler('cancel', this.onRotiActionCancel.bind(this));
@@ -1548,7 +1628,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
     Scene_CookingBase.prototype.createPotWindow = function () {
         var top = this._helpWindow.height;
         var y = top + 24;
-        var h = Graphics.boxHeight - top - BOTTOM_BAR_H - ACTION_BAR_H - 48;
+        var h = Graphics.boxHeight - top - Layout.bottomBarHeight - Layout.actionBarHeight - 48;
         var x = 24;
         var w = Graphics.boxWidth - 48;
 
@@ -1561,7 +1641,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
     };
 
     Scene_CookingBase.prototype.createPotActionBar = function () {
-        var y = Graphics.boxHeight - BOTTOM_BAR_H - ACTION_BAR_H;
+        var y = Graphics.boxHeight - Layout.bottomBarHeight - Layout.actionBarHeight;
         this._potActionBar = new Window_PotActionBar(0, y, Graphics.boxWidth);
         this._potActionBar.setHandler('potOn', this.doPotOn.bind(this));
         this._potActionBar.setHandler('potOff', this.doPotOff.bind(this));
@@ -1645,20 +1725,20 @@ Scene_CookingBase.prototype.doClearPot = function () {
             // Feu allumé → comportement courant
             this._rotiWindow.select(0);
             this._rotiWindow.activate();
-            this._helpWindow.setText(TEXT_ROTI);
+            this._helpWindow.setText(Texts.rotisserie);
         } else {
             // Feu éteint → on bascule sur la barre d’action rotissoire
             if (this._rotiActionBar) {
                 this._rotiWindow.deactivate();
                 this._rotiActionBar.select(0);
                 this._rotiActionBar.activate();
-                this._helpWindow.setText(TEXT_ACTION);
+                this._helpWindow.setText(Texts.action);
             }
         }
     };
 
     Scene_CookingBase.prototype.onRotisserieCancel = function () {
-        this.setUIMode(COOK_MODE_ZONES);
+        this.setUIMode(Modes.zones);
     };
 
 
@@ -1687,7 +1767,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
     Scene_CookingBase.prototype.onRotiActionCancel = function () {
         if (this._rotiActionBar) this._rotiActionBar.deactivate();
         if (this._rotiWindow) { this._rotiWindow.activate(); this._rotiWindow.select(0); }
-        if (this._helpWindow) this._helpWindow.setText(TEXT_ROTI);
+        if (this._helpWindow) this._helpWindow.setText(Texts.rotisserie);
     };
 
     window.Scene_CookingBase = Scene_CookingBase;
@@ -1734,24 +1814,46 @@ Scene_CookingBase.prototype.doClearPot = function () {
         this.drawText(label, rect.x, rect.y + rect.height / 2 - this.lineHeight() / 2, rect.width, "center");
     };
 
-    //-----------------------------------------------------------------------------
-    // Window_CookingActionBar (nouvelle barre d’actions, 4 boutons)
-    //-----------------------------------------------------------------------------
-    function Window_CookingActionBar() { this.initialize.apply(this, arguments); }
-    Window_CookingActionBar.prototype = Object.create(Window_HorzCommand.prototype);
-    Window_CookingActionBar.prototype.constructor = Window_CookingActionBar;
+    function Window_CommandBarBase() { this.initialize.apply(this, arguments); }
+    Window_CommandBarBase.prototype = Object.create(Window_HorzCommand.prototype);
+    Window_CommandBarBase.prototype.constructor = Window_CommandBarBase;
 
-    Window_CookingActionBar.prototype.initialize = function (x, y, width, height) {
+    Window_CommandBarBase.prototype.initialize = function (x, y, width, height) {
         this._forcedWidth = width || Graphics.boxWidth;
-        this._enabled = { hand: false, bench: false, pot: false, roti: false };
+        this._forcedHeight = height || Layout.actionBarHeight;
         Window_HorzCommand.prototype.initialize.call(this, x, y);
         this.select(0);
         this.openness = 255;
     };
-    Window_CookingActionBar.prototype.windowWidth = function () { return this._forcedWidth; };
-    Window_CookingActionBar.prototype.windowHeight = function () { return this.fittingHeight(1) + ACTION_BAR_MARGIN; };
+    Window_CommandBarBase.prototype.windowWidth = function () { return this._forcedWidth; };
+    Window_CommandBarBase.prototype.windowHeight = function () {
+        return this._forcedHeight != null ? this._forcedHeight : this.fittingHeight(1) + Layout.actionBarMargin;
+    };
+    Window_CommandBarBase.prototype.spacing = function () { return 20; };
+    Window_CommandBarBase.prototype.drawItem = function (index) {
+        var rect = this.itemRectForText(index);
+        var enabled = this.isCommandEnabled(index);
+        this.changePaintOpacity(enabled);
+        this.drawText(this.commandName(index), rect.x, rect.y, rect.width, 'center');
+        this.changePaintOpacity(true);
+    };
+    Window_CommandBarBase.prototype.processHandling = function () {
+        if (!this.active) return;
+        Window_HorzCommand.prototype.processHandling.call(this);
+    };
+
+    //-----------------------------------------------------------------------------
+    // Window_CookingActionBar (nouvelle barre d’actions, 4 boutons)
+    //-----------------------------------------------------------------------------
+    function Window_CookingActionBar() { this.initialize.apply(this, arguments); }
+    Window_CookingActionBar.prototype = Object.create(Window_CommandBarBase.prototype);
+    Window_CookingActionBar.prototype.constructor = Window_CookingActionBar;
+
+    Window_CookingActionBar.prototype.initialize = function (x, y, width, height) {
+        Window_CommandBarBase.prototype.initialize.call(this, x, y, width, height);
+        this._enabled = { hand: false, bench: false, pot: false, roti: false };
+    };
     Window_CookingActionBar.prototype.maxCols = function () { return 4; };
-    Window_CookingActionBar.prototype.spacing = function () { return 20; };
 
     Window_CookingActionBar.prototype.setEnabledStates = function (flags) {
         // flags = {hand, bench, pot, roti}
@@ -1772,18 +1874,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
     };
 
     // Petite touche visuelle
-    Window_CookingActionBar.prototype.drawItem = function (index) {
-        var rect = this.itemRectForText(index);
-        var enabled = this.isCommandEnabled(index);
-        this.changePaintOpacity(enabled);
-        this.drawText(this.commandName(index), rect.x, rect.y, rect.width, 'center');
-        this.changePaintOpacity(true);
-    };
     // Empêche la barre d’actions de traiter les entrées quand elle n'est pas active
-    Window_CookingActionBar.prototype.processHandling = function () {
-        if (!this.active) return;
-        Window_HorzCommand.prototype.processHandling.call(this);
-    };
 
     //-----------------------------------------------------------------------------
     function Window_CookingCategoryBar() {
@@ -1845,7 +1936,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
 
     Window_CookingItemList.prototype.initialize = function (x, y, w, h) {
         this._category = 'main';
-        this._all = CookingIngredients;
+        this._all = IngredientRepository.list;
         this._data = [];
         Window_Selectable.prototype.initialize.call(this, x, y, w, h);
         this.refresh();
@@ -1880,7 +1971,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
         rect.width -= this.textPadding();
         this.resetTextColor();
 
-        var ICON_W = ING_ICON_W;           // largeur de l’icône
+        var ICON_W = IconConfig.width;           // largeur de l’icône
         var GAP = 4;                    // petit espace entre icône et texte
         var ix = rect.x;
         var iy = rect.y + 2;
@@ -1897,11 +1988,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
     };
 
     Window_CookingItemList.prototype.drawIngredientIcon = function (iconIndex, x, y) {
-        var bmp = ImageManager.loadPicture(ING_SHEET);
-        if (!bmp.isReady()) { bmp.addLoadListener(this.refresh.bind(this)); return; }
-        var sx = (iconIndex % ING_ICON_COLS) * ING_ICON_W;
-        var sy = Math.floor(iconIndex / ING_ICON_COLS) * ING_ICON_H;
-        this.contents.blt(bmp, sx, sy, ING_ICON_W, ING_ICON_H, x, y);
+        drawIngredientIconHelper(this, iconIndex, x, y);
     };
 
     //-----------------------------------------------------------------------------
@@ -1922,7 +2009,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
 
     Window_CookingWorkbench.prototype.itemRect = function (index) {
         var rect = new Rectangle();
-        var boxW = ITEM_BOX_W, boxH = ITEM_BOX_H;
+        var boxW = Layout.itemBox.width, boxH = Layout.itemBox.height;
         rect.width = boxW;
         rect.height = boxH;
         rect.x = Math.floor((this.contentsWidth() - boxW) / 2);
@@ -1932,7 +2019,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
 
     // Icône à gauche, centrée verticalement dans 'rect'; texte à droite
     function drawIconAndTextInBox(win, rect, iconIndex, text) {
-        var ICON_W = ING_ICON_W, ICON_H = ING_ICON_H;
+        var ICON_W = IconConfig.width, ICON_H = IconConfig.height;
         var PAD_L = 8, PAD_R = 8, GAP = 8;
 
         var ix = rect.x + PAD_L;
@@ -1966,11 +2053,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
     };
 
     Window_CookingWorkbench.prototype.drawIngredientIcon = function (iconIndex, x, y) {
-        var bmp = ImageManager.loadPicture(ING_SHEET);
-        if (!bmp.isReady()) { bmp.addLoadListener(this.refresh.bind(this)); return; }
-        var sx = (iconIndex % ING_ICON_COLS) * ING_ICON_W;
-        var sy = Math.floor(iconIndex / ING_ICON_COLS) * ING_ICON_H;
-        this.contents.blt(bmp, sx, sy, ING_ICON_W, ING_ICON_H, x, y);
+        drawIngredientIconHelper(this, iconIndex, x, y);
     };
 
     // Peut-on accepter cet ingrédient maintenant ?
@@ -1994,10 +2077,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
         var resId = WorkbenchRules.getResultId(base, item);
         if (!resId) return false; // combinaison impossible
         // Résout l'objet résultat par id
-        var result = null;
-        for (var i = 0; i < CookingIngredients.length; i++) {
-            if (CookingIngredients[i].id === resId) { result = CookingIngredients[i]; break; }
-        }
+        var result = IngredientRepository.byId(resId);
         if (!result) return false; // id inconnu
         this._stack[this._stack.length - 1] = result; // remplace le sommet par le résultat
         this.refresh();
@@ -2075,11 +2155,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
     };
 
     Window_CookingBottomBar.prototype.drawIngredientIcon = function (iconIndex, x, y) {
-        var bmp = ImageManager.loadPicture(ING_SHEET);
-        if (!bmp.isReady()) { bmp.addLoadListener(this.refresh.bind(this)); return; }
-        var sx = (iconIndex % ING_ICON_COLS) * ING_ICON_W;
-        var sy = Math.floor(iconIndex / ING_ICON_COLS) * ING_ICON_H;
-        this.contents.blt(bmp, sx, sy, ING_ICON_W, ING_ICON_H, x, y);
+        drawIngredientIconHelper(this, iconIndex, x, y);
     };
 
     //-----------------------------------------------------------------------------
@@ -2100,7 +2176,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
 
     Window_CookingRotisserie.prototype.itemRect = function () {
         var rect = new Rectangle();
-        var boxW = ITEM_BOX_W, boxH = ITEM_BOX_H;
+        var boxW = Layout.itemBox.width, boxH = Layout.itemBox.height;
         rect.width = boxW;
         rect.height = boxH;
         rect.x = Math.floor((this.contentsWidth() - boxW) / 2);
@@ -2159,27 +2235,27 @@ Scene_CookingBase.prototype.doClearPot = function () {
         var barY = rect.y + rect.height + 14;
 
         // Rien sur la broche → barre grise
-        if (!top) { this.contents.fillRect(barX, barY, barW, barH, COLOR_FUTURE_GRAY); return; }
+        if (!top) { this.contents.fillRect(barX, barY, barW, barH, Colors.futureGray); return; }
 
         var target = (typeof top.targetCookingScore === 'number') ? top.targetCookingScore : 0;
         var R = this._inst && this._inst.rotisserie ? this._inst.rotisserie : null;
         var cook = (R && typeof R.cookScore === 'number') ? R.cookScore : 0;
 
-        var max = MAX_COOK_SCALE;
+        var max = Visuals.maxCookScale;
         if (cook < 0) cook = 0;
         if (cook > max) cook = max;
 
-        // Repères : centre = target, pic rouge = RED_PEAK_RATIO * target
+        // Repères : centre = target, pic rouge = Config.scoring.redPeakRatio * target
         var mid = max > 0 ? (target / max) : 0; // 0..1
-        var redPeakVal = Math.min(max, Math.max(target, Math.round(target * RED_PEAK_RATIO)));
+        var redPeakVal = Math.min(max, Math.max(target, Math.round(target * Config.scoring.redPeakRatio)));
         var tPeak = max > 0 ? (redPeakVal / max) : 1;
 
         // Optionnel : mini plateau central si demandé (par défaut: aucun)
-        var tolVis = (typeof COOK_VISUAL !== 'undefined' && COOK_VISUAL.TOL_RATIO_VISUAL != null)
-            ? (COOK_VISUAL.TOL_RATIO_VISUAL * COOK_TOLERANCE)
-            : COOK_TOLERANCE;
-        var halfPlate = (COOK_VISUAL && COOK_VISUAL.FLAT_RATIO > 0)
-            ? (target * tolVis * COOK_VISUAL.FLAT_RATIO) / max
+        var tolVis = (typeof CookBarConfig !== 'undefined' && CookBarConfig.TOL_RATIO_VISUAL != null)
+            ? (CookBarConfig.TOL_RATIO_VISUAL * Config.scoring.tolerance)
+            : Config.scoring.tolerance;
+        var halfPlate = (CookBarConfig && CookBarConfig.FLAT_RATIO > 0)
+            ? (target * tolVis * CookBarConfig.FLAT_RATIO) / max
             : 0; // en unités normalisées (0..1)
         var tFlatLow = mid - halfPlate;
         var tFlatHigh = mid + halfPlate;
@@ -2187,13 +2263,13 @@ Scene_CookingBase.prototype.doClearPot = function () {
         if (tFlatHigh > 1) tFlatHigh = 1;
 
         // Couleurs de base
-        var cBlue = _hexToRgb(COLOR_BLUE_RAW);
-        var cGreen = _hexToRgb(COLOR_GREEN_GOOD);
-        var cRed = _hexToRgb(COLOR_RED_OVER);
-        var cBlack = _hexToRgb(COLOR_BLACK_BURN);
+        var cBlue = _hexToRgb(Colors.blueRaw);
+        var cGreen = _hexToRgb(Colors.greenGood);
+        var cRed = _hexToRgb(Colors.redOver);
+        var cBlack = _hexToRgb(Colors.blackBurn);
 
-        var gamma = (COOK_VISUAL && COOK_VISUAL.GREEN_GAMMA) || 1.0;
-        var mixMax = (COOK_VISUAL && COOK_VISUAL.MIX_MAX != null) ? COOK_VISUAL.MIX_MAX : 1.0;
+        var gamma = (CookBarConfig && CookBarConfig.GREEN_GAMMA) || 1.0;
+        var mixMax = (CookBarConfig && CookBarConfig.MIX_MAX != null) ? CookBarConfig.MIX_MAX : 1.0;
 
         // Peinture par colonne
         for (var x = 0; x < barW; x++) {
@@ -2218,7 +2294,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
             }
 
             // Intensité selon cookFunction1, resserrée par gamma et plafonnée
-            var xCookUnits = t * max; // 0..MAX_COOK_SCALE
+            var xCookUnits = t * max; // 0..Visuals.maxCookScale
             var raw = (typeof cookFunction1 === 'function') ? cookFunction1(xCookUnits, target * 2) : 0;
             if (raw < 0) raw = 0; if (raw > 1) raw = 1;
             var w = Math.pow(raw, gamma) * mixMax; // <-- rétrécit la zone verte
@@ -2230,22 +2306,18 @@ Scene_CookingBase.prototype.doClearPot = function () {
         // Masque “futur” (après la position de cuisson actuelle)
         var toPx = function (v) { v = Math.max(0, Math.min(max, v)); return Math.floor(barW * v / max); };
         var pxC = toPx(cook);
-        if (pxC < barW) this.contents.fillRect(barX + pxC, barY, barW - pxC, barH, COLOR_FUTURE_GRAY);
+        if (pxC < barW) this.contents.fillRect(barX + pxC, barY, barW - pxC, barH, Colors.futureGray);
 
         // Dim si OFF
         var isOn = R ? !!R.isOn : false;
-        if (!isOn) this.contents.fillRect(barX, barY, barW, barH, 'rgba(0,0,0,' + BAR_DIM_OFF_ALPHA + ')');
+        if (!isOn) this.contents.fillRect(barX, barY, barW, barH, 'rgba(0,0,0,' + Config.ui.barDimOffAlpha + ')');
 
         // Curseur actuel
         this.contents.fillRect(barX + pxC, barY - 1, 2, barH + 2, "#ffffff");
     };
 
     Window_CookingRotisserie.prototype.drawIngredientIcon = function (iconIndex, x, y) {
-        var bmp = ImageManager.loadPicture(ING_SHEET);
-        if (!bmp.isReady()) { bmp.addLoadListener(this.refresh.bind(this)); return; }
-        var sx = (iconIndex % ING_ICON_COLS) * ING_ICON_W;
-        var sy = Math.floor(iconIndex / ING_ICON_COLS) * ING_ICON_H;
-        this.contents.blt(bmp, sx, sy, ING_ICON_W, ING_ICON_H, x, y);
+        drawIngredientIconHelper(this, iconIndex, x, y);
     };
 
     // Peut-on accepter cet ingrédient maintenant ?
@@ -2269,8 +2341,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
             var tasteHeld = (typeof CookingUI.heldTasteScore === 'function') ? CookingUI.heldTasteScore() : null;
 
             if (R.cookScore == null || R.stack.length === 0) {
-                R._accMs = 0;
-                R.cookScore = (typeof cookHeld === 'number') ? cookHeld : 0;
+                R.resetCookProgress((typeof cookHeld === 'number') ? cookHeld : 0);
             }
             if (R.tasteScore == null) {
                 R.tasteScore = (typeof tasteHeld === 'number') ? tasteHeld : (item.baseTasteScore || 0);
@@ -2285,10 +2356,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
         var resId = RotisserieRules.getResultId(base, item);
         if (!resId) return false;
 
-        var result = null;
-        for (var i = 0; i < CookingIngredients.length; i++) {
-            if (CookingIngredients[i].id === resId) { result = CookingIngredients[i]; break; }
-        }
+        var result = IngredientRepository.byId(resId);
         if (!result) return false;
 
         R.tasteScore = (R.tasteScore || 0) + (item.baseTasteScore || 0);
@@ -2332,21 +2400,15 @@ Scene_CookingBase.prototype.doClearPot = function () {
     // NEW: Window_RotisserieActionBar (Allumer / Éteindre)
     //-----------------------------------------------------------------------------
     function Window_RotisserieActionBar() { this.initialize.apply(this, arguments); }
-    Window_RotisserieActionBar.prototype = Object.create(Window_HorzCommand.prototype);
+    Window_RotisserieActionBar.prototype = Object.create(Window_CommandBarBase.prototype);
     Window_RotisserieActionBar.prototype.constructor = Window_RotisserieActionBar;
 
     Window_RotisserieActionBar.prototype.initialize = function (x, y, width) {
-        this._forcedWidth = width || Graphics.boxWidth;
+        Window_CommandBarBase.prototype.initialize.call(this, x, y, width, Layout.actionBarHeight);
         this._isOn = false;
-        Window_HorzCommand.prototype.initialize.call(this, x, y);
-        this.select(0);
-        this.openness = 255;
     };
 
-    Window_RotisserieActionBar.prototype.windowWidth = function () { return this._forcedWidth; };
-    Window_RotisserieActionBar.prototype.windowHeight = function () { return this.fittingHeight(1) + ACTION_BAR_MARGIN; }; // identique aux autres
     Window_RotisserieActionBar.prototype.maxCols = function () { return 2; };
-    Window_RotisserieActionBar.prototype.spacing = function () { return 20; };
 
     Window_RotisserieActionBar.prototype.setPowerState = function (isOn) {
         this._isOn = !!isOn;
@@ -2358,25 +2420,14 @@ Scene_CookingBase.prototype.doClearPot = function () {
         this.addCommand("Éteindre", 'rotiOff', this._isOn);
     };
 
-    Window_RotisserieActionBar.prototype.drawItem = function (index) {
-        var rect = this.itemRectForText(index);
-        var enabled = this.isCommandEnabled(index);
-        this.changePaintOpacity(enabled);
-        this.drawText(this.commandName(index), rect.x, rect.y, rect.width, 'center');
-        this.changePaintOpacity(true);
-    };
 
     // N'accepte l'input que quand elle est active (même pattern que ta barre d'actions)
-    Window_RotisserieActionBar.prototype.processHandling = function () {
-        if (!this.active) return;
-        Window_HorzCommand.prototype.processHandling.call(this);
-    };
     function Window_CookHelp() { this.initialize.apply(this, arguments); }
     Window_CookHelp.prototype = Object.create(Window_Help.prototype);
     Window_CookHelp.prototype.constructor = Window_CookHelp;
 
     Window_CookHelp.prototype.initialize = function () {
-        Window_Help.prototype.initialize.call(this, HELP_LINES);
+        Window_Help.prototype.initialize.call(this, HelpConfig.lines);
         // État de défilement
         this._rawText = "";
         this._wrappedText = "";
@@ -2387,7 +2438,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
     };
 
     // Police plus petite uniquement pour cette fenêtre
-    Window_CookHelp.prototype.standardFontSize = function () { return HELP_FONT_SIZE; };
+    Window_CookHelp.prototype.standardFontSize = function () { return HelpConfig.fontSize; };
     // (option) garde une hauteur compacte
     Window_CookHelp.prototype.lineHeight = function () { return this.standardFontSize() + 8; };
 
@@ -2396,7 +2447,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
         text = text || "";
         this._rawText = text;
 
-        // 1) Wrap sur largeur (sans limiter à HELP_LINES)
+        // 1) Wrap sur largeur (sans limiter à HelpConfig.lines)
         this._wrappedText = this._wrapToWidth(this._rawText);
 
         // 2) Mesure de la hauteur totale du texte
@@ -2405,7 +2456,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
         // 3) Active/désactive le scroll
         this._needsScroll = (this._fullTextHeight > this.contentsHeight() + 1);
         this._scrollOffset = 0;
-        this._scrollWait = this._needsScroll ? HELP_SCROLL_WAIT : 0;
+        this._scrollWait = this._needsScroll ? HelpConfig.scrollWait : 0;
 
         // Stocke le texte pour compat MV et déclenche refresh
         this._text = this._wrappedText;
@@ -2425,7 +2476,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
 
         // Si on scrolle, on dessine une seconde copie plus bas pour boucler proprement
         if (this._needsScroll) {
-            this.drawTextEx(this._wrappedText, x, y + this._fullTextHeight + HELP_SCROLL_GAP);
+            this.drawTextEx(this._wrappedText, x, y + this._fullTextHeight + HelpConfig.scrollGap);
         }
     };
 
@@ -2439,11 +2490,11 @@ Scene_CookingBase.prototype.doClearPot = function () {
             return;
         }
 
-        this._scrollOffset += HELP_SCROLL_SPEED;
-        var loopH = this._fullTextHeight + HELP_SCROLL_GAP;
+        this._scrollOffset += HelpConfig.scrollSpeed;
+        var loopH = this._fullTextHeight + HelpConfig.scrollGap;
         if (this._scrollOffset >= loopH) {
             this._scrollOffset = 0;
-            this._scrollWait = HELP_SCROLL_WAIT; // petite pause en haut
+            this._scrollWait = HelpConfig.scrollWait; // petite pause en haut
         }
         this.refresh();
     };
@@ -2564,13 +2615,13 @@ Scene_CookingBase.prototype.doClearPot = function () {
         if (item) {
             var bmp = ImageManager.loadPicture(ING_SHEET);
             if (bmp.isReady()) {
-                var sx = (item.iconIndex % ING_ICON_COLS) * ING_ICON_W;
-                var sy = Math.floor(item.iconIndex / ING_ICON_COLS) * ING_ICON_H;
-                this.contents.blt(bmp, sx, sy, ING_ICON_W, ING_ICON_H, bx + 8, by + 8);
+                var sx = (item.iconIndex % IconConfig.columns) * IconConfig.width;
+                var sy = Math.floor(item.iconIndex / IconConfig.columns) * IconConfig.height;
+                this.contents.blt(bmp, sx, sy, IconConfig.width, IconConfig.height, bx + 8, by + 8);
             } else {
                 bmp.addLoadListener(this.refresh.bind(this));
             }
-            var ICON_W = ING_ICON_W, GAP = 4;
+            var ICON_W = IconConfig.width, GAP = 4;
             var tx = bx + 8 + ICON_W + GAP;
             var tw = boxW - 16; // on garde la largeur “normale” de la boîte (8px marges)
             this.drawText(item.name, tx, by + 4, tw);
@@ -2604,39 +2655,22 @@ Scene_CookingBase.prototype.doClearPot = function () {
     //-----------------------------------------------------------------------------
 
     function Window_PlateActionBar() { this.initialize.apply(this, arguments); }
-    Window_PlateActionBar.prototype = Object.create(Window_HorzCommand.prototype);
+    Window_PlateActionBar.prototype = Object.create(Window_CommandBarBase.prototype);
     Window_PlateActionBar.prototype.constructor = Window_PlateActionBar;
 
     Window_PlateActionBar.prototype.initialize = function (x, y, width) {
-        this._forcedWidth = width || Graphics.boxWidth;
-        Window_HorzCommand.prototype.initialize.call(this, x, y);
-        this.select(0);
-        this.openness = 255;
+        Window_CommandBarBase.prototype.initialize.call(this, x, y, width, Layout.actionBarHeight);
     };
 
-    Window_PlateActionBar.prototype.windowWidth = function () { return this._forcedWidth; };
-    Window_PlateActionBar.prototype.windowHeight = function () { return this.fittingHeight(1) + ACTION_BAR_MARGIN; };
     Window_PlateActionBar.prototype.maxCols = function () { return 2; };
-    Window_PlateActionBar.prototype.spacing = function () { return 20; };
 
     Window_PlateActionBar.prototype.makeCommandList = function () {
         this.addCommand("Nettoyer", 'plateClear', true);
         this.addCommand("Finaliser plat", 'plateFinish', true);
     };
 
-    Window_PlateActionBar.prototype.drawItem = function (index) {
-        var rect = this.itemRectForText(index);
-        var enabled = this.isCommandEnabled(index);
-        this.changePaintOpacity(enabled);
-        this.drawText(this.commandName(index), rect.x, rect.y, rect.width, 'center');
-        this.changePaintOpacity(true);
-    };
 
     // Empêche d'absorber l'input quand inactive (même pattern que la tienne)
-    Window_PlateActionBar.prototype.processHandlidng = function () {
-        if (!this.active) return;
-        Window_HorzCommand.prototype.processHandling.call(this);
-    };
 
 
     function Window_CookingPot() { this.initialize.apply(this, arguments); }
@@ -2651,7 +2685,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
     Window_CookingPot.prototype.maxItems = function () { return 1; };
     Window_CookingPot.prototype.maxCols = function () { return 1; };
     Window_CookingPot.prototype.itemRect = function () {
-        var rect = new Rectangle(); var boxW = ITEM_BOX_W, boxH = ITEM_BOX_H;
+        var rect = new Rectangle(); var boxW = Layout.itemBox.width, boxH = Layout.itemBox.height;
         rect.width = boxW; rect.height = boxH;
         rect.x = Math.floor((this.contentsWidth() - boxW) / 2);
         rect.y = Math.floor((this.contentsHeight() - boxH) / 2);
@@ -2687,29 +2721,29 @@ Scene_CookingBase.prototype.doClearPot = function () {
         var rect = this.itemRect(0);
         var barY = rect.y + rect.height + 14;
 
-        if (!top) { this.contents.fillRect(barX, barY, barW, barH, COLOR_FUTURE_GRAY); return; }
+        if (!top) { this.contents.fillRect(barX, barY, barW, barH, Colors.futureGray); return; }
 
         var target = (typeof top.targetCookingScore === 'number') ? top.targetCookingScore : 0;
         var P = this._inst && this._inst.pot ? this._inst.pot : null;
         var cook = (P && typeof P.cookScore === 'number') ? P.cookScore : 0;
 
-        var max = MAX_COOK_SCALE;
+        var max = Visuals.maxCookScale;
         if (cook < 0) cook = 0; if (cook > max) cook = max;
 
         var mid = max > 0 ? (target / max) : 0;
-        var redPeakVal = Math.min(max, Math.max(target, Math.round(target * RED_PEAK_RATIO)));
+        var redPeakVal = Math.min(max, Math.max(target, Math.round(target * Config.scoring.redPeakRatio)));
         var tPeak = max > 0 ? (redPeakVal / max) : 1;
 
-        var tolVis = (typeof COOK_VISUAL !== 'undefined' && COOK_VISUAL.TOL_RATIO_VISUAL != null)
-            ? (COOK_VISUAL.TOL_RATIO_VISUAL * COOK_TOLERANCE) : COOK_TOLERANCE;
-        var halfPlate = (COOK_VISUAL && COOK_VISUAL.FLAT_RATIO > 0) ? (target * tolVis * COOK_VISUAL.FLAT_RATIO) / max : 0;
+        var tolVis = (typeof CookBarConfig !== 'undefined' && CookBarConfig.TOL_RATIO_VISUAL != null)
+            ? (CookBarConfig.TOL_RATIO_VISUAL * Config.scoring.tolerance) : Config.scoring.tolerance;
+        var halfPlate = (CookBarConfig && CookBarConfig.FLAT_RATIO > 0) ? (target * tolVis * CookBarConfig.FLAT_RATIO) / max : 0;
         var tFlatLow = Math.max(0, mid - halfPlate);
         var tFlatHigh = Math.min(1, mid + halfPlate);
 
-        var cBlue = _hexToRgb(COLOR_BLUE_RAW), cGreen = _hexToRgb(COLOR_GREEN_GOOD),
-            cRed = _hexToRgb(COLOR_RED_OVER), cBlack = _hexToRgb(COLOR_BLACK_BURN);
-        var gamma = (COOK_VISUAL && COOK_VISUAL.GREEN_GAMMA) || 1.0;
-        var mixMax = (COOK_VISUAL && COOK_VISUAL.MIX_MAX != null) ? COOK_VISUAL.MIX_MAX : 1.0;
+        var cBlue = _hexToRgb(Colors.blueRaw), cGreen = _hexToRgb(Colors.greenGood),
+            cRed = _hexToRgb(Colors.redOver), cBlack = _hexToRgb(Colors.blackBurn);
+        var gamma = (CookBarConfig && CookBarConfig.GREEN_GAMMA) || 1.0;
+        var mixMax = (CookBarConfig && CookBarConfig.MIX_MAX != null) ? CookBarConfig.MIX_MAX : 1.0;
 
         for (var x = 0; x < barW; x++) {
             var t = barW > 0 ? (x / barW) : 0;
@@ -2729,10 +2763,10 @@ Scene_CookingBase.prototype.doClearPot = function () {
 
         var toPx = function (v) { v = Math.max(0, Math.min(max, v)); return Math.floor(barW * v / max); };
         var pxC = toPx(cook);
-        if (pxC < barW) this.contents.fillRect(barX + pxC, barY, barW - pxC, barH, COLOR_FUTURE_GRAY);
+        if (pxC < barW) this.contents.fillRect(barX + pxC, barY, barW - pxC, barH, Colors.futureGray);
 
         var isOn = P ? !!P.isOn : false;
-        if (!isOn) this.contents.fillRect(barX, barY, barW, barH, 'rgba(0,0,0,' + BAR_DIM_OFF_ALPHA + ')');
+        if (!isOn) this.contents.fillRect(barX, barY, barW, barH, 'rgba(0,0,0,' + Config.ui.barDimOffAlpha + ')');
 
         this.contents.fillRect(barX + pxC, barY - 1, 2, barH + 2, "#ffffff");
     };
@@ -2757,8 +2791,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
             var tasteHeld = (typeof CookingUI.heldTasteScore === 'function') ? CookingUI.heldTasteScore() : null;
 
             if (P.cookScore == null || P.stack.length === 0) {
-                P._accMs = 0;
-                P.cookScore = (typeof cookHeld === 'number') ? cookHeld : 0;
+                P.resetCookProgress((typeof cookHeld === 'number') ? cookHeld : 0);
             }
             if (P.tasteScore == null) {
                 P.tasteScore = (typeof tasteHeld === 'number') ? tasteHeld : (item.baseTasteScore || 0);
@@ -2772,8 +2805,7 @@ Scene_CookingBase.prototype.doClearPot = function () {
         var resId = PotRules.getResultId(base, item);
         if (!resId) return false;
 
-        var result = null;
-        for (var i = 0; i < CookingIngredients.length; i++) { if (CookingIngredients[i].id === resId) { result = CookingIngredients[i]; break; } }
+        var result = IngredientRepository.byId(resId);
         if (!result) return false;
 
         P.tasteScore = (P.tasteScore || 0) + (item.baseTasteScore || 0);
@@ -2802,35 +2834,19 @@ Scene_CookingBase.prototype.doClearPot = function () {
     Window_CookingPot.prototype.setInstance = function (inst) { this._inst = inst; this._stack = inst.pot.stack; this.refresh(); };
 
     function Window_PotActionBar() { this.initialize.apply(this, arguments); }
-    Window_PotActionBar.prototype = Object.create(Window_HorzCommand.prototype);
+    Window_PotActionBar.prototype = Object.create(Window_CommandBarBase.prototype);
     Window_PotActionBar.prototype.constructor = Window_PotActionBar;
 
     Window_PotActionBar.prototype.initialize = function (x, y, width) {
-        this._forcedWidth = width || Graphics.boxWidth;
+        Window_CommandBarBase.prototype.initialize.call(this, x, y, width, Layout.actionBarHeight);
         this._isOn = false;
-        Window_HorzCommand.prototype.initialize.call(this, x, y);
-        this.select(0); this.openness = 255;
     };
-    Window_PotActionBar.prototype.windowWidth = function () { return this._forcedWidth; };
-    Window_PotActionBar.prototype.windowHeight = function () { return this.fittingHeight(1) + ACTION_BAR_MARGIN; };
     Window_PotActionBar.prototype.maxCols = function () { return 2; };
-    Window_PotActionBar.prototype.spacing = function () { return 20; };
 
     Window_PotActionBar.prototype.setPowerState = function (isOn) { this._isOn = !!isOn; this.refresh(); };
     Window_PotActionBar.prototype.makeCommandList = function () {
         this.addCommand("Allumer", 'potOn', !this._isOn);
         this.addCommand("Éteindre", 'potOff', this._isOn);
-    };
-    Window_PotActionBar.prototype.drawItem = function (index) {
-        var rect = this.itemRectForText(index);
-        var enabled = this.isCommandEnabled(index);
-        this.changePaintOpacity(enabled);
-        this.drawText(this.commandName(index), rect.x, rect.y, rect.width, 'center');
-        this.changePaintOpacity(true);
-    };
-    Window_PotActionBar.prototype.processHandling = function () {
-        if (!this.active) return;
-        Window_HorzCommand.prototype.processHandling.call(this);
     };
 
 })();
