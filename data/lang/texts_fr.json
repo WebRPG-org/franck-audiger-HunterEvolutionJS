@@ -1161,7 +1161,10 @@
  "ForetVisca.RandomCandidat4.dialogue1" : "Il paraît qu’un type a croisé Hisoka… Tu penses qu’il est encore dans les parages ?",
  "ForetVisca.Hisoka.dialogue1" : "Oh ? C’est toi… Gon, n’est-ce pas ? Tu continues de me surprendre…",
  "ChateauCours.Envt.dialogue1" : "J'aurais jamais cru qu'ils en attraperaient autant.",
-
+ "ChateauCours.Envt.dialogue2" : "Très bien placez vous chacun devant un poste de cuisson.",
+ "ChateauCours.Envt.dialogue3" : "Bonne chance à tous !",
+    
+ 
  "Fight.Presentation.dialogue1": "Les combats ici sont en temps réel, avec un système ATB !",
  "Fight.Presentation.dialogue2": "Chaque personnage possède une jauge qui se remplit automatiquement.",
  "Fight.Presentation.dialogue3": "Quand la jauge est pleine, le personnage peut effectuer une action.",
