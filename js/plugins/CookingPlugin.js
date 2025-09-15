@@ -77,6 +77,8 @@
     var TEXT_WORKBENCH = "Plan de travail : Entrée = déposer/prendre \n Échap = catégories";
     var TEXT_PLATE = "Dressage : Entrée = déposer/prendre | ↓ = Actions \n Échap/↑ = retour";
     var TEXT_POT = "Casserole : Entrée = déposer/prendre | ↓ = Actions \n Échap = retour"; // AJOUT
+    var TEXT_DISABLED_EXIT = "Échap désactivé : va dans Dressage (Entrée), puis choisis \"Finaliser plat\" pour quitter.";
+    var TEXT_END_DISH = "Dressage : plat final dressé."; // AJOUT
 
     // Où le rouge est "plein" avant de tirer vers le noir
     var RED_PEAK_RATIO = 1.60;          // = 1.6 × target
@@ -84,6 +86,8 @@
     // --- Constantes de layout ---
     var BOTTOM_BAR_H = 72;     // barre du bas (objet tenu)
     var ACTION_BAR_H = 72;     // nouvelle barre d'actions (au-dessus de la barre du bas)
+    var ITEM_BOX_H = 72;      // hauteur des icônes d'ingrédients
+    var ITEM_BOX_W = 274;
     var ACTION_BAR_MARGIN = 0;     // nouvelle barre d'actions (au-dessus de la barre du bas)
 
     var COOK_MODE_ZONES = 'zones';
@@ -103,38 +107,38 @@
     // cat: 'main' | 'side' | 'condiment' | 'combinaison'
     // subcat: 'main' | 'side' | 'condiment'
     var CookingIngredients = [
-        { id: 1, name: "Viande de Sanglier", cat: "main", subcat: "main", iconIndex: 0, canPot : false, canRotisserie: true, baseTasteScore: 10, targetCookingScore: 40 },
+        { id: 1, name: "Viande de Sanglier", cat: "main", subcat: "main", iconIndex: 0, canPot: false, canRotisserie: true, baseTasteScore: 10, targetCookingScore: 40 },
 
-        { id: 2, name: "Pommes de terre", cat: "side", subcat: "side", iconIndex: 1, canPot : false, canRotisserie: true, baseTasteScore: 5, targetCookingScore: 20 },
+        { id: 2, name: "Pommes de terre", cat: "side", subcat: "side", iconIndex: 1, canPot: false, canRotisserie: true, baseTasteScore: 5, targetCookingScore: 20 },
 
-        { id: 3, name: "Herbes Sauvages", cat: "condiment", subcat: "condiment", iconIndex: 2, canPot : false, canRotisserie: false, baseTasteScore: 3, targetCookingScore: 50 },
-        { id: 4, name: "Sel", cat: "condiment", subcat: "condiment", iconIndex: 3, canPot : false, canRotisserie: false, baseTasteScore: 1, targetCookingScore: 10 },
-        { id: 5, name: "Poivre", cat: "condiment", subcat: "condiment", iconIndex: 4, canPot : false, canRotisserie: false, baseTasteScore: 1, targetCookingScore: 10 },
-        { id: 6, name: "Eau", cat: "condiment", subcat: "condiment", iconIndex: 5, canPot : true, canRotisserie: false, baseTasteScore: 0, targetCookingScore: 0 },
+        { id: 3, name: "Herbes Sauvages", cat: "condiment", subcat: "condiment", iconIndex: 2, canPot: false, canRotisserie: false, baseTasteScore: 3, targetCookingScore: 50 },
+        { id: 4, name: "Sel", cat: "condiment", subcat: "condiment", iconIndex: 3, canPot: false, canRotisserie: false, baseTasteScore: 1, targetCookingScore: 10 },
+        { id: 5, name: "Poivre", cat: "condiment", subcat: "condiment", iconIndex: 4, canPot: false, canRotisserie: false, baseTasteScore: 1, targetCookingScore: 10 },
+        { id: 6, name: "Eau", cat: "condiment", subcat: "condiment", iconIndex: 5, canPot: true, canRotisserie: false, baseTasteScore: 0, targetCookingScore: 0 },
 
-        { id: 7, name: "Eau Salée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot : true, canRotisserie: false, baseTasteScore: 2, targetCookingScore: 20 },
-        { id: 8, name: "Eau Poivrée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot : true, canRotisserie: false, baseTasteScore: 2, targetCookingScore: 20 },
-        { id: 9, name: "Eau Aromatisée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot : true, canRotisserie: false, baseTasteScore: 4, targetCookingScore: 40 },
-        { id: 10, name: "Eau Aromatisée Salée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot : true, canRotisserie: false, baseTasteScore: 6, targetCookingScore: 60 },
-        { id: 11, name: "Eau Aromatisée Poivrée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot : true, canRotisserie: false, baseTasteScore: 6, targetCookingScore: 60 },
-        { id: 12, name: "Eau Assaisonnée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot : true, canRotisserie: false, baseTasteScore: 4, targetCookingScore: 40 },
-        { id: 13, name: "Eau Assaisonnée+", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot : true, canRotisserie: false, baseTasteScore: 8, targetCookingScore: 80 },
+        { id: 7, name: "Eau Salée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot: true, canRotisserie: false, baseTasteScore: 2, targetCookingScore: 20 },
+        { id: 8, name: "Eau Poivrée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot: true, canRotisserie: false, baseTasteScore: 2, targetCookingScore: 20 },
+        { id: 9, name: "Eau Aromatisée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot: true, canRotisserie: false, baseTasteScore: 4, targetCookingScore: 40 },
+        { id: 10, name: "Eau Aromatisée Salée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot: true, canRotisserie: false, baseTasteScore: 6, targetCookingScore: 60 },
+        { id: 11, name: "Eau Aromatisée Poivrée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot: true, canRotisserie: false, baseTasteScore: 6, targetCookingScore: 60 },
+        { id: 12, name: "Eau Assaisonnée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot: true, canRotisserie: false, baseTasteScore: 4, targetCookingScore: 40 },
+        { id: 13, name: "Eau Assaisonnée+", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot: true, canRotisserie: false, baseTasteScore: 8, targetCookingScore: 80 },
 
-        { id: 14, name: "Sanglier Salée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot : false, canRotisserie: true, baseTasteScore: 12, targetCookingScore: 40 },
-        { id: 15, name: "Sanglier Poivrée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot : false, canRotisserie: true, baseTasteScore: 12, targetCookingScore: 40 },
-        { id: 16, name: "Sanglier Aromatisée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot : false, canRotisserie: true, baseTasteScore: 14, targetCookingScore: 40 },
-        { id: 17, name: "Sanglier Aromatisée Salée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot : false, canRotisserie: true, baseTasteScore: 16, targetCookingScore: 40 },
-        { id: 18, name: "Sanglier Aromatisée Poivrée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot : false, canRotisserie: true, baseTasteScore: 16, targetCookingScore: 40 },
-        { id: 19, name: "Sanglier Assaisonnée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot : false, canRotisserie: true, baseTasteScore: 14, targetCookingScore: 40 },
-        { id: 20, name: "Sanglier Assaisonnée+", cat: "combinaison", subcat: "main", iconIndex: 0, canPot : false, canRotisserie: true, baseTasteScore: 18, targetCookingScore: 40 },
+        { id: 14, name: "Sanglier Salée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot: false, canRotisserie: true, baseTasteScore: 12, targetCookingScore: 40 },
+        { id: 15, name: "Sanglier Poivrée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot: false, canRotisserie: true, baseTasteScore: 12, targetCookingScore: 40 },
+        { id: 16, name: "Sanglier Aromatisée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot: false, canRotisserie: true, baseTasteScore: 14, targetCookingScore: 40 },
+        { id: 17, name: "Sanglier Aromatisée Salée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot: false, canRotisserie: true, baseTasteScore: 16, targetCookingScore: 40 },
+        { id: 18, name: "Sanglier Aromatisée Poivrée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot: false, canRotisserie: true, baseTasteScore: 16, targetCookingScore: 40 },
+        { id: 19, name: "Sanglier Assaisonnée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot: false, canRotisserie: true, baseTasteScore: 14, targetCookingScore: 40 },
+        { id: 20, name: "Sanglier Assaisonnée+", cat: "combinaison", subcat: "main", iconIndex: 0, canPot: false, canRotisserie: true, baseTasteScore: 18, targetCookingScore: 40 },
 
-        { id: 21, name: "Pommes de terre Salée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot : false, canRotisserie: true, baseTasteScore: 7, targetCookingScore: 20 },
-        { id: 22, name: "Pommes de terre Poivrée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot : false, canRotisserie: true, baseTasteScore: 7, targetCookingScore: 20 },
-        { id: 23, name: "Pommes de terre Aromatisée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot : false, canRotisserie: true, baseTasteScore: 9, targetCookingScore: 20 },
-        { id: 24, name: "Pommes de terre Aromatisée Salée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot : false, canRotisserie: true, baseTasteScore: 11, targetCookingScore: 20 },
-        { id: 25, name: "Pommes de terre Aromatisée Poivrée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot : false, canRotisserie: true, baseTasteScore: 11, targetCookingScore: 20 },
-        { id: 26, name: "Pommes de terre Assaisonnée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot : false, canRotisserie: true, baseTasteScore: 9, targetCookingScore: 20 },
-        { id: 27, name: "Pommes de terre Assaisonnée+", cat: "combinaison", subcat: "side", iconIndex: 1, canPot : false, canRotisserie: true, baseTasteScore: 13, targetCookingScore: 20 },
+        { id: 21, name: "Pommes de terre Salée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot: false, canRotisserie: true, baseTasteScore: 7, targetCookingScore: 20 },
+        { id: 22, name: "Pommes de terre Poivrée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot: false, canRotisserie: true, baseTasteScore: 7, targetCookingScore: 20 },
+        { id: 23, name: "Pommes de terre Aromatisée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot: false, canRotisserie: true, baseTasteScore: 9, targetCookingScore: 20 },
+        { id: 24, name: "Pommes de terre Aromatisée Salée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot: false, canRotisserie: true, baseTasteScore: 11, targetCookingScore: 20 },
+        { id: 25, name: "Pommes de terre Aromatisée Poivrée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot: false, canRotisserie: true, baseTasteScore: 11, targetCookingScore: 20 },
+        { id: 26, name: "Pommes de terre Assaisonnée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot: false, canRotisserie: true, baseTasteScore: 9, targetCookingScore: 20 },
+        { id: 27, name: "Pommes de terre Assaisonnée+", cat: "combinaison", subcat: "side", iconIndex: 1, canPot: false, canRotisserie: true, baseTasteScore: 13, targetCookingScore: 20 },
     ];
     window.CookingIngredients = CookingIngredients;
 
@@ -394,38 +398,38 @@
 
 
     var CookingIngredients = [
-        { id: 1, name: "Viande de Sanglier", cat: "main", subcat: "main", iconIndex: 0, canPot : false, canRotisserie: true, baseTasteScore: 10, targetCookingScore: 40 },
+        { id: 1, name: "Viande de Sanglier", cat: "main", subcat: "main", iconIndex: 0, canPot: false, canRotisserie: true, baseTasteScore: 10, targetCookingScore: 40 },
 
-        { id: 2, name: "Pommes de terre", cat: "side", subcat: "side", iconIndex: 1, canPot : false, canRotisserie: true, baseTasteScore: 5, targetCookingScore: 20 },
+        { id: 2, name: "Pommes de terre", cat: "side", subcat: "side", iconIndex: 1, canPot: false, canRotisserie: true, baseTasteScore: 5, targetCookingScore: 20 },
 
-        { id: 3, name: "Herbes Sauvages", cat: "condiment", subcat: "condiment", iconIndex: 2, canPot : false, canRotisserie: false, baseTasteScore: 3, targetCookingScore: 0 },
-        { id: 4, name: "Sel", cat: "condiment", subcat: "condiment", iconIndex: 3, canPot : false, canRotisserie: false, baseTasteScore: 1, targetCookingScore: 0 },
-        { id: 5, name: "Poivre", cat: "condiment", subcat: "condiment", iconIndex: 4, canPot : false, canRotisserie: false, baseTasteScore: 1, targetCookingScore: 0 },
-        { id: 6, name: "Eau", cat: "condiment", subcat: "condiment", iconIndex: 5, canPot : true, canRotisserie: false, baseTasteScore: 0, targetCookingScore: 0 },
+        { id: 3, name: "Herbes Sauvages", cat: "condiment", subcat: "condiment", iconIndex: 2, canPot: false, canRotisserie: false, baseTasteScore: 3, targetCookingScore: 0 },
+        { id: 4, name: "Sel", cat: "condiment", subcat: "condiment", iconIndex: 3, canPot: false, canRotisserie: false, baseTasteScore: 1, targetCookingScore: 0 },
+        { id: 5, name: "Poivre", cat: "condiment", subcat: "condiment", iconIndex: 4, canPot: false, canRotisserie: false, baseTasteScore: 1, targetCookingScore: 0 },
+        { id: 6, name: "Eau", cat: "condiment", subcat: "condiment", iconIndex: 5, canPot: true, canRotisserie: false, baseTasteScore: 0, targetCookingScore: 0 },
 
-        { id: 7, name: "Eau Salée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot : true, canRotisserie: false, baseTasteScore: 2, targetCookingScore: 0 },
-        { id: 8, name: "Eau Poivrée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot : true, canRotisserie: false, baseTasteScore: 2, targetCookingScore: 0 },
-        { id: 9, name: "Eau Aromatisée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot : true, canRotisserie: false, baseTasteScore: 4, targetCookingScore: 0 },
-        { id: 10, name: "Eau Aromatisée Salée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot : true, canRotisserie: false, baseTasteScore: 6, targetCookingScore: 0 },
-        { id: 11, name: "Eau Aromatisée Poivrée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot : true, canRotisserie: false, baseTasteScore: 6, targetCookingScore: 0 },
-        { id: 12, name: "Eau Assaisonnée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot : true, canRotisserie: false, baseTasteScore: 4, targetCookingScore: 0 },
-        { id: 13, name: "Eau Assaisonnée+", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot : true, canRotisserie: false, baseTasteScore: 8, targetCookingScore: 0 },
+        { id: 7, name: "Eau Salée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot: true, canRotisserie: false, baseTasteScore: 2, targetCookingScore: 0 },
+        { id: 8, name: "Eau Poivrée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot: true, canRotisserie: false, baseTasteScore: 2, targetCookingScore: 0 },
+        { id: 9, name: "Eau Aromatisée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot: true, canRotisserie: false, baseTasteScore: 4, targetCookingScore: 0 },
+        { id: 10, name: "Eau Aromatisée Salée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot: true, canRotisserie: false, baseTasteScore: 6, targetCookingScore: 0 },
+        { id: 11, name: "Eau Aromatisée Poivrée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot: true, canRotisserie: false, baseTasteScore: 6, targetCookingScore: 0 },
+        { id: 12, name: "Eau Assaisonnée", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot: true, canRotisserie: false, baseTasteScore: 4, targetCookingScore: 0 },
+        { id: 13, name: "Eau Assaisonnée+", cat: "combinaison", subcat: "condiment", iconIndex: 5, canPot: true, canRotisserie: false, baseTasteScore: 8, targetCookingScore: 0 },
 
-        { id: 14, name: "Sanglier Salée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot : false, canRotisserie: true, baseTasteScore: 12, targetCookingScore: 40 },
-        { id: 15, name: "Sanglier Poivrée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot : false, canRotisserie: true, baseTasteScore: 12, targetCookingScore: 40 },
-        { id: 16, name: "Sanglier Aromatisée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot : false, canRotisserie: true, baseTasteScore: 14, targetCookingScore: 40 },
-        { id: 17, name: "Sanglier Aromatisée Salée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot : false, canRotisserie: true, baseTasteScore: 16, targetCookingScore: 40 },
-        { id: 18, name: "Sanglier Aromatisée Poivrée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot : false, canRotisserie: true, baseTasteScore: 16, targetCookingScore: 40 },
-        { id: 19, name: "Sanglier Assaisonnée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot : false, canRotisserie: true, baseTasteScore: 14, targetCookingScore: 40 },
-        { id: 20, name: "Sanglier Assaisonnée+", cat: "combinaison", subcat: "main", iconIndex: 0, canPot : false, canRotisserie: true, baseTasteScore: 18, targetCookingScore: 40 },
+        { id: 14, name: "Sanglier Salée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot: false, canRotisserie: true, baseTasteScore: 12, targetCookingScore: 40 },
+        { id: 15, name: "Sanglier Poivrée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot: false, canRotisserie: true, baseTasteScore: 12, targetCookingScore: 40 },
+        { id: 16, name: "Sanglier Aromatisée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot: false, canRotisserie: true, baseTasteScore: 14, targetCookingScore: 40 },
+        { id: 17, name: "Sanglier Aromatisée Salée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot: false, canRotisserie: true, baseTasteScore: 16, targetCookingScore: 40 },
+        { id: 18, name: "Sanglier Aromatisée Poivrée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot: false, canRotisserie: true, baseTasteScore: 16, targetCookingScore: 40 },
+        { id: 19, name: "Sanglier Assaisonnée", cat: "combinaison", subcat: "main", iconIndex: 0, canPot: false, canRotisserie: true, baseTasteScore: 14, targetCookingScore: 40 },
+        { id: 20, name: "Sanglier Assaisonnée+", cat: "combinaison", subcat: "main", iconIndex: 0, canPot: false, canRotisserie: true, baseTasteScore: 18, targetCookingScore: 40 },
 
-        { id: 21, name: "Pommes de terre Salée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot : false, canRotisserie: true, baseTasteScore: 7, targetCookingScore: 20 },
-        { id: 22, name: "Pommes de terre Poivrée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot : false, canRotisserie: true, baseTasteScore: 7, targetCookingScore: 20 },
-        { id: 23, name: "Pommes de terre Aromatisée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot : false, canRotisserie: true, baseTasteScore: 9, targetCookingScore: 20 },
-        { id: 24, name: "Pommes de terre Aromatisée Salée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot : false, canRotisserie: true, baseTasteScore: 11, targetCookingScore: 20 },
-        { id: 25, name: "Pommes de terre Aromatisée Poivrée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot : false, canRotisserie: true, baseTasteScore: 11, targetCookingScore: 20 },
-        { id: 26, name: "Pommes de terre Assaisonnée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot : false, canRotisserie: true, baseTasteScore: 9, targetCookingScore: 20 },
-        { id: 27, name: "Pommes de terre Assaisonnée+", cat: "combinaison", subcat: "side", iconIndex: 1, canPot : false, canRotisserie: true, baseTasteScore: 13, targetCookingScore: 20 },
+        { id: 21, name: "Pommes de terre Salée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot: false, canRotisserie: true, baseTasteScore: 7, targetCookingScore: 20 },
+        { id: 22, name: "Pommes de terre Poivrée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot: false, canRotisserie: true, baseTasteScore: 7, targetCookingScore: 20 },
+        { id: 23, name: "Pommes de terre Aromatisée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot: false, canRotisserie: true, baseTasteScore: 9, targetCookingScore: 20 },
+        { id: 24, name: "Pommes de terre Aromatisée Salée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot: false, canRotisserie: true, baseTasteScore: 11, targetCookingScore: 20 },
+        { id: 25, name: "Pommes de terre Aromatisée Poivrée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot: false, canRotisserie: true, baseTasteScore: 11, targetCookingScore: 20 },
+        { id: 26, name: "Pommes de terre Assaisonnée", cat: "combinaison", subcat: "side", iconIndex: 1, canPot: false, canRotisserie: true, baseTasteScore: 9, targetCookingScore: 20 },
+        { id: 27, name: "Pommes de terre Assaisonnée+", cat: "combinaison", subcat: "side", iconIndex: 1, canPot: false, canRotisserie: true, baseTasteScore: 13, targetCookingScore: 20 },
     ];
     var PotRules = {
         rules: {
@@ -743,6 +747,7 @@
         this.setPlateActionBarVisible(false);
         this.setActionBarVisible(false);
         this.setRotiActionBarVisible(false);
+        this.setPotActionBarVisible(false);
         if (this._actionBar) this._actionBar.deactivate();
         if (this._rotiActionBar) this._rotiActionBar.deactivate();
 
@@ -964,9 +969,7 @@
     Scene_CookingBase.prototype.onZoneCancelLocked = function () {
         SoundManager.playBuzzer();
         if (this._helpWindow) {
-            this._helpWindow.setText(
-                "Échap désactivé : va dans Dressage (Entrée), puis choisis \"Finaliser plat\" pour quitter."
-            );
+            this._helpWindow.setText(TEXT_DISABLED_EXIT);
         }
         this._zoneWindow.deactivate();
         this._zoneWindow.activate();
@@ -1235,7 +1238,7 @@
         $gameVariables.setValue(PLATE_DISH_SCORE_VARIABLE_ID, dishScore);
         $gameVariables.setValue(PLATE_DISH_SCORE_TOTAL_VARIABLE_ID, dishScore.total);
         SoundManager.playOk();
-        if (this._helpWindow) this._helpWindow.setText("Dressage : plat final dressé.");
+        if (this._helpWindow) this._helpWindow.setText(TEXT_END_DISH);
         this._plateWindow.clearAll();
         this.onPlateActionCancel();
         setTimeout(() => { SceneManager.pop() }, 2000)
@@ -1844,8 +1847,21 @@
         var rect = this.itemRect(index);
         rect.width -= this.textPadding();
         this.resetTextColor();
-        this.drawIngredientIcon(item.iconIndex, rect.x, rect.y + 2);
-        this.drawText(item.name, rect.x + 36, rect.y, rect.width - 36, rect.height);
+
+        var ICON_W = ING_ICON_W;           // largeur de l’icône
+        var GAP = 4;                    // petit espace entre icône et texte
+        var ix = rect.x;
+        var iy = rect.y + 2;
+
+        // 1) Icône dans la sous-zone 1
+        this.drawIngredientIcon(item.iconIndex, ix, iy);
+
+        // 2) Texte dans la sous-zone 2
+        //    -> on conserve la largeur "rect.width" (pas de -36),
+        //       mais on décale le x de (ICON_W + GAP)
+        var tx = rect.x + ICON_W + GAP;
+        var tw = rect.width;               // largeur identique à l’actuel rect
+        this.drawText(item.name, tx, rect.y, tw, rect.height);
     };
 
     Window_CookingItemList.prototype.drawIngredientIcon = function (iconIndex, x, y) {
@@ -1874,13 +1890,29 @@
 
     Window_CookingWorkbench.prototype.itemRect = function (index) {
         var rect = new Rectangle();
-        var boxW = 96, boxH = 72;
+        var boxW = ITEM_BOX_W, boxH = ITEM_BOX_H;
         rect.width = boxW;
         rect.height = boxH;
         rect.x = Math.floor((this.contentsWidth() - boxW) / 2);
         rect.y = Math.floor((this.contentsHeight() - boxH) / 2);
         return rect;
     };
+
+    // Icône à gauche, centrée verticalement dans 'rect'; texte à droite
+    function drawIconAndTextInBox(win, rect, iconIndex, text) {
+        var ICON_W = ING_ICON_W, ICON_H = ING_ICON_H;
+        var PAD_L = 8, PAD_R = 8, GAP = 8;
+
+        var ix = rect.x + PAD_L;
+        var iy = rect.y + Math.floor((rect.height - ICON_H) / 2);
+        win.drawIngredientIcon(iconIndex, ix, iy);
+
+        var tx = ix + ICON_W + GAP;
+        var tw = rect.width - (tx - rect.x) - PAD_R;
+        var ty = rect.y + Math.floor((rect.height - win.lineHeight()) / 2);
+
+        win.drawText(text || "", tx, ty, tw, "left");
+    }
 
     Window_CookingWorkbench.prototype.refresh = function () {
         this.contents.clear();
@@ -1892,17 +1924,8 @@
         this.changeTextColor(this.normalColor());
 
         if (this._stack.length > 0) {
-            // Dessiner la pile (jusqu'à 3 icônes)
-            var maxIcons = Math.min(3, this._stack.length);
-            for (var i = 0; i < maxIcons; i++) {
-                var it = this._stack[this._stack.length - 1 - i]; // du haut vers le bas
-                var dx = rect.x + 8 + i * 18;
-                var dy = rect.y + 8 + i * 6;
-                this.drawIngredientIcon(it.iconIndex, dx, dy);
-            }
-            // Nom du top
             var top = this._stack[this._stack.length - 1];
-            this.drawText(top.name, rect.x + 8, rect.y + rect.height - this.lineHeight(), rect.width - 16, "center");
+            drawIconAndTextInBox(this, rect, top.iconIndex, top.name);
         } else {
             this.changeTextColor(this.textColor(7));
             this.drawText("(vide)", rect.x, rect.y + rect.height / 2 - this.lineHeight() / 2, rect.width, "center");
@@ -2000,7 +2023,7 @@
         var cw = this.contentsWidth(), ch = this.contentsHeight();
         var slotW = 280, slotH = this.lineHeight() + 12;
         var sx = Math.floor((cw - slotW) / 2);
-        var sy = Math.floor((ch - slotH) / 2);
+        var sy = Math.floor((ch - slotH) / 2) + 6;
         this.contents.fillRect(sx, sy, slotW, slotH, "rgba(255,255,255,0.10)");
 
         if (this._heldItem) {
@@ -2045,7 +2068,7 @@
 
     Window_CookingRotisserie.prototype.itemRect = function () {
         var rect = new Rectangle();
-        var boxW = 96, boxH = 72;
+        var boxW = ITEM_BOX_W, boxH = ITEM_BOX_H;
         rect.width = boxW;
         rect.height = boxH;
         rect.x = Math.floor((this.contentsWidth() - boxW) / 2);
@@ -2063,18 +2086,11 @@
         this.changeTextColor(this.normalColor());
 
         if (this._stack.length > 0) {
-            var maxIcons = Math.min(3, this._stack.length);
-            for (var i = 0; i < maxIcons; i++) {
-                var it = this._stack[this._stack.length - 1 - i];
-                var dx = rect.x + 8 + i * 18;
-                var dy = rect.y + 8 + i * 6;
-                this.drawIngredientIcon(it.iconIndex, dx, dy);
-            }
             var top = this._stack[this._stack.length - 1];
-            this.drawText(top.name, rect.x + 8, rect.y + rect.height - this.lineHeight(), rect.width - 16, "center");
+            drawIconAndTextInBox(this, rect, top.iconIndex, top.name);
         } else {
             this.changeTextColor(this.textColor(7));
-            this.drawText("(vide — viande uniquement)", rect.x, rect.y + rect.height / 2 - this.lineHeight() / 2, rect.width, "center");
+            this.drawText("(vide)", rect.x, rect.y + rect.height / 2 - this.lineHeight() / 2, rect.width, "center");
             this.changeTextColor(this.normalColor());
         }
         this.drawCookBar();
@@ -2522,7 +2538,10 @@
             } else {
                 bmp.addLoadListener(this.refresh.bind(this));
             }
-            this.drawText(item.name, bx + 8 + 36, by + 4, boxW - 44);
+            var ICON_W = ING_ICON_W, GAP = 4;
+            var tx = bx + 8 + ICON_W + GAP;
+            var tw = boxW - 16; // on garde la largeur “normale” de la boîte (8px marges)
+            this.drawText(item.name, tx, by + 4, tw);
         }
     };
 
@@ -2600,7 +2619,7 @@
     Window_CookingPot.prototype.maxItems = function () { return 1; };
     Window_CookingPot.prototype.maxCols = function () { return 1; };
     Window_CookingPot.prototype.itemRect = function () {
-        var rect = new Rectangle(); var boxW = 96, boxH = 72;
+        var rect = new Rectangle(); var boxW = ITEM_BOX_W, boxH = ITEM_BOX_H;
         rect.width = boxW; rect.height = boxH;
         rect.x = Math.floor((this.contentsWidth() - boxW) / 2);
         rect.y = Math.floor((this.contentsHeight() - boxH) / 2);
@@ -2616,17 +2635,11 @@
         this.changeTextColor(this.normalColor());
 
         if (this._stack.length > 0) {
-            var maxIcons = Math.min(3, this._stack.length);
-            for (var i = 0; i < maxIcons; i++) {
-                var it = this._stack[this._stack.length - 1 - i];
-                var dx = rect.x + 8 + i * 18, dy = rect.y + 8 + i * 6;
-                this.drawIngredientIcon(it.iconIndex, dx, dy);
-            }
             var top = this._stack[this._stack.length - 1];
-            this.drawText(top.name, rect.x + 8, rect.y + rect.height - this.lineHeight(), rect.width - 16, "center");
+            drawIconAndTextInBox(this, rect, top.iconIndex, top.name);
         } else {
             this.changeTextColor(this.textColor(7));
-            this.drawText("(vide — plat/principal/side)", rect.x, rect.y + rect.height / 2 - this.lineHeight() / 2, rect.width, "center");
+            this.drawText("(vide)", rect.x, rect.y + rect.height / 2 - this.lineHeight() / 2, rect.width, "center");
             this.changeTextColor(this.normalColor());
         }
         this.drawCookBar(); // même barre/gradient que rôtisserie
