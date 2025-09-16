@@ -80,7 +80,15 @@
             plate: "Dressage : Entrée = déposer/prendre | ↓ = Actions \n Échap/↑ = retour",
             pot: "Casserole : Entrée = déposer/prendre | ↓ = Actions \n Échap = retour",
             disabledExit: "Échap désactivé : va dans Dressage (Entrée), puis choisis \"Finaliser plat\" pour quitter.",
-            endDish: "Dressage : plat final dressé."
+            endDish: "Dressage : plat final dressé.",
+            errorNoItem: "Aucun objet en main.",
+            errorAlreadyPot: "Déjà cuit à la casserole \n interdit en rôtissoire.",
+            errorCantStartRoti: "Cet ingrédient ne peut pas \n démarrer en rôtissoire.",
+            errorCombine: "Impossible de combiner \n ces deux ingrédients ici.",
+            errorImpossibleAction: "Action impossible.",
+            errorAlreadyRoti: "Déjà cuit à la rôtissoire \n interdit en casserole.",
+            errorCantStartPot: "Cet ingrédient ne peut pas \n démarrer en casserole.",
+            errorNoCombine: "Pas de combinaison connue \n pour ces deux ingrédients.",
         },
         modes: {
             zones: "zones",
@@ -156,14 +164,14 @@
         { id: 26, name: "Pommes de terre Assaisonnée", cat: "combinaison", subcat: "side", iconIndex: 118, canPot: false, canRotisserie: true, baseTasteScore: 9, targetCookingScore: 20 },
         { id: 27, name: "Pommes de terre Assaisonnée+", cat: "combinaison", subcat: "side", iconIndex: 119, canPot: false, canRotisserie: true, baseTasteScore: 12, targetCookingScore: 20 },
 
-        { id: 28, name: "Pommes Vapeur", cat: "combinaison", subcat: "side", iconIndex: 120, canPot: false, canRotisserie: true, baseTasteScore: 7, targetCookingScore: 20 },
-        { id: 29, name: "Pommes Vapeur Salée", cat: "combinaison", subcat: "side", iconIndex: 121, canPot: false, canRotisserie: true, baseTasteScore: 8, targetCookingScore: 20 },
-        { id: 30, name: "Pommes Vapeur Poivrée", cat: "combinaison", subcat: "side", iconIndex: 122, canPot: false, canRotisserie: true, baseTasteScore: 8, targetCookingScore: 20 },
-        { id: 31, name: "Pommes Vapeur Aromatisée", cat: "combinaison", subcat: "side", iconIndex: 123, canPot: false, canRotisserie: true, baseTasteScore: 10, targetCookingScore: 20 },
-        { id: 32, name: "Pommes Vapeur Aromatisée Salée", cat: "combinaison", subcat: "side", iconIndex: 124, canPot: false, canRotisserie: true, baseTasteScore: 11, targetCookingScore: 20 },
-        { id: 33, name: "Pommes Vapeur Aromatisée Poivrée", cat: "combinaison", subcat: "side", iconIndex: 125, canPot: false, canRotisserie: true, baseTasteScore: 11, targetCookingScore: 20 },
-        { id: 34, name: "Pommes Vapeur Assaisonnée", cat: "combinaison", subcat: "side", iconIndex: 126, canPot: false, canRotisserie: true, baseTasteScore: 9, targetCookingScore: 20 },
-        { id: 35, name: "Pommes Vapeur Assaisonnée+", cat: "combinaison", subcat: "side", iconIndex: 127, canPot: false, canRotisserie: true, baseTasteScore: 12, targetCookingScore: 20 },
+        { id: 28, name: "Pommes Vapeur", cat: "combinaison", subcat: "side", iconIndex: 120, canPot: true, canRotisserie: false, baseTasteScore: 7, targetCookingScore: 20 },
+        { id: 29, name: "Pommes Vapeur Salée", cat: "combinaison", subcat: "side", iconIndex: 121, canPot: true, canRotisserie: false, baseTasteScore: 8, targetCookingScore: 20 },
+        { id: 30, name: "Pommes Vapeur Poivrée", cat: "combinaison", subcat: "side", iconIndex: 122, canPot: true, canRotisserie: false, baseTasteScore: 8, targetCookingScore: 20 },
+        { id: 31, name: "Pommes Vapeur Aromatisée", cat: "combinaison", subcat: "side", iconIndex: 123, canPot: true, canRotisserie: false, baseTasteScore: 10, targetCookingScore: 20 },
+        { id: 32, name: "Pommes Vapeur Aromatisée Salée", cat: "combinaison", subcat: "side", iconIndex: 124, canPot: true, canRotisserie: false, baseTasteScore: 11, targetCookingScore: 20 },
+        { id: 33, name: "Pommes Vapeur Aromatisée Poivrée", cat: "combinaison", subcat: "side", iconIndex: 125, canPot: true, canRotisserie: false, baseTasteScore: 11, targetCookingScore: 20 },
+        { id: 34, name: "Pommes Vapeur Assaisonnée", cat: "combinaison", subcat: "side", iconIndex: 126, canPot: true, canRotisserie: false, baseTasteScore: 9, targetCookingScore: 20 },
+        { id: 35, name: "Pommes Vapeur Assaisonnée+", cat: "combinaison", subcat: "side", iconIndex: 127, canPot: true, canRotisserie: false, baseTasteScore: 12, targetCookingScore: 20 },
         
         { id: 36, name: "Fond de veau", cat: "condiment", subcat: "condiment", iconIndex: 3, canPot: false, canRotisserie: false, baseTasteScore: 5, targetCookingScore: 0 },
 
@@ -175,6 +183,51 @@
         { id: 42, name: "Sauce Brune Aromatisée Poivrée", cat: "combinaison", subcat: "condiment", iconIndex: 221, canPot: true, canRotisserie: false, baseTasteScore: 9, targetCookingScore: 10 },
         { id: 43, name: "Sauce Brune Assaisonnée", cat: "combinaison", subcat: "condiment", iconIndex: 222, canPot: true, canRotisserie: false, baseTasteScore: 7, targetCookingScore: 10 },
         { id: 44, name: "Sauce Brune Assaisonnée+", cat: "combinaison", subcat: "condiment", iconIndex: 223, canPot: true, canRotisserie: false, baseTasteScore: 10, targetCookingScore: 10 },
+
+
+        { id: 45, name: "Oignon", cat: "side", subcat: "side", iconIndex: 128, canPot: false, canRotisserie: false, baseTasteScore: 4, targetCookingScore: 0 },
+        { id: 46, name: "Champignon", cat: "side", subcat: "side", iconIndex: 129, canPot: false, canRotisserie: false, baseTasteScore: 3, targetCookingScore: 0 },
+        { id: 47, name: "Carotte", cat: "combinaison", subcat: "side", iconIndex: 130, canPot: false, canRotisserie: false, baseTasteScore: 4, targetCookingScore: 0 },
+
+        { id: 48, name: "Crème", cat: "condiment", subcat: "condiment", iconIndex: 224, canPot: true, canRotisserie: false, baseTasteScore: 5, targetCookingScore: 10 },
+        { id: 49, name: "Crème Salée", cat: "combinaison", subcat: "condiment", iconIndex: 225, canPot: true, canRotisserie: false, baseTasteScore: 6, targetCookingScore: 10 },
+        { id: 50, name: "Crème Poivrée", cat: "combinaison", subcat: "condiment", iconIndex: 226, canPot: true, canRotisserie: false, baseTasteScore: 6, targetCookingScore: 10 },
+        { id: 51, name: "Crème Assaisonnée", cat: "combinaison", subcat: "condiment", iconIndex: 227, canPot: true, canRotisserie: false, baseTasteScore: 7, targetCookingScore: 10 },
+        { id: 52, name: "Sauce Champignon", cat: "combinaison", subcat: "condiment", iconIndex: 228, canPot: true, canRotisserie: false, baseTasteScore: 8, targetCookingScore: 13 },
+        { id: 53, name: "Sauce Champignon Salée", cat: "combinaison", subcat: "condiment", iconIndex: 229, canPot: true, canRotisserie: false, baseTasteScore: 9, targetCookingScore: 13 },
+        { id: 54, name: "Sauce Champignon Poivrée", cat: "combinaison", subcat: "condiment", iconIndex: 230, canPot: true, canRotisserie: false, baseTasteScore: 9, targetCookingScore: 13 },
+        { id: 55, name: "Sauce Champignon Assaisonnée", cat: "combinaison", subcat: "condiment", iconIndex: 231, canPot: true, canRotisserie: false, baseTasteScore: 10, targetCookingScore: 13 },
+        { id: 56, name: "Sauce Champignon et Oignon", cat: "combinaison", subcat: "condiment", iconIndex: 232, canPot: true, canRotisserie: false, baseTasteScore: 12, targetCookingScore: 16 },
+        { id: 57, name: "Sauce Champignon et Oignon Salée", cat: "combinaison", subcat: "condiment", iconIndex: 233, canPot: true, canRotisserie: false, baseTasteScore: 13, targetCookingScore: 16 },
+        { id: 58, name: "Sauce Champignon et Oignon Poivrée", cat: "combinaison", subcat: "condiment", iconIndex: 234, canPot: true, canRotisserie: false, baseTasteScore: 13, targetCookingScore: 16 },
+        { id: 59, name: "Sauce Champignon et Oignon Assaisonnée", cat: "combinaison", subcat: "condiment", iconIndex: 235, canPot: true, canRotisserie: false, baseTasteScore: 14, targetCookingScore: 16 },
+
+        
+        { id: 60, name: "Purée", cat: "combinaison", subcat: "side", iconIndex: 136, canPot: true, canRotisserie: false, baseTasteScore: 12, targetCookingScore: 25 },
+        { id: 61, name: "Purée Salée", cat: "combinaison", subcat: "side", iconIndex: 137, canPot: true, canRotisserie: false, baseTasteScore: 13, targetCookingScore: 25 },
+        { id: 62, name: "Purée Poivrée", cat: "combinaison", subcat: "side", iconIndex: 138, canPot: true, canRotisserie: false, baseTasteScore: 13, targetCookingScore: 25 },
+        { id: 63, name: "Purée Aromatisée", cat: "combinaison", subcat: "side", iconIndex: 139, canPot: true, canRotisserie: false, baseTasteScore: 15, targetCookingScore: 25 },
+        { id: 64, name: "Purée Aromatisée Salée", cat: "combinaison", subcat: "side", iconIndex: 140, canPot: true, canRotisserie: false, baseTasteScore: 16, targetCookingScore: 25 },
+        { id: 65, name: "Purée Aromatisée Poivrée", cat: "combinaison", subcat: "side", iconIndex: 141, canPot: true, canRotisserie: false, baseTasteScore: 16, targetCookingScore: 25 },
+        { id: 66, name: "Purée Assaisonnée", cat: "combinaison", subcat: "side", iconIndex: 142, canPot: true, canRotisserie: false, baseTasteScore: 14, targetCookingScore: 25 },
+        { id: 67, name: "Purée Assaisonnée+", cat: "combinaison", subcat: "side", iconIndex: 143, canPot: true, canRotisserie: false, baseTasteScore: 17, targetCookingScore: 25 },
+
+
+        { id: 68, name: "Huile", cat: "condiment", subcat: "condiment", iconIndex: 240, canPot: true, canRotisserie: false, baseTasteScore: 4, targetCookingScore: 0 },
+        { id: 69, name: "Huile Salée", cat: "combinaison", subcat: "condiment", iconIndex: 241, canPot: true, canRotisserie: false, baseTasteScore: 5, targetCookingScore: 0 },
+        { id: 70, name: "Huile Poivrée", cat: "combinaison", subcat: "condiment", iconIndex: 242, canPot: true, canRotisserie: false, baseTasteScore: 5, targetCookingScore: 0 },
+        { id: 71, name: "Huile Assaisonnée", cat: "combinaison", subcat: "condiment", iconIndex: 243, canPot: true, canRotisserie: false, baseTasteScore: 6, targetCookingScore: 0 },
+        { id: 72, name: "Marinade", cat: "combinaison", subcat: "condiment", iconIndex: 244, canPot: false, canRotisserie: false, baseTasteScore: 7, targetCookingScore: 0 },
+        { id: 73, name: "Marinade Salée", cat: "combinaison", subcat: "condiment", iconIndex: 245, canPot: false, canRotisserie: false, baseTasteScore: 8, targetCookingScore: 0 },
+        { id: 74, name: "Marinade Poivrée", cat: "combinaison", subcat: "condiment", iconIndex: 246, canPot: false, canRotisserie: false, baseTasteScore: 8, targetCookingScore: 0 },
+        { id: 75, name: "Marinade Assaisonnée", cat: "combinaison", subcat: "condiment", iconIndex: 247, canPot: false, canRotisserie: false, baseTasteScore: 9, targetCookingScore: 0 },
+        
+        { id: 76, name: "Sanglier Marinée", cat: "combinaison", subcat: "main", iconIndex: 24, canPot: false, canRotisserie: true, baseTasteScore: 17, targetCookingScore: 50 },
+        { id: 77, name: "Sanglier Marinée Salée", cat: "combinaison", subcat: "main", iconIndex: 25, canPot: false, canRotisserie: true, baseTasteScore: 18, targetCookingScore: 50 },
+        { id: 78, name: "Sanglier Marinée Poivrée", cat: "combinaison", subcat: "main", iconIndex: 26, canPot: false, canRotisserie: true, baseTasteScore: 18, targetCookingScore: 50 },
+        { id: 79, name: "Sanglier Marinée Assaisonnée", cat: "combinaison", subcat: "main", iconIndex: 27, canPot: false, canRotisserie: true, baseTasteScore: 19, targetCookingScore: 50 },
+
+
     ];
     window.CookingIngredients = CookingIngredients;
 
@@ -407,7 +460,6 @@
     // canPlace(base, top) : true si on peut poser "top" par-dessus "base"
     var WorkbenchRules = new CombinationRuleSet({
             1: {},
-            2: {},
             3: { // Herbes
                 1: 16,
                 2: 23,
@@ -421,6 +473,22 @@
                 21: 24,
                 22: 25,
                 26: 27,
+                28: 31,
+                29: 32,
+                30: 33,
+                34: 35,
+                37: 40,
+                38: 41,
+                39: 42,
+                43: 44,
+                60: 63,
+                61: 64,
+                62: 65,
+                66: 67,
+                68: 72,
+                69: 73,
+                70: 74,
+                71: 75,
             },
             4: { // Sel
                 1: 14,
@@ -435,6 +503,30 @@
                 22: 26,
                 23: 24,
                 25: 27,
+                28: 29,
+                30: 34,
+                31: 32,
+                33: 35,
+                37: 38,
+                39: 43,
+                40: 41,
+                42: 44,
+                48: 49,
+                50: 51,
+                52: 53,
+                54: 55,
+                56: 57,
+                58: 59,
+                60: 61,
+                62: 66,
+                63: 64,
+                65: 67,
+                68: 69,
+                70: 71,
+                72: 73,
+                74: 75,
+                76: 77,
+                78: 79,
             },
             5: { // Poivre
                 1: 15,
@@ -449,10 +541,132 @@
                 21: 26,
                 23: 25,
                 24: 27,
+                28: 30,
+                29: 34,
+                31: 33,
+                32: 35,
+                37: 39,
+                38: 43,
+                40: 42,
+                41: 44,
+                48: 50,
+                49: 51,
+                52: 54,
+                53: 55,
+                56: 58,
+                57: 59,
+                60: 62,
+                61: 66,
+                63: 65,
+                64: 67,
+                68: 70,
+                69: 71,
+                72: 74,
+                73: 75,
+                76: 78,
+                77: 79,
             },
             6: {},
             7: {},
-            8: {}
+            8: {},
+
+            //Sauces Champignons Oignon
+            45: {
+                52: 56,
+                53: 57,
+                54: 58,
+                55: 59,
+            },
+            46: {
+                48: 52,
+                49: 53,
+                50: 54,
+                51: 55,
+            },
+
+            //Purée
+            48: {
+                28: 60,
+                29: 61,
+                30: 62,
+                31: 63,
+                32: 64,
+                33: 65,
+                34: 66,
+                35: 67,
+            },
+            49: {
+                28: 61,
+                29: 66,
+                30: 62,
+                31: 64,
+                32: 64,
+                33: 67,
+                34: 66,
+                35: 67,
+            },
+            50: {
+                28: 62,
+                29: 66,
+                30: 62,
+                31: 65,
+                32: 67,
+                33: 65,
+                34: 66,
+                35: 67,
+            },
+            51: {
+                28: 63,
+                29: 64,
+                30: 65,
+                31: 63,
+                32: 64,
+                33: 65,
+                34: 67,
+                35: 67,
+            },
+
+            //Marinade
+            72: {
+                1: 76,
+                14 : 77,
+                15 : 78,
+                16 : 76,
+                17 : 77,
+                18 : 78,
+                19 : 79,
+                20 : 79,
+            },
+            73: {
+                1: 77,
+                14 : 77,
+                15 : 79,
+                16 : 77,
+                17 : 77,
+                18 : 79,
+                19 : 79,
+                20 : 79,
+            },
+            74: {
+                1: 78,
+                14 : 79,
+                15 : 78,
+                16 : 78,
+                17 : 79,
+                18 : 78,
+                19 : 79,
+                20 : 79,
+            },
+            75: {
+                1: 79,
+                14 : 79,
+                15 : 79,
+                16 : 79,
+                17 : 79,
+                18 : 79,
+                19 : 79,
+                20 : 79,
+            },
         }, {
             canStart: function () { return true; }
         });
@@ -476,6 +690,22 @@
                 21: 24,
                 22: 25,
                 26: 27,
+                28: 31,
+                29: 32,
+                30: 33,
+                34: 35,
+                37: 40,
+                38: 41,
+                39: 42,
+                43: 44,
+                60: 63,
+                61: 64,
+                62: 65,
+                66: 67,
+                68: 72,
+                69: 73,
+                70: 74,
+                71: 75,
             },
             4: { // Sel
                 1: 14,
@@ -490,6 +720,30 @@
                 22: 26,
                 23: 24,
                 25: 27,
+                28: 29,
+                30: 34,
+                31: 32,
+                33: 35,
+                37: 38,
+                39: 43,
+                40: 41,
+                42: 44,
+                48: 49,
+                50: 51,
+                52: 53,
+                54: 55,
+                56: 57,
+                58: 59,
+                60: 61,
+                62: 66,
+                63: 64,
+                65: 67,
+                68: 69,
+                70: 71,
+                72: 73,
+                74: 75,
+                76: 77,
+                78: 79,
             },
             5: { // Poivre
                 1: 15,
@@ -504,10 +758,76 @@
                 21: 26,
                 23: 25,
                 24: 27,
+                28: 30,
+                29: 34,
+                31: 33,
+                32: 35,
+                37: 39,
+                38: 43,
+                40: 42,
+                41: 44,
+                48: 50,
+                49: 51,
+                52: 54,
+                53: 55,
+                56: 58,
+                57: 59,
+                60: 62,
+                61: 66,
+                63: 65,
+                64: 67,
+                68: 70,
+                69: 71,
+                72: 74,
+                73: 75,
+                76: 78,
+                77: 79,
             },
             6: {},
             7: {},
-            8: {}
+            8: {},
+            //Marinade
+            72: {
+                1: 76,
+                14 : 77,
+                15 : 78,
+                16 : 76,
+                17 : 77,
+                18 : 78,
+                19 : 79,
+                20 : 79,
+            },
+            73: {
+                1: 77,
+                14 : 77,
+                15 : 79,
+                16 : 77,
+                17 : 77,
+                18 : 79,
+                19 : 79,
+                20 : 79,
+            },
+            74: {
+                1: 78,
+                14 : 79,
+                15 : 78,
+                16 : 78,
+                17 : 79,
+                18 : 78,
+                19 : 79,
+                20 : 79,
+            },
+            75: {
+                1: 79,
+                14 : 79,
+                15 : 79,
+                16 : 79,
+                17 : 79,
+                18 : 79,
+                19 : 79,
+                20 : 79,
+            },
+
         }, {
             canStart: function (item) { return !!(item && item.canRotisserie); }
         });
@@ -515,20 +835,101 @@
 
 
     var PotRules = new CombinationRuleSet({
+            //Pomme Vapeur
             2: {
                 6: 28,
-                7: 29,
+                7: 29, 
                 8: 30,
-                9: 31,
+                9: 31, // Arome
+                10: 32, // Arome Sel
+                11: 33, // Arome Poivre
+                12: 34, // Arome Assaisonné
+                13: 35, // Arome Assaisonné+
+            },
+            21: {
+                6: 29,
+                7: 29,
+                8: 34,
+                9: 32,
                 10: 32,
+                11: 35,
+                12: 34,
+                13: 35,
+            },
+            22: {
+                6: 30,
+                7: 34,
+                8: 30,
+                9: 33,
+                10: 35,
                 11: 33,
                 12: 34,
                 13: 35,
             },
-            3: {
+            23: {
+                6: 31,
+                7: 32,
+                8: 33,
+                9: 31,
+                10: 32,
+                11: 33,
+                12: 35,
+                13: 35,
+            },
+            24: {
+                6: 32,
+                7: 32,
+                8: 35,
+                9: 32,
+                10: 32,
+                11: 35,
+                12: 35,
+                13: 35,
+            },
+            25: {
+                6: 33,
+                7: 35,
+                8: 33,
+                9: 33,
+                10: 35,
+                11: 33,
+                12: 35,
+                13: 35,
+            },
+            26: {
+                6: 34,
+                7: 34,
+                8: 34,
+                9: 35,
+                10: 35,
+                11: 35,
+                12: 34,
+                13: 35,
+            },
+            27: {
+                6: 35,
+                7: 35,
+                8: 35,
+                9: 35,
+                10: 35,
+                11: 35,
+                12: 35,
+                13: 35,
+            },
+
+            3: { // Herbes
+                1: 16,
+                2: 23,
                 6: 9,
                 7: 10,
                 8: 11,
+                12: 13,
+                14: 17,
+                15: 18,
+                19: 20,
+                21: 24,
+                22: 25,
+                26: 27,
                 28: 31,
                 29: 32,
                 30: 33,
@@ -537,35 +938,93 @@
                 38: 41,
                 39: 42,
                 43: 44,
+                60: 63,
+                61: 64,
+                62: 65,
+                66: 67,
+                68: 72,
+                69: 73,
+                70: 74,
+                71: 75,
             },
             4: { // Sel
+                1: 14,
+                2: 21,
                 6: 7,
                 8: 12,
                 9: 10,
                 11: 13,
+                15: 19,
+                16: 17,
+                18: 20,
+                22: 26,
+                23: 24,
+                25: 27,
                 28: 29,
-                30: 32,
-                31: 33,
+                30: 34,
+                31: 32,
                 33: 35,
                 37: 38,
                 39: 43,
                 40: 41,
                 42: 44,
+                48: 49,
+                50: 51,
+                52: 53,
+                54: 55,
+                56: 57,
+                58: 59,
+                60: 61,
+                62: 66,
+                63: 64,
+                65: 67,
+                68: 69,
+                70: 71,
+                72: 73,
+                74: 75,
+                76: 77,
+                78: 79,
             },
             5: { // Poivre
+                1: 15,
+                2: 22,
                 6: 8,
                 7: 12,
                 9: 11,
                 10: 13,
+                14: 19,
+                16: 18,
+                17: 20,
+                21: 26,
+                23: 25,
+                24: 27,
                 28: 30,
-                29: 32,
-                32: 33,
-                34: 35,
+                29: 34,
+                31: 33,
+                32: 35,
                 37: 39,
                 38: 43,
                 40: 42,
                 41: 44,
+                48: 50,
+                49: 51,
+                52: 54,
+                53: 55,
+                56: 58,
+                57: 59,
+                60: 62,
+                61: 66,
+                63: 65,
+                64: 67,
+                68: 70,
+                69: 71,
+                72: 74,
+                73: 75,
+                76: 78,
+                77: 79,
             },
+
+
             36: { // Fond de veau
                 6: 37,
                 7: 38,
@@ -575,7 +1034,64 @@
                 11: 42,
                 12: 43,
                 13: 44,
-            }
+            },
+            
+            //Sauces Champignons Oignon
+            45: {
+                52: 56,
+                53: 57,
+                54: 58,
+                55: 59,
+            },
+            46: {
+                48: 52,
+                49: 53,
+                50: 54,
+                51: 55,
+            },
+
+            //Purée
+            48: {
+                28: 60,
+                29: 61,
+                30: 62,
+                31: 63,
+                32: 64,
+                33: 65,
+                34: 66,
+                35: 67,
+            },
+            49: {
+                28: 61,
+                29: 66,
+                30: 62,
+                31: 64,
+                32: 64,
+                33: 67,
+                34: 66,
+                35: 67,
+            },
+            50: {
+                28: 62,
+                29: 66,
+                30: 62,
+                31: 65,
+                32: 67,
+                33: 65,
+                34: 66,
+                35: 67,
+            },
+            51: {
+                28: 63,
+                29: 64,
+                30: 65,
+                31: 63,
+                32: 64,
+                33: 65,
+                34: 67,
+                35: 67,
+            },
+
         }, {
             canStart: function (item) {
                 if (!item) return false;
@@ -712,43 +1228,32 @@
             });
 
             var finalScore = 0;
+            
+            // 3) Calculer le score total
+            for (var k = 0; k < kept.length; k++) {
+                var entry = kept[k];
+                var score = dishScoreSingle(entry, ingredientsListMap);
+                finalScore += score;
+            }
 
             // 4) Vérifier la contrainte "mandatoryDishId": [[A,B], [C,D], ...] => (A|B)&(C|D)...
-            var mandatoryFail = false;
+            var mandatoryOk = true;
             if (mandatoryDishId && mandatoryDishId.length) {
-
-                // Construire l'ensemble des IDs présents dans le plat (à partir de results bruts)
-                var present = {};
-                for (var r = 0; r < kept.length; r++) {
-                    var it = kept[r];
-                    if (it && it.id != null) present[it.id] = true;
-                }
-
-                for (var i = 0; i < mandatoryDishId.length; i++) {
-                    var group = mandatoryDishId[i];
-                    var testGroup = false;
-                    for (var j = 0; j < group.length; j++) {
-                        var id = group[j];
-                        if (present[id]) {
-                            testGroup = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!testGroup) {
-                    mandatoryFail = true;
-                }
+            var present = {};
+            for (var r = 0; r < kept.length; r++) {
+                var it = kept[r];
+                if (it && it.id != null) present[it.id] = true;
             }
-
-            if (!mandatoryFail) {
-                // 3) Calculer le score total
-                for (var k = 0; k < kept.length; k++) {
-                    var entry = kept[k];
-                    var score = dishScoreSingle(entry, ingredientsListMap);
-                    finalScore += score;
+            for (var gi = 0; gi < mandatoryDishId.length; gi++) {
+                var group = mandatoryDishId[gi];
+                var groupOk = false;
+                for (var oi = 0; oi < group.length; oi++) {
+                if (present[group[oi]]) { groupOk = true; break; }
                 }
+                if (!groupOk) { mandatoryOk = false; break; }
             }
+            }
+            if (!mandatoryOk) finalScore = 0;
 
             return {
                 total: finalScore,
@@ -840,6 +1345,29 @@
         if (!this._plateActionBar) return;
         if (visible) { this._plateActionBar.show(); this._plateActionBar.deactivate(); }
         else { this._plateActionBar.hide(); this._plateActionBar.deactivate(); }
+    };
+
+    
+    
+    Scene_CookingBase.prototype._whyCannotPlace = function(ctx, base, top){
+        if (!top) return Texts.errorNoItem;
+        if (ctx === 'roti') {
+            if (CookingUI.heldCookDevice && CookingUI.heldCookDevice() === 'pot')
+            return Texts.errorAlreadyPot;
+            if (!top.canRotisserie && !base) return Texts.errorCantStartRoti;
+            if (base && !RotisserieRules.getResultId(base, top)) return Texts.errorCombine;
+            return Texts.errorImpossibleAction;
+        } else if (ctx === 'pot') {
+            if (CookingUI.heldCookDevice && CookingUI.heldCookDevice() === 'roti')
+            return Texts.errorAlreadyRoti;
+            if (!PotRules.canStart(top) && !base) return Texts.errorCantStartPot;
+            if (base && !PotRules.getResultId(base, top)) return Texts.errorCombine;
+            return Texts.errorImpossibleAction;
+        } else if (ctx === 'bench') {
+            if (base && !WorkbenchRules.getResultId(base, top)) return Texts.errorNoCombine;
+            return Texts.errorImpossibleAction;
+        }
+        return Texts.errorImpossibleAction;
     };
 
     // Cache/désactive tout sauf le groupe du mode demandé
@@ -1198,6 +1726,12 @@
                 CookingUI.setHeldItem(null);
                 this.refreshBottomBar();
                 success = true;
+            } else {
+                SoundManager.playBuzzer();
+                this._potWindow.select(0);
+                this._potWindow.activate();
+                this._helpWindow.setText(this._whyCannotPlace('pot', this._potWindow.topItem && this._potWindow.topItem(), held));
+                return;
             }
         }
 
@@ -1453,6 +1987,12 @@
                         // WB.cookScore inchangé
                         // WB.cookDevice inchangé (on évite d’écraser 'roti' par null par ex.)
                     }
+                } else {
+                    SoundManager.playBuzzer();
+                    this._workbenchWindow.select(0);
+                    this._workbenchWindow.activate();
+                    this._helpWindow.setText(this._whyCannotPlace('bench', this._workbenchWindow.topItem && this._workbenchWindow.topItem(), held));
+                    return;
                 }
 
                 // Vider la main
@@ -1733,6 +2273,12 @@ Scene_CookingBase.prototype.doClearPot = function () {
                 CookingUI.setHeldItem(null);
                 this.refreshBottomBar();
                 success = true;
+            } else {
+                SoundManager.playBuzzer();
+                this._rotiWindow.select(0);
+                this._rotiWindow.activate();
+                this._helpWindow.setText(this._whyCannotPlace('roti', this._rotiWindow.topItem && this._rotiWindow.topItem(), held));
+                return;
             }
         }
 
@@ -2461,43 +3007,61 @@ Scene_CookingBase.prototype.doClearPot = function () {
     // (option) garde une hauteur compacte
     Window_CookHelp.prototype.lineHeight = function () { return this.standardFontSize() + 8; };
 
+    function _countLines(str) {
+        if (!str) return 0;
+        return (String(str).match(/\n/g) || []).length + 1;
+    }
+
     // --- Wrap doux, puis défilement auto s'il y a trop de lignes ---
-    Window_CookHelp.prototype.setText = function (text) {
-        text = text || "";
-        this._rawText = text;
+Window_CookHelp.prototype.setText = function (text) {
+    text = text || "";
+    this._rawText = text;
 
-        // 1) Wrap sur largeur (sans limiter à HelpConfig.lines)
-        this._wrappedText = this._wrapToWidth(this._rawText);
+    // 1) Wrap sur largeur (conserve les \n existants + ajoute des \n si nécessaire)
+    this._wrappedText = this._wrapToWidth(this._rawText);
 
-        // 2) Mesure de la hauteur totale du texte
-        this._fullTextHeight = this._measureTextHeight(this._wrappedText);
+    // 2) Mesure de la hauteur totale (peut sous-estimer selon certaines fontes)
+    this._fullTextHeight = this._measureTextHeight(this._wrappedText);
 
-        // 3) Active/désactive le scroll
-        this._needsScroll = (this._fullTextHeight > this.contentsHeight() + 1);
-        this._scrollOffset = 0;
-        this._scrollWait = this._needsScroll ? HelpConfig.scrollWait : 0;
+    // 3) Détermination robuste du scroll :
+    //    - si nbLignes > lignes visibles  OU  si hauteur mesurée > hauteur visible
+    var lineCount = _countLines(this._wrappedText);
+    var visibleLines = (HelpConfig && HelpConfig.lines) || 1;
+    var needByCount = lineCount > visibleLines;
+    var needByMeasure = (this._fullTextHeight > this.contentsHeight() + 1);
 
-        // Stocke le texte pour compat MV et déclenche refresh
-        this._text = this._wrappedText;
-        this.refresh();
-    };
+    this._needsScroll = (needByCount || needByMeasure);
+
+    // Reset offset/attente
+    this._scrollOffset = 0;
+    this._scrollWait = this._needsScroll ? HelpConfig.scrollWait : 0;
+
+    // Stockage + refresh
+    this._text = this._wrappedText;
+    this.refresh();
+};
 
     // Dessin avec offset vertical + boucle
-    Window_CookHelp.prototype.refresh = function () {
-        this.contents.clear();
-        if (!this._wrappedText) return;
+Window_CookHelp.prototype.refresh = function () {
+    // Recrée le canvas si la taille visible a changé (évite un ancien bitmap trop petit)
+    if (this._lastCW !== this.contentsWidth() || this._lastCH !== this.contentsHeight()) {
+        this._lastCW = this.contentsWidth();
+        this._lastCH = this.contentsHeight();
+        this.createContents();
+    }
 
-        var x = this.textPadding();
-        var y = -Math.floor(this._scrollOffset);
+    this.contents.clear();
+    if (!this._wrappedText) return;
 
-        // Dessine 1ère copie
-        this.drawTextEx(this._wrappedText, x, y);
+    var x = this.textPadding();
+    var y = -Math.floor(this._scrollOffset);
 
-        // Si on scrolle, on dessine une seconde copie plus bas pour boucler proprement
-        if (this._needsScroll) {
-            this.drawTextEx(this._wrappedText, x, y + this._fullTextHeight + HelpConfig.scrollGap);
-        }
-    };
+    this.drawTextEx(this._wrappedText, x, y);
+
+    if (this._needsScroll) {
+        this.drawTextEx(this._wrappedText, x, y + this._fullTextHeight + HelpConfig.scrollGap);
+    }
+};
 
     // Animation
     Window_CookHelp.prototype.update = function () {
